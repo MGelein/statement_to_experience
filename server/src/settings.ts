@@ -3,5 +3,5 @@ export const settings = {
     colCount: 10,
     basePawnValue: 1,
     baseKingValue: 2,
-    defaultMiniMaxDepth: 3
+    defaultMiniMaxDepth: 4,
 }

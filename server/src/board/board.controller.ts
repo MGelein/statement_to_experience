@@ -11,7 +11,7 @@ export class BoardController {
   simulationInterval: any = null
   simulationDelayMs: number = 1000
 
-  debugLogging: boolean = true
+  debugLogging: boolean = false
 
   @Get()
   list(): Board {
@@ -39,7 +39,6 @@ export class BoardController {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
 
-    if (this.debugLogging) console.log(`Human: Move white from ${params.from} to ${params.to}.`)
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
     if (humanMove === 'OK') {
@@ -47,7 +46,6 @@ export class BoardController {
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {
-          if (this.debugLogging) console.log(`AI: Move black from ${move.fromRow}.${move.fromCol} to ${move.toRow}.${move.toCol}.`)
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
       }
@@ -62,12 +60,11 @@ export class BoardController {
     let nextPlayer: Player = 'b'
 
     this.simulationInterval = setInterval(() => {
-      const turn = this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
-      // const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer)
+      // const turn = this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
+      const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer)
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {
-          if (this.debugLogging) console.log(`AI: Move ${nextPlayer === 'b' ? 'black' : 'white'} from ${move.fromRow}.${move.fromCol} to ${move.toRow}.${move.toCol}.`)
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
       }
