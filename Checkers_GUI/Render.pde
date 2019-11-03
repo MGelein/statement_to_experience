@@ -12,7 +12,6 @@ color edgeLowlight = color(100, 63, 25);
 //The boardState we're currently display
 BoardState displayedBoardState = new BoardState();
 
-
 /**
 Renders the current state of the board. Does a lot of vector drawing
 **/
@@ -36,7 +35,7 @@ void renderBoardState(BoardState b) {
       if (cell.piece != null) {
         //First draw the fill
         noStroke();
-        int baseColor = cell.piece.col == BoardColor.Black ? 40 : 240;
+        int baseColor = cell.piece.col == BoardColor.Black ? 80 : 240;
         fill(baseColor);
         ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE, CELL_SIZE * PIECE_SIZE);
         if(cell.piece.isKing){
