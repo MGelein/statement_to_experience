@@ -16,5 +16,5 @@ yarn start:dev
 
 ```
 GET http://localhost:3000/board/csv
-GET http://localhost:3000/board/move/:player/:fromRow/:fromCol/:toRow/:toCol
+GET http://localhost:3000/board/move/:from/:to
 ```
