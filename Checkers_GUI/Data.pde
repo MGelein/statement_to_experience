@@ -28,13 +28,6 @@ class BoardCell{
   BoardCell(int x, int y, BoardColor col){
     this.col = col;
     pos.set(x, y);
-    if(col == BoardColor.Black){
-      if(y <= 3){
-        piece = new Piece(BoardColor.Black);
-      }else if(y >= BOARD_SIZE - 4){
-        piece = new Piece(BoardColor.White);
-      }
-    }
   }
 }
 

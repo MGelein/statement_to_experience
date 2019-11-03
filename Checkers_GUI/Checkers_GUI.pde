@@ -1,8 +1,10 @@
 final int CELL_SIZE = 64;
 final float PIECE_SIZE = 0.8f;
 PVector boardOffset = new PVector();
-
+int lastMillis = 0;
+int lastUpdate = 0;
 BoardState boardState = new BoardState();
+
 
 void setup() {
   size(1280, 720);
@@ -13,6 +15,25 @@ void setup() {
 void draw() {
   background(200);
   renderBoardState(boardState);
+  
+  int currentTime = millis();
+  //If we did not experience a integer overflow
+  if(currentTime > lastMillis){
+    lastUpdate += (currentTime - lastMillis);
+    if(lastUpdate > 1000){
+      lastUpdate -= 1000;
+      thread("updateBoardState");
+    }
+    lastMillis = currentTime;
+  }else{
+    //Reset the time after overflow, start counting anew
+    lastMillis = currentTime;
+  }
+  
+  if(hasNetworkUpdate){
+    hasNetworkUpdate = false;
+    boardState = lastBoardState;
+  }
 }
 
 void renderBoardState(BoardState b) {
