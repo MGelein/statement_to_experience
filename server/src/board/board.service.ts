@@ -67,7 +67,12 @@ export class BoardService {
       return validationError
     }
 
-    this.board[toRow][toCol] = this.board[fromRow][fromCol] // set the new cell to be the same piece as the old cell
+    if (toRow === 0 || toRow === this.rows - 1) {
+      this.board[toRow][toCol] = this.board[fromRow][fromCol] === 'b' ? 'B' : 'W' // set the new cell to be a king
+    } else {
+      this.board[toRow][toCol] = this.board[fromRow][fromCol] // set the new cell to be the same piece as the old cell
+    }
+
     this.board[fromRow][fromCol] = ' ' // set the old cell to be empty
 
     if (Math.abs(fromRow - toRow) === 2) {
@@ -86,6 +91,11 @@ export class BoardService {
    * Checks whether a single move is valid
    */
   isValid(fromRow: number, fromCol: number, toRow: number, toCol: number): string {
+    const player = this.board[fromRow][fromCol].toLowerCase()
+    const isKing = this.board[fromRow][fromCol] === 'B' || this.board[fromRow][fromCol] === 'W'
+    const distanceRows = Math.abs(toRow - fromRow)
+    const distanceCols = Math.abs(toCol - fromCol)
+
     if (toRow > this.rows - 1 || toRow < 0 || toCol > this.cols - 1 || toCol < 0) {
       return 'You cannot move off the board'
     }
@@ -98,16 +108,19 @@ export class BoardService {
       return 'You cannot move to a non-empty cell'
     }
 
-    // TODO: check for horizontal or vertical move, non-diagonal move, more than two diagonals
+    if (distanceRows != distanceCols || distanceRows === 0 || distanceCols === 0) {
+        return 'You have to move diagonally'
+    }
 
-    const player = this.board[fromRow][fromCol]
+    if (distanceRows > 2 || distanceCols > 2 && !isKing) {
+      return 'You cannot move this far'
+    }
     
     if (this.board[toRow][toCol] === player) {
       return 'You cannot move to a cell with a piece from the same player'
     }
 
     if (Math.abs(fromRow - toRow) === 2) {
-      // Jumping over a piece
       const inbetweenRow = fromRow + ((toRow - fromRow) / 2)
       const inbetweenCol = fromCol + ((toCol - fromCol) / 2)
 
@@ -118,6 +131,14 @@ export class BoardService {
       if (this.board[inbetweenRow][inbetweenCol] === ' ') {
         return 'You cannot jump over your an empty cell'
       }
+    }
+
+    if (!isKing && player === 'b' && fromRow > toRow) {
+      return 'You cannot move backwards with a non-king piece'
+    }
+
+    if (!isKing && player === 'w' && fromRow < toRow) {
+      return 'You cannot move backwards with a non-king piece'
     }
 
     return 'OK'
