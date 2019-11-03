@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { Board } from './board.service'
+import { Board } from '../board/board.service'
 import { settings } from '../settings'
 
 @Injectable()

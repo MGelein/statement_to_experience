@@ -5,14 +5,15 @@ import { StorageService } from './storage.service';
 
 import { BoardController } from './board/board.controller'
 import { BoardService } from './board/board.service'
-import { MoveValidationService } from './board/move-validation.service';
-import { MoveEvaluationService } from './ai/move-evaluation.service';
+import { MoveValidationService } from './game/move-validation.service';
+import { MoveEvaluationService } from './game/move-evaluation.service';
 import { MinimaxService } from './ai/minimax.service';
+import { BoardEvaluationService } from './ai/board-evaluation.service';
 
 @Module({
   imports: [],
   controllers: [AppController, BoardController],
-  providers: [StorageService, BoardService, MoveValidationService, MoveEvaluationService, MinimaxService],
+  providers: [StorageService, BoardService, BoardEvaluationService, MoveValidationService, MoveEvaluationService, MinimaxService],
 })
 export class AppModule {
   

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { MoveValidationService } from './move-validation.service'
+import { MoveValidationService } from '../game/move-validation.service'
 
 import { settings } from '../settings'
 

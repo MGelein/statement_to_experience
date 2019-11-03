@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 
 import { Player } from '../board/board.service'
-import { MoveEvaluationService } from './move-evaluation.service'
+import { MoveEvaluationService } from '../game/move-evaluation.service'
 
 export interface Move {
     fromRow: number;
