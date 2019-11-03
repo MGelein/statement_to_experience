@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 
-// e is empty, b is black, w is white, B is black king, W is white king
+// space is empty, b is black, w is white, B is black king, W is white king
 export type Player = 'b' | 'w'
-export type Piece = Player | 'e' | 'B' | 'W'
+export type Piece = Player | ' ' | 'B' | 'W'
 
 export type Board = Piece[][]
 
@@ -39,7 +39,7 @@ export class BoardService {
     }
 
     this.board[toRow][toCol] = this.board[fromRow][fromCol] // set the new position to be the same piece as the old position
-    this.board[fromRow][fromCol] = 'e' // set the old position to be empty
+    this.board[fromRow][fromCol] = ' ' // set the old position to be empty
     this.lastUpdated = new Date()
 
     return 'OK'
@@ -49,7 +49,7 @@ export class BoardService {
    * Checks whether a single move is valid
    */
   isValid(fromRow: number, fromCol: number, toRow: number, toCol: number): string {
-    if (this.board[fromRow][fromCol] === 'e') {
+    if (this.board[fromRow][fromCol] === ' ') {
       return 'You cannot move an empty piece'
     }
 

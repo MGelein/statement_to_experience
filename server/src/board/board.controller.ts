@@ -13,7 +13,7 @@ export class BoardController {
   @Get('csv')
   @Header('Content-Type', 'text/plain')
   csv(): string {
-    return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join(',')).join('\n')
+    return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
   }
 
   @Get('move/:from/:to')
