@@ -17,6 +17,10 @@ export class MinimaxService {
     run(player: Player): Move[] {
         const possibleMoves = this.getAllPossibleMoves(player)
 
+        if (possibleMoves.length === 0) {
+            return []
+        }
+
         // TODO: currently just a random choice, should change to minimax evaluation
         const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]
 

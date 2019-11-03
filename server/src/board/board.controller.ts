@@ -7,6 +7,9 @@ export class BoardController {
   constructor(private readonly boardService: BoardService, private readonly minimaxService: MinimaxService) {}
 
   simulationInterval: any = null
+  simulationDelayMs: number = 1000
+
+  debugLogging: boolean = false
 
   @Get()
   list(): Board {
@@ -34,14 +37,16 @@ export class BoardController {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
 
-    console.log(`Human: Move white from ${params.from} to ${params.to}.`)
+    if (this.debugLogging) console.log(`Human: Move white from ${params.from} to ${params.to}.`)
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
     if (humanMove === 'OK') {
-      const aiMove = this.minimaxService.run('b')
+      const aiMoves = this.minimaxService.run('b')
 
-      console.log(`AI: Move black from ${aiMove[0].fromRow}.${aiMove[0].fromCol} to ${aiMove[0].toRow}.${aiMove[0].toCol}.`)
-      this.boardService.move(aiMove[0].fromRow, aiMove[0].fromCol, aiMove[0].toRow, aiMove[0].toCol)
+      if (aiMoves.length > 0) {
+        if (this.debugLogging) console.log(`AI: Move black from ${aiMoves[0].fromRow}.${aiMoves[0].fromCol} to ${aiMoves[0].toRow}.${aiMoves[0].toCol}.`)
+        this.boardService.move(aiMoves[0].fromRow, aiMoves[0].fromCol, aiMoves[0].toRow, aiMoves[0].toCol)
+      }
     }
 
 
@@ -50,16 +55,19 @@ export class BoardController {
 
   @Get('simulate')
   simulate(): string {
+    if (this.debugLogging) console.log('Starting game simulation')
     let nextPlayer: Player = 'b'
 
     this.simulationInterval = setInterval(() => {
-      const aiMove = this.minimaxService.run(nextPlayer)
+      const aiMoves = this.minimaxService.run(nextPlayer)
 
-      console.log(`AI: Move ${nextPlayer === 'b' ? 'black' : 'white'} from ${aiMove[0].fromRow}.${aiMove[0].fromCol} to ${aiMove[0].toRow}.${aiMove[0].toCol}.`)
-      this.boardService.move(aiMove[0].fromRow, aiMove[0].fromCol, aiMove[0].toRow, aiMove[0].toCol)
+      if (aiMoves.length > 0) {
+        if (this.debugLogging) console.log(`AI: Move ${nextPlayer === 'b' ? 'black' : 'white'} from ${aiMoves[0].fromRow}.${aiMoves[0].fromCol} to ${aiMoves[0].toRow}.${aiMoves[0].toCol}.`)
+        this.boardService.move(aiMoves[0].fromRow, aiMoves[0].fromCol, aiMoves[0].toRow, aiMoves[0].toCol)
+      }
 
       nextPlayer = nextPlayer === 'b' ? 'w' : 'b'
-    }, 500)
+    }, this.simulationDelayMs)
 
     return 'Game simulation started'
   }
