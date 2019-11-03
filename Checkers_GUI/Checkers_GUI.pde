@@ -64,6 +64,6 @@ void renderBoardState(BoardState b) {
   }
   noFill();
   stroke(80);
-  rect(-8 * CELL_SIZE, 0, 8 * CELL_SIZE, 8 * CELL_SIZE);
+  rect(-BOARD_SIZE * CELL_SIZE, 0, BOARD_SIZE * CELL_SIZE, BOARD_SIZE * CELL_SIZE);
   popMatrix();
 }

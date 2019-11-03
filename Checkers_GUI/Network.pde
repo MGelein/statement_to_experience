@@ -19,9 +19,20 @@ BoardState createBoardState(String[] lines){
   int x = 0;
   int y = 0;
   for(String line : lines){
-    String[] cells = line.split("");
-    for(String cell : cells){
-      //b.board[x][y].piece = 
+    //Skip any lines that are not as long as the board size
+    if(line.length() < BOARD_SIZE) continue;
+    x = 0;
+    for(int i = 0; i < line.length(); i++){
+      char cell = line.charAt(i);
+      //Depending on the type of cell, do a thing
+      if(cell == ' '){
+        //Do nothing, skip this one
+      }else if(cell == 'w' || cell == 'W'){
+        b.board[x][y].piece = new Piece(BoardColor.White, cell == 'W');
+      }else if(cell == 'b' || cell == 'B'){
+        b.board[x][y].piece = new Piece(BoardColor.Black, cell == 'B');
+      }
+      
       x++;
     }
     y++;
