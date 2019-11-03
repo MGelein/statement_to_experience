@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 
-// e is empty, b is black, w is white, B is black king, W is white king
+// space is empty, b is black, w is white, B is black king, W is white king
 export type Player = 'b' | 'w'
-export type Piece = Player | 'e' | 'B' | 'W'
+export type Piece = Player | ' ' | 'B' | 'W'
 
 export type Board = Piece[][]
 
@@ -31,17 +31,15 @@ export class BoardService {
 
   /**
    * Move one piece
-   * 
-   * @param player 1 or 2 (black or white)
    */
-  move(player: Player, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
-    const validationError = this.isValid(player, fromRow, fromCol, toRow, toCol)
+  move(fromRow: number, fromCol: number, toRow: number, toCol: number): string {
+    const validationError = this.isValid(fromRow, fromCol, toRow, toCol)
     if (validationError !== 'OK') {
       return validationError
     }
 
     this.board[toRow][toCol] = this.board[fromRow][fromCol] // set the new position to be the same piece as the old position
-    this.board[fromRow][fromCol] = 'e' // set the old position to be empty
+    this.board[fromRow][fromCol] = ' ' // set the old position to be empty
     this.lastUpdated = new Date()
 
     return 'OK'
@@ -49,13 +47,13 @@ export class BoardService {
 
   /**
    * Checks whether a single move is valid
-   * 
-   * @param player b or w (black or white)
    */
-  isValid(player: Player, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
-    if (this.board[fromRow][fromCol] === 'e') {
+  isValid(fromRow: number, fromCol: number, toRow: number, toCol: number): string {
+    if (this.board[fromRow][fromCol] === ' ') {
       return 'You cannot move an empty piece'
     }
+
+    const player = this.board[fromRow][fromCol]
     
     if (this.board[toRow][toCol] === player) {
       return 'You cannot move to a place with a piece from the same type'

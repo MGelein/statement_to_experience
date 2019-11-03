@@ -4,21 +4,19 @@ import { AppModule } from './app.module'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
-  // Dummy data
+  // Initial board state
   app.get('BoardService').update([
-    ['e', 'b', 'e', 'b', 'e', 'b', 'e', 'b', 'e', 'b'],
-    ['b', 'e', 'b', 'e', 'b', 'e', 'b', 'e', 'b', 'e'],
-    ['e', 'b', 'e', 'b', 'e', 'b', 'e', 'b', 'e', 'b'],
-    ['b', 'e', 'b', 'e', 'b', 'e', 'b', 'e', 'b', 'e'],
-    ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
-    ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
-    ['e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w'],
-    ['w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e'],
-    ['e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w'],
-    ['w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e'],
+    [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
+    ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
+    [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
+    ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
+    ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
+    [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
+    ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
   ])
-
-  // app.get('BoardService').move('b', 3, 0, 4, 1)
 
   await app.listen(3000, () => {
     console.log(`Server listening on localhost:3000`)
