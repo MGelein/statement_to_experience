@@ -1,69 +1,32 @@
-final int CELL_SIZE = 64;
-final float PIECE_SIZE = 0.8f;
-PVector boardOffset = new PVector();
-int lastMillis = 0;
-int lastUpdate = 0;
-BoardState boardState = new BoardState();
+//How many cells should be along the side of the board, use 10 for classic and 8 for american and english checkers
+final int BOARD_SIZE = 10;
+//The image that we'll display in the background, loaded from the data folder
+PImage bgImage;
 
-
+/**
+Runs once and handles setup
+**/
 void setup() {
-  size(1280, 720);
+  //The frame will be 1280x720, we can alternatively render fullscreen
+  size(1280, 720, P2D);
+  //The boardoffset is calculated on the fly based on the cell size and board size
   boardOffset.set((width - CELL_SIZE * BOARD_SIZE) / 2, (height - CELL_SIZE * BOARD_SIZE) / 2);
+  //Load the bg jpg
+  bgImage = loadImage("bg.jpg");
+  //Set the framerate lower, why waste power?
   frameRate(30);
 }
 
+/**
+Runs at the framerate
+**/
 void draw() {
-  background(200);
-  renderBoardState(boardState);
-  
-  int currentTime = millis();
-  //If we did not experience a integer overflow
-  if(currentTime > lastMillis){
-    lastUpdate += (currentTime - lastMillis);
-    if(lastUpdate > 1000){
-      lastUpdate -= 1000;
-      thread("updateBoardState");
-    }
-    lastMillis = currentTime;
-  }else{
-    //Reset the time after overflow, start counting anew
-    lastMillis = currentTime;
-  }
-  
-  if(hasNetworkUpdate){
-    hasNetworkUpdate = false;
-    boardState = lastBoardState;
-  }
-}
-
-void renderBoardState(BoardState b) {
-  pushMatrix();
-  translate(boardOffset.x, boardOffset.y);
-  noStroke();
-  strokeWeight(CELL_SIZE / 20);
-  for (BoardCell[] row : b.board) {
-    pushMatrix();
-    for (BoardCell cell : row) {
-      //Draw background
-      noStroke();
-      fill(cell.col == BoardColor.White ? 255 : 0);
-      rect(0, 0, CELL_SIZE, CELL_SIZE);
-      //Draw piece if there is a piece
-      if (cell.piece != null) {
-        stroke(80);
-        fill(cell.piece.col == BoardColor.Black ? 40 : 240);
-        ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE, CELL_SIZE * PIECE_SIZE);
-        if(cell.piece.isKing){
-          ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE * 0.6f, CELL_SIZE * PIECE_SIZE * 0.6f);
-        }
-      }
-      translate(0, CELL_SIZE);
-    }
-    popMatrix();
-    translate(CELL_SIZE, 0);
-  }
-  noFill();
-  stroke(80);
-  rect(-BOARD_SIZE * CELL_SIZE, 0, BOARD_SIZE * CELL_SIZE, BOARD_SIZE * CELL_SIZE);
-  popMatrix();
+  //First clear the background
+  background(0);
+  //Set the background to the background image
+  image(bgImage, 0, 0, width, height);
+  //Now render the boardstate on top of the background
+  renderBoardState(displayedBoardState);
+  //Check if we need to do any network updates
+  checkNetwork();
 }
