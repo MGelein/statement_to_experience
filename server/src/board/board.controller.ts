@@ -1,5 +1,5 @@
-import { Controller, Get, Put, Body, Header } from '@nestjs/common'
-import { BoardService, Board, Piece } from './board.service'
+import { Controller, Get, Header, Param } from '@nestjs/common'
+import { BoardService, Board, Piece, Player } from './board.service'
 
 @Controller('board')
 export class BoardController {
@@ -15,17 +15,12 @@ export class BoardController {
   csv(): string {
     return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join(',')).join('\n')
   }
-  
-  // @Put()
-  // update(@Body() body: any) {
-  //   const newPeople = Object.keys(body).reduce((row: BoardRow[], key: string) => {
-  //     row.push(({ id: Number(key), x: body[key][0], y: body[key][1], w: body[key][2], h: body[key][3] }))
-  //     return row
-  //   }, [])
-    
-  //   this.boardService.update(newPeople)
 
-  //   return true
-  // }
+  @Get('move/:player/:fromRow/:fromCol/:toRow/:toCol')
+  move(@Param() params): string {
+    console.log(`Move ${params.player === 'b' ? 'black' : 'white'} from (${params.fromRow}, ${params.fromCol}) to (${params.toRow}, ${params.toCol})`)
+    
+    return this.boardService.move(params.player as Player, params.fromRow as number, params.fromCol as number, params.toRow as number, params.toCol as number)
+  }
 
 }

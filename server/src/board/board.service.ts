@@ -34,17 +34,17 @@ export class BoardService {
    * 
    * @param player 1 or 2 (black or white)
    */
-  move(player: Player, fromRow: number, fromCol: number, toRow: number, toCol: number): boolean {
-    if (!this.isValid(player, fromRow, fromCol, toRow, toCol)) {
-      console.log('Tried to perform an invalid move')
-      return false
+  move(player: Player, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
+    const validationError = this.isValid(player, fromRow, fromCol, toRow, toCol)
+    if (validationError !== 'OK') {
+      return validationError
     }
 
     this.board[toRow][toCol] = this.board[fromRow][fromCol] // set the new position to be the same piece as the old position
     this.board[fromRow][fromCol] = 'e' // set the old position to be empty
     this.lastUpdated = new Date()
 
-    return true
+    return 'OK'
   }
 
   /**
@@ -52,18 +52,16 @@ export class BoardService {
    * 
    * @param player b or w (black or white)
    */
-  isValid(player: Player, fromRow: number, fromCol: number, toRow: number, toCol: number): boolean {
+  isValid(player: Player, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
     if (this.board[fromRow][fromCol] === 'e') {
-      // Tried to move an empty piece
-      return false
+      return 'You cannot move an empty piece'
     }
     
     if (this.board[toRow][toCol] === player) {
-      // Tried to move to a place with a piece from the same type
-      return false
+      return 'You cannot move to a place with a piece from the same type'
     }
 
-    return true
+    return 'OK'
   }
 
 }

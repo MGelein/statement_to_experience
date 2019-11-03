@@ -18,7 +18,7 @@ async function bootstrap() {
     ['w', 'e', 'w', 'e', 'w', 'e', 'w', 'e', 'w', 'e'],
   ])
 
-  app.get('BoardService').move('b', 3, 0, 4, 1)
+  // app.get('BoardService').move('b', 3, 0, 4, 1)
 
   await app.listen(3000, () => {
     console.log(`Server listening on localhost:3000`)
