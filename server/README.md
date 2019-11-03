@@ -16,4 +16,5 @@ yarn start:dev
 
 ```
 GET http://localhost:3000/board/csv
+GET http://localhost:3000/board/move/b/3/0/4/1
 ```
