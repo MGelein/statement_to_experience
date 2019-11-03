@@ -1,6 +1,6 @@
 import { Controller, Get, Header, Param } from '@nestjs/common'
 import { BoardService, Board, Piece, Player } from './board.service'
-import { MinimaxService } from '../minimax/minimax.service'
+import { MinimaxService, Move } from '../ai/minimax.service'
 
 @Controller('board')
 export class BoardController {
@@ -41,29 +41,32 @@ export class BoardController {
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
     if (humanMove === 'OK') {
-      const aiMoves = this.minimaxService.run('b')
+      const turn = this.minimaxService.run('b')
 
-      if (aiMoves.length > 0) {
-        if (this.debugLogging) console.log(`AI: Move black from ${aiMoves[0].fromRow}.${aiMoves[0].fromCol} to ${aiMoves[0].toRow}.${aiMoves[0].toCol}.`)
-        this.boardService.move(aiMoves[0].fromRow, aiMoves[0].fromCol, aiMoves[0].toRow, aiMoves[0].toCol)
+      if (turn && turn.length > 0) {
+        turn.map((move: Move) => {
+          if (this.debugLogging) console.log(`AI: Move black from ${move.fromRow}.${move.fromCol} to ${move.toRow}.${move.toCol}.`)
+          this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
+        })
       }
     }
-
 
     return humanMove
   }
 
   @Get('simulate')
   simulate(): string {
-    if (this.debugLogging) console.log('Starting game simulation')
+    console.log('Command: Start a game simulation.')
     let nextPlayer: Player = 'b'
 
     this.simulationInterval = setInterval(() => {
-      const aiMoves = this.minimaxService.run(nextPlayer)
+      const turn = this.minimaxService.run(nextPlayer)
 
-      if (aiMoves.length > 0) {
-        if (this.debugLogging) console.log(`AI: Move ${nextPlayer === 'b' ? 'black' : 'white'} from ${aiMoves[0].fromRow}.${aiMoves[0].fromCol} to ${aiMoves[0].toRow}.${aiMoves[0].toCol}.`)
-        this.boardService.move(aiMoves[0].fromRow, aiMoves[0].fromCol, aiMoves[0].toRow, aiMoves[0].toCol)
+      if (turn && turn.length > 0) {
+        turn.map((move: Move) => {
+          if (this.debugLogging) console.log(`AI: Move ${nextPlayer === 'b' ? 'black' : 'white'} from ${move.fromRow}.${move.fromCol} to ${move.toRow}.${move.toCol}.`)
+          this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
+        })
       }
 
       nextPlayer = nextPlayer === 'b' ? 'w' : 'b'
