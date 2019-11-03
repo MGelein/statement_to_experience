@@ -9,6 +9,15 @@ export type Piece = Player | ' ' | 'B' | 'W'
 
 export type Board = Piece[][]
 
+export interface Move {
+  fromRow: number;
+  fromCol: number;
+  toRow: number;
+  toCol: number;
+}
+
+export type Turn = Move[]
+
 const InitialBoardState: Board = [
   [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
   ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
@@ -64,24 +73,45 @@ export class BoardService {
       return validationError
     }
 
+    this.board = this.applyMove(this.board, fromRow, fromCol, toRow, toCol)
+    this.lastUpdated = new Date()
+
+    return 'OK'
+  }
+
+  /**
+   * Move one piece and return a new board (used directly by the AI package)
+   * We assume the move has already been validated
+   */
+  applyMove(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): Board {
+    let newBoard = JSON.parse(JSON.stringify(board))
+
     if (toRow === 0 || toRow === settings.rowCount - 1) {
-      this.board[toRow][toCol] = this.board[fromRow][fromCol] === 'b' ? 'B' : 'W' // set the new cell to be a king
+      newBoard[toRow][toCol] = newBoard[fromRow][fromCol] === 'b' ? 'B' : 'W' // set the new cell to be a king
     } else {
-      this.board[toRow][toCol] = this.board[fromRow][fromCol] // set the new cell to be the same piece as the old cell
+      newBoard[toRow][toCol] = newBoard[fromRow][fromCol] // set the new cell to be the same piece as the old cell
     }
 
-    this.board[fromRow][fromCol] = ' ' // set the old cell to be empty
+    newBoard[fromRow][fromCol] = ' ' // set the old cell to be empty
 
     if (Math.abs(fromRow - toRow) === 2) {
       const inbetweenRow = fromRow + ((toRow - fromRow) / 2)
       const inbetweenCol = fromCol + ((toCol - fromCol) / 2)
 
-      this.board[inbetweenRow][inbetweenCol] = ' ' // set the cell inbetween to be empty
+      newBoard[inbetweenRow][inbetweenCol] = ' ' // set the cell inbetween to be empty
     }
 
-    this.lastUpdated = new Date()
+    return newBoard
+  }
 
-    return 'OK'
+  applyTurn(board: Board, turn: Turn) {
+    let newBoard = JSON.parse(JSON.stringify(board))
+
+    turn.map((move: Move) => {
+      newBoard = this.applyMove(newBoard, move.fromRow, move.fromCol, move.toRow, move.toCol)
+    })
+
+    return newBoard
   }
 
 }

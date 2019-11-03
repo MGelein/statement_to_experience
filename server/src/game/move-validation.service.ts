@@ -51,11 +51,11 @@ export class MoveValidationService {
         if (isKing) {
             return this.isValidForAKing(board, fromRow, fromCol, toRow, toCol)
         } else {
-            return this.isValidForANonKing(board, fromRow, fromCol, toRow, toCol)
+            return this.isValidForAPawn(board, fromRow, fromCol, toRow, toCol)
         }
     }
 
-    private isValidForANonKing(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
+    private isValidForAPawn(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
         const player = board[fromRow][fromCol].toLowerCase()
         const distanceRows = Math.abs(toRow - fromRow)
         const distanceCols = Math.abs(toCol - fromCol)

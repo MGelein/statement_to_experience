@@ -1,6 +1,8 @@
 import { Controller, Get, Header, Param } from '@nestjs/common'
-import { BoardService, Board, Piece, Player } from './board.service'
-import { MinimaxService, Move } from '../ai/minimax.service'
+import { BoardService, Board, Piece, Player, Move } from './board.service'
+import { MinimaxService } from '../ai/minimax.service'
+
+import { settings } from '../settings'
 
 @Controller('board')
 export class BoardController {
@@ -9,7 +11,7 @@ export class BoardController {
   simulationInterval: any = null
   simulationDelayMs: number = 1000
 
-  debugLogging: boolean = false
+  debugLogging: boolean = true
 
   @Get()
   list(): Board {
@@ -41,7 +43,7 @@ export class BoardController {
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
     if (humanMove === 'OK') {
-      const turn = this.minimaxService.run('b')
+      const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b')
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {
@@ -60,7 +62,8 @@ export class BoardController {
     let nextPlayer: Player = 'b'
 
     this.simulationInterval = setInterval(() => {
-      const turn = this.minimaxService.run(nextPlayer)
+      const turn = this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
+      // const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer)
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {
