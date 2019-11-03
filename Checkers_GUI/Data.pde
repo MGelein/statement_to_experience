@@ -35,9 +35,9 @@ class Piece{
   BoardColor col = BoardColor.Black;
   boolean isKing = false;
   
-  Piece(BoardColor col){
+  Piece(BoardColor col, boolean isKing){
     this.col = col;
-    isKing = random(1) < .5f;
+    this.isKing = isKing;
   }
 }
 
