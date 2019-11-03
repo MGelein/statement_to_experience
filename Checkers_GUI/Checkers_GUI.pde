@@ -21,6 +21,8 @@ void setup() {
 Runs at the framerate
 **/
 void draw() {
+  //First clear the background
+  background(0);
   //Set the background to the background image
   image(bgImage, 0, 0, width, height);
   //Now render the boardstate on top of the background
