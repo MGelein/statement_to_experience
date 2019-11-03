@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 
 import { BoardService, Player, Piece } from '../board/board.service'
+import { MoveValidationService } from '../board/move-validation.service'
 
 export interface Move {
     fromRow: number;
@@ -12,22 +13,9 @@ export interface Move {
 export type Turn = Move[]
 
 @Injectable()
-export class MinimaxService {
+export class MoveEvaluationService {
 
-    constructor(private readonly boardService: BoardService) {}
-
-    run(player: Player): Turn {
-        const possibleTurns = this.getAllPossibleTurns(player)
-
-        if (possibleTurns.length === 0) {
-            return []
-        }
-
-        // TODO: currently just a random choice, should change to minimax evaluation
-        const turn = possibleTurns[Math.floor(Math.random() * possibleTurns.length)]
-        
-        return turn
-    }
+    constructor(private readonly boardService: BoardService, private readonly moveValidationService: MoveValidationService) {}
 
     getAllPossibleTurns(player: Player): Turn[] {
         let jumps: Turn[] = []
@@ -61,55 +49,64 @@ export class MinimaxService {
     }
 
     getJumpsFrom(row: number, col: number, previousTurn: Turn = []): Turn[] {
-        let turns = [previousTurn]
+        let turns = []
 
-        if (this.boardService.isValid(row, col, row - 2, col - 2) === 'OK') { // top left
+        if (this.isValid(row, col, row - 2, col - 2) === 'OK') { // top left
             const newTurn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row - 2, toCol: col - 2 }]
             const withMultiJumps = this.getJumpsFrom(row - 2, col - 2, newTurn)
             turns = [...turns, ...withMultiJumps]
         }
 
-        if (this.boardService.isValid(row, col, row - 2, col + 2) === 'OK') { // top right
+        if (this.isValid(row, col, row - 2, col + 2) === 'OK') { // top right
             const newTurn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row - 2, toCol: col + 2 }]
             const withMultiJumps = this.getJumpsFrom(row - 2, col + 2, newTurn)
             turns = [...turns, ...withMultiJumps]
         }
 
-        if (this.boardService.isValid(row, col, row + 2, col - 2) === 'OK') { // bottom left
+        if (this.isValid(row, col, row + 2, col - 2) === 'OK') { // bottom left
             const newTurn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + 2, toCol: col - 2 }]
             const withMultiJumps = this.getJumpsFrom(row + 2, col - 2, newTurn)
             turns = [...turns, ...withMultiJumps]
         }
 
-        if (this.boardService.isValid(row, col, row + 2, col + 2) === 'OK') { // bottom right
+        if (this.isValid(row, col, row + 2, col + 2) === 'OK') { // bottom right
             const newTurn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + 2, toCol: col + 2 }]
             const withMultiJumps = this.getJumpsFrom(row + 2, col + 2, newTurn)
             turns = [...turns, ...withMultiJumps]
         }
 
-        return turns
+        // Require multi-hops if possible, otherwise just return the previous turn
+        if (turns.length > 0) {
+            return turns
+        } else {
+            return [previousTurn]
+        }
     }
 
     getMovesFrom(row: number, col: number): Turn[] {
         let turns = []
 
-        if (this.boardService.isValid(row, col, row - 1, col - 1) === 'OK') { // top left
+        if (this.isValid(row, col, row - 1, col - 1) === 'OK') { // top left
             turns.push([{ fromRow: row, fromCol: col, toRow: row - 1, toCol: col - 1 }])
         }
 
-        if (this.boardService.isValid(row, col, row - 1, col + 1) === 'OK') { // top right
+        if (this.isValid(row, col, row - 1, col + 1) === 'OK') { // top right
             turns.push([{ fromRow: row, fromCol: col, toRow: row - 1, toCol: col + 1 }])
         }
 
-        if (this.boardService.isValid(row, col, row + 1, col - 1) === 'OK') { // bottom left
+        if (this.isValid(row, col, row + 1, col - 1) === 'OK') { // bottom left
             turns.push([{ fromRow: row, fromCol: col, toRow: row + 1, toCol: col - 1 }])
         }
 
-        if (this.boardService.isValid(row, col, row + 1, col + 1) === 'OK') { // bottom right
+        if (this.isValid(row, col, row + 1, col + 1) === 'OK') { // bottom right
             turns.push([{ fromRow: row, fromCol: col, toRow: row + 1, toCol: col + 1 }])
         }
 
         return turns
+    }
+
+    private isValid(fromRow: number, fromCol: number, toRow: number, toCol: number) {
+        return this.moveValidationService.isValid(this.boardService.get(), fromRow, fromCol, toRow, toCol)
     }
 
 }

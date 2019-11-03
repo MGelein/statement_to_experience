@@ -1,6 +1,6 @@
 import { Controller, Get, Header, Param } from '@nestjs/common'
 import { BoardService, Board, Piece, Player } from './board.service'
-import { MinimaxService, Move } from '../minimax/minimax.service'
+import { MinimaxService, Move } from '../ai/minimax.service'
 
 @Controller('board')
 export class BoardController {
