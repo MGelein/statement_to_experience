@@ -39,11 +39,12 @@ void renderBoardState(BoardState b) {
         fill(baseColor);
         ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE, CELL_SIZE * PIECE_SIZE);
         if(cell.piece.isKing){
-          stroke(80);
+          stroke(160);
           ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE * 0.6f, CELL_SIZE * PIECE_SIZE * 0.6f);
         }
         
         //Then draw the edge
+        noFill();
         stroke(max(baseColor - 30, 0));
         ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE * 0.925f, CELL_SIZE * PIECE_SIZE *  0.925f);
         stroke(min(baseColor + 15, 255));
