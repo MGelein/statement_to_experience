@@ -6,11 +6,32 @@ export type Piece = Player | ' ' | 'B' | 'W'
 
 export type Board = Piece[][]
 
+const InitialBoardState: Board = [
+  [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
+  ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
+  [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
+  ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
+  [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+  [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+  [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
+  ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
+  [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
+  ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
+]
+
 @Injectable()
 export class BoardService {
 
   board: Board = []
   lastUpdated: Date = new Date()
+
+  /**
+   * Reset the entire board
+   */
+  restart(): boolean {
+    this.board = JSON.parse(JSON.stringify(InitialBoardState))
+    return true
+  }
 
   /**
    * Retrieve the entire board

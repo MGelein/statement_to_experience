@@ -10,6 +10,15 @@ export class BoardController {
     return this.boardService.get()
   }
 
+  @Get('restart')
+  restart(): string {
+    this.boardService.restart()
+
+    console.log('Command: Restart the board.')
+
+    return 'OK'
+  }
+
   @Get('csv')
   @Header('Content-Type', 'text/plain')
   csv(): string {
@@ -21,7 +30,9 @@ export class BoardController {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
 
-    console.log(`Move ${params.player === 'b' ? 'black' : 'white'} from ${params.from} to $params.to`)
+    console.log(`Command: Move ${params.player === 'b' ? 'black' : 'white'} from ${params.from} to ${params.to}.`)
+
+    // TODO: trigger move from the minimax algorithm for black
     
     return this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
   }

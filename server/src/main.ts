@@ -4,19 +4,8 @@ import { AppModule } from './app.module'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
-  // Initial board state
-  app.get('BoardService').update([
-    [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
-    ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
-    [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
-    ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-    [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
-    ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
-    [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
-    ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
-  ])
+  // Set the initial board state
+  app.get('BoardService').restart()
 
   await app.listen(3000, () => {
     console.log(`Server listening on localhost:3000`)
