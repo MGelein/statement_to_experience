@@ -1,9 +1,12 @@
 import { Controller, Get, Header, Param } from '@nestjs/common'
 import { BoardService, Board, Piece, Player } from './board.service'
+import { MinimaxService } from '../minimax/minimax.service'
 
 @Controller('board')
 export class BoardController {
-  constructor(private readonly boardService: BoardService) {}
+  constructor(private readonly boardService: BoardService, private readonly minimaxService: MinimaxService) {}
+
+  simulationInterval: any = null
 
   @Get()
   list(): Board {
@@ -13,8 +16,9 @@ export class BoardController {
   @Get('restart')
   restart(): string {
     this.boardService.restart()
+    clearInterval(this.simulationInterval)
 
-    console.log('Command: Restart the board.')
+    console.log('Command: Restart the game.')
 
     return 'OK'
   }
@@ -30,11 +34,34 @@ export class BoardController {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
 
-    console.log(`Command: Move ${params.player === 'b' ? 'black' : 'white'} from ${params.from} to ${params.to}.`)
+    console.log(`Human: Move white from ${params.from} to ${params.to}.`)
+    const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
-    // TODO: trigger move from the minimax algorithm for black
-    
-    return this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
+    if (humanMove === 'OK') {
+      const aiMove = this.minimaxService.run('b')
+
+      console.log(`AI: Move black from ${aiMove[0].fromRow}.${aiMove[0].fromCol} to ${aiMove[0].toRow}.${aiMove[0].toCol}.`)
+      this.boardService.move(aiMove[0].fromRow, aiMove[0].fromCol, aiMove[0].toRow, aiMove[0].toCol)
+    }
+
+
+    return humanMove
+  }
+
+  @Get('simulate')
+  simulate(): string {
+    let nextPlayer: Player = 'b'
+
+    this.simulationInterval = setInterval(() => {
+      const aiMove = this.minimaxService.run(nextPlayer)
+
+      console.log(`AI: Move ${nextPlayer === 'b' ? 'black' : 'white'} from ${aiMove[0].fromRow}.${aiMove[0].fromCol} to ${aiMove[0].toRow}.${aiMove[0].toCol}.`)
+      this.boardService.move(aiMove[0].fromRow, aiMove[0].fromCol, aiMove[0].toRow, aiMove[0].toCol)
+
+      nextPlayer = nextPlayer === 'b' ? 'w' : 'b'
+    }, 500)
+
+    return 'Game simulation started'
   }
 
 }
