@@ -6,6 +6,10 @@ BoardState networkBoardState;
 int lastMillis = 0;
 //The amount of millis since last network update
 int lastUpdate = 0;
+//If we're currently running the sim
+boolean runningSim = false;
+
+final String SERVER_IP = "http://localhost:3000";
 
 /**
 This is run every frame to check if we need to send another request to the
@@ -37,7 +41,7 @@ void checkNetwork(){
 Tries to get a board state from the localhost server
 **/
 void updateBoardState(){
-  String[] response = loadStrings("http://localhost:3000/board/csv");
+  String[] response = loadStrings(SERVER_IP + "/board/csv");
   //If the endpoint is not online right now, ignore and return
   if(response == null) return;
   //Parse into a board state
@@ -69,4 +73,18 @@ BoardState createBoardState(String[] lines){
     y++;
   }
   return b;
+}
+
+/**
+Starts the sim by sending a request to the server
+**/
+void startSim(){
+  loadStrings(SERVER_IP + "/board/simulate");
+}
+
+/**
+Sends a request to restart the sim
+**/
+void restartSim(){
+  loadStrings(SERVER_IP + "/board/restart");
 }
