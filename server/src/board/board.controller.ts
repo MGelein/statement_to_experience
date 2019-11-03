@@ -16,11 +16,14 @@ export class BoardController {
     return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join(',')).join('\n')
   }
 
-  @Get('move/:player/:fromRow/:fromCol/:toRow/:toCol')
+  @Get('move/:from/:to')
   move(@Param() params): string {
-    console.log(`Move ${params.player === 'b' ? 'black' : 'white'} from (${params.fromRow}, ${params.fromCol}) to (${params.toRow}, ${params.toCol})`)
+    const [fromRow, fromCol] = params.from.split('.')
+    const [toRow, toCol] = params.to.split('.')
+
+    console.log(`Move ${params.player === 'b' ? 'black' : 'white'} from ${params.from} to $params.to`)
     
-    return this.boardService.move(params.player as Player, params.fromRow as number, params.fromCol as number, params.toRow as number, params.toCol as number)
+    return this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
   }
 
 }
