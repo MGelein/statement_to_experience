@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { Board, Player, Piece, Move, Turn } from '../board/board.service'
+import { Board, BoardService, Player, Piece, Turn } from '../board/board.service'
 import { MoveValidationService } from './move-validation.service'
 import { settings } from '../settings'
 
@@ -14,7 +14,7 @@ const directions = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
 @Injectable()
 export class MoveGenerationService {
 
-    constructor(private readonly moveValidationService: MoveValidationService) {}
+    constructor(private readonly boardService: BoardService, private readonly moveValidationService: MoveValidationService) {}
 
     getAllPossibleTurns(board: Board, player: Player): Turn[] {
         let jumps: Turn[] = []
@@ -47,7 +47,7 @@ export class MoveGenerationService {
     }
 
     getJumpsFrom(board: Board, row: number, col: number, previousTurn: Turn = []): Turn[] {
-        let turns = []
+        let turns: Turn[] = []
 
         if (board[row][col] === 'B' || board[row][col] === 'W') {
             // Search more than 2 steps away just for kings
@@ -61,8 +61,10 @@ export class MoveGenerationService {
         // Search 2 steps, so a single jump, away for both pawns and kings
         directions.map(([rowdir, coldir]) => {
             if (this.isValid(board, row, col, row + rowdir * 2, col + coldir * 2) === 'OK') {
-                const newTurn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * 2, toCol: col + coldir * 2 }]
-                const withMultiJumps = this.getJumpsFrom(board, row + rowdir * 2, col + coldir * 2, newTurn)
+                const newTurn: Turn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * 2, toCol: col + coldir * 2 }]
+                const newBoard = this.boardService.applyTurn(board, newTurn)
+
+                const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard, row + rowdir * 2, col + coldir * 2, newTurn)
                 turns = [...turns, ...withMultiJumps]
             }
         })
