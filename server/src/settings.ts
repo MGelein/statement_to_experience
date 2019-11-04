@@ -3,7 +3,7 @@ export const settings = {
     colCount: 10,
     basePawnValue: 1,
     baseKingValue: 3,
-    defaultMiniMaxDepth: 4,
+    defaultMiniMaxDepth: 5,
     positionWeights: [
         [0, 5, 0, 5, 0, 5, 0, 5, 0, 5],
         [5, 0, 4, 0, 4, 0, 4, 0, 4, 0],
