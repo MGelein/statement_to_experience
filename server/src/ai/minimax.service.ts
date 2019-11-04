@@ -15,7 +15,7 @@ export class MinimaxService {
         if (possibleTurns.length === 0) {
             return []
         }
-
+        
         return possibleTurns[Math.floor(Math.random() * possibleTurns.length)]
     }
 

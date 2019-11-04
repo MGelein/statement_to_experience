@@ -38,10 +38,10 @@ export class BoardEvaluationService {
                     const playerRowValue = player === 'b' ? row : settings.rowCount - row
                     const opponentRowValue = opponent === 'b' ? row : settings.rowCount - row
 
-                    if (piece === player) playerValue += 5 + playerRowValue
-                    else if (piece === player.toUpperCase()) playerValue += 7 + playerRowValue
-                    else if (piece === opponent) opponentValue += 5 + opponentRowValue
-                    else if (piece === opponent.toUpperCase()) opponentValue += 7 + opponentRowValue
+                    if (piece === player) playerValue += settings.basePawnValue * playerRowValue
+                    else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * playerRowValue
+                    else if (piece === opponent) opponentValue += settings.basePawnValue * opponentRowValue
+                    else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * opponentRowValue
                 })
             })
 
@@ -52,10 +52,10 @@ export class BoardEvaluationService {
 
             board.map((pieces: Piece[], row: number) => {
                 pieces.map((piece: Piece, col: number) => {
-                    if (piece === player) playerValue += settings.basePawnValue * settings.positionWeights[row][col]
-                    else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * settings.positionWeights[row][col]
-                    else if (piece === opponent) opponentValue += settings.basePawnValue * settings.positionWeights[row][col]
-                    else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * settings.positionWeights[row][col]
+                    if (piece === player) playerValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
+                    else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
+                    else if (piece === opponent) opponentValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
+                    else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
                 })
             })
 

@@ -62,7 +62,7 @@ export class BoardController {
     this.simulationInterval = setInterval(() => {
       const turn = nextPlayer === 'b'
         ? this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
-        : this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer)
+        : this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer, true)
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {

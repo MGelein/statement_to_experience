@@ -18,19 +18,6 @@ export interface Move {
 
 export type Turn = Move[]
 
-const InitialBoardState: Board = [
-  [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
-  ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
-  [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
-  ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
-  [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-  [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-  [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
-  ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
-  [' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w'],
-  ['w', ' ', 'w', ' ', 'w', ' ', 'w', ' ', 'w', ' '],
-]
-
 @Injectable()
 export class BoardService {
 
@@ -43,7 +30,7 @@ export class BoardService {
    * Reset the entire board
    */
   restart(): boolean {
-    this.board = JSON.parse(JSON.stringify(InitialBoardState))
+    this.board = JSON.parse(JSON.stringify(settings.initialBoard10))
     return true
   }
 
