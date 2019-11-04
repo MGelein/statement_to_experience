@@ -12,7 +12,7 @@ type EvaluationMethod = 'base' | 'position-matrix' | 'row'
 export class BoardEvaluationService {
   
     // TODO: implement row-based evaluation method
-    evaluate(board: Board, player: Player, method: EvaluationMethod = 'row'): number {
+    evaluate(board: Board, player: Player, method: EvaluationMethod = 'position-matrix'): number {
         const counts = this.countPieces(board)
         const opponent = player === 'b' ? 'w' : 'b' 
 
