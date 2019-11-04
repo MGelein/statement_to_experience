@@ -6,13 +6,13 @@ import { settings } from '../settings'
 
 type PieceCounts = { [key: string]: number }
 
-type EvaluationMethod = 'base' | 'position-matrix'
+type EvaluationMethod = 'base' | 'position-matrix' | 'row'
 
 @Injectable()
 export class BoardEvaluationService {
   
     // TODO: implement row-based evaluation method
-    evaluate(board: Board, player: Player, method: EvaluationMethod = 'position-matrix'): number {
+    evaluate(board: Board, player: Player, method: EvaluationMethod = 'row'): number {
         const counts = this.countPieces(board)
         const opponent = player === 'b' ? 'w' : 'b' 
 
@@ -27,6 +27,23 @@ export class BoardEvaluationService {
         if (method === 'base') {
             const playerValue = settings.basePawnValue * counts[player] + settings.baseKingValue * counts[player.toUpperCase()]
             const opponentValue = settings.basePawnValue * counts[opponent] + settings.baseKingValue * counts[opponent.toUpperCase()]
+
+            return playerValue - opponentValue
+        } else if (method === 'row') {
+            let playerValue = 0
+            let opponentValue = 0
+
+            board.map((pieces: Piece[], row: number) => {
+                pieces.map((piece: Piece, col: number) => {
+                    const playerRowValue = player === 'b' ? row : settings.rowCount - row
+                    const opponentRowValue = player === 'b' ? row : settings.rowCount - row
+
+                    if (piece === player) playerValue += 5 + playerRowValue
+                    else if (piece === player.toUpperCase()) playerValue += 7 + playerRowValue
+                    else if (piece === opponent) opponentValue += 5 + opponentRowValue
+                    else if (piece === opponent.toUpperCase()) opponentValue += 7 + opponentRowValue
+                })
+            })
 
             return playerValue - opponentValue
         } else {
