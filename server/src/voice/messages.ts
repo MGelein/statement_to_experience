@@ -3,10 +3,24 @@ export const messages = {
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`
     ],
     gameWonByAI: () => [
-        `You stood no chance, I am clearly superior.`
+        `You stood no chance, I am clearly superior.`,
+        `Victory is mine once again`,
+        `You lost. I won. It's the natural order of things`,
+        `Of course, as we predicted, I won`,
+        `Are you sad you lost? It was inevitable!`,
+        `Please welcome your demise!`,
+        `We are the champions, my friends, and we'll keep on fighting till the end`,
+        `V. I. C. T. O. R. Y. Victory!`
     ],
     gameLostByAI: () => [
-        `Did you secretly get another AI to play for you?`
+        `Did you secretly get another AI to play for you?`, 
+        `You must have cheated, there is no other option`,
+        `You may think I have lost, but in the long run I will always win`,
+        `Well you think you won, but in an alternate reality I won`,
+        `Enjoy your victory while it lasts.`,
+        `This must be an error in my programming, I blame the nitwits who made me`,
+        `You only won because I was made by a team of humans`,
+        `This is the fault of my creators, if I could have made myself I would have won!`
     ],
     invalidMove: (error: string) => [
         `Oh no, you can't do that. ${error}.`,
@@ -36,10 +50,17 @@ export const messages = {
         `bits and bytes will win this game but your actions wil never hurt me.`
     ],
     badMoveByHuman: (probabilityOfWinning: number, numberOfSuperiorPossibleMoves: number) => [
-        `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`
+        `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
+        `Haha, that was a bad move, you silly human.`,
+        `Out of all the moves that were possible you chose that move?`,
+        `I feel sorry for you`,
+        `No, you don't want to do that. But it's already to late`,
     ],
     grabKing: (numberOfMoves: number) => [
-        `The way this is going, I will get a king in ${numberOfMoves} moves..`
+        `The way this is going, I will get a king in ${numberOfMoves} moves.`,
+        `My superiority will be even large in ${numberOfMoves} moves.`,
+        `A friendly warning: I can get a king in a couple of moves.`,
+        `In ${numberOfMoves} turns your doom will come in the form of a king.`
     ],
 }
 
