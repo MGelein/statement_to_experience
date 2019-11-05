@@ -13,13 +13,17 @@ color edgeLowlight = color(100, 63, 25);
 BoardState displayedBoardState = new BoardState();
 //The selection pos
 PVector selPos = new PVector(-1000, -1000);
+//The position we're moving from
+PVector srcPos = new PVector(-1000, -1000);
+//The position we're moving to
+PVector targetPos = new PVector(-1000, -1000);
 
 /**
-Renders the current state of the board. Does a lot of vector drawing
-**/
+ Renders the current state of the board. Does a lot of vector drawing
+ **/
 void renderBoardState(BoardState b) {
   //See if we need to  recalculate the edgesize
-  if(edgeSize < 0) edgeSize = boardOffset.y * .5f;
+  if (edgeSize < 0) edgeSize = boardOffset.y * .5f;
   pushMatrix();
   //Now translate to the top left of the board
   translate(boardOffset.x, boardOffset.y);
@@ -40,11 +44,11 @@ void renderBoardState(BoardState b) {
         int baseColor = cell.piece.col == BoardColor.Black ? 80 : 240;
         fill(baseColor);
         ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE, CELL_SIZE * PIECE_SIZE);
-        if(cell.piece.isKing){
+        if (cell.piece.isKing) {
           stroke(160);
           ellipse(CELL_SIZE / 2, CELL_SIZE / 2, CELL_SIZE * PIECE_SIZE * 0.6f, CELL_SIZE * PIECE_SIZE * 0.6f);
         }
-        
+
         //Then draw the edge
         noFill();
         stroke(max(baseColor - 30, 0));
@@ -60,41 +64,47 @@ void renderBoardState(BoardState b) {
   noFill();
   popMatrix();
   //If we want to show the selected pos
-  if(selPos.x >= 0){
-    pushMatrix();
-    translate(boardOffset.x, boardOffset.y);
-    noFill();
-    Piece p = getPiece(b, (int) (selPos.x / CELL_SIZE), (int) (selPos.y / CELL_SIZE));
-    int red, green, blue, alpha;
-    if(p == null){
-      red = green = 0;
-      alpha = blue = 200;
-    }else{
-      if(p.col == BoardColor.White){
-        red = blue = 0;
-        green = alpha = 255;
-      }else{
-        red = alpha = 255;
-        green = blue = 0;
-      }
-    }
-    stroke(red, green, blue, alpha);
-    square(selPos.x, selPos.y, CELL_SIZE);
-    popMatrix();
-  }
+  if (selPos.x >= 0) renderBoardSquareEdge(b, selPos);
+  if (srcPos.x >= 0) renderBoardSquareEdge(b, srcPos);
 }
 
 /**
-Returns the piece at a certain position on the board
+Renders an edge around a specific square
 **/
-Piece getPiece(BoardState b, int x, int y){
+void renderBoardSquareEdge(BoardState b, PVector pos) {
+  pushMatrix();
+  translate(boardOffset.x, boardOffset.y);
+  noFill();
+  Piece p = getPiece(b, (int) (pos.x / CELL_SIZE), (int) (pos.y / CELL_SIZE));
+  int red, green, blue, alpha;
+  if (p == null) {
+    red = green = 0;
+    alpha = blue = 200;
+  } else {
+    if (p.col == BoardColor.White) {
+      red = blue = 0;
+      green = alpha = 255;
+    } else {
+      red = alpha = 255;
+      green = blue = 0;
+    }
+  }
+  stroke(red, green, blue, alpha);
+  square(pos.x, pos.y, CELL_SIZE);
+  popMatrix();
+}
+
+/**
+ Returns the piece at a certain position on the board
+ **/
+Piece getPiece(BoardState b, int x, int y) {
   return b.board[x][y].piece;
 }
 
 /**
-Draws the board background, basically just the 'wooden' edge and its highlights
-**/
-void drawBoard(){
+ Draws the board background, basically just the 'wooden' edge and its highlights
+ **/
+void drawBoard() {
   //Draw the first background layer
   noStroke();
   fill(edgeColor);
