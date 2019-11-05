@@ -1,5 +1,5 @@
 //How many cells should be along the side of the board, use 10 for classic and 8 for american and english checkers
-final int BOARD_SIZE = 10;
+final int BOARD_SIZE = 8;
 //The image that we'll display in the background, loaded from the data folder
 PImage bgImage;
 

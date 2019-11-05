@@ -30,7 +30,7 @@ export class BoardService {
    * Reset the entire board
    */
   restart(): boolean {
-    this.board = JSON.parse(JSON.stringify(settings.initialBoard10))
+    this.board = JSON.parse(JSON.stringify(settings.initialBoard8))
     return true
   }
 

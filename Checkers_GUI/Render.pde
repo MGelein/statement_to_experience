@@ -1,5 +1,5 @@
 //The size of every cell on the board.
-final int CELL_SIZE = 64;
+final int CELL_SIZE = 80;
 //The size that a piece should be as a factor of cell size
 final float PIECE_SIZE = 0.8f;
 float edgeSize = -1;

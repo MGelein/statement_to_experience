@@ -6,6 +6,8 @@ BoardState networkBoardState;
 int lastMillis = 0;
 //The amount of millis since last network update
 int lastUpdate = 0;
+//Amount of time in ms between each update request to the server
+final int UPDATE_MS = 500;
 //If we're currently running the sim
 boolean runningSim = false;
 
@@ -20,8 +22,8 @@ void checkNetwork(){
   //If we did not experience a integer overflow
   if(currentTime > lastMillis){
     lastUpdate += (currentTime - lastMillis);
-    if(lastUpdate > 1000){
-      lastUpdate -= 1000;
+    if(lastUpdate > UPDATE_MS){
+      lastUpdate -= UPDATE_MS;
       thread("updateBoardState");
     }
     lastMillis = currentTime;

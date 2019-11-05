@@ -27,7 +27,7 @@ class Button{
   //The handler that we can override to give custom functionality to this button
   MouseHandler handler;
   
-  Button(){
+  Button(){  
     pos = new PVector();
     dim = new PVector();
   }

@@ -1,6 +1,6 @@
 export const settings = {
-    rowCount: 10,
-    colCount: 10,
+    rowCount: 8,
+    colCount: 8,
     basePawnValue: 1,
     baseKingValue: 2,
     defaultMiniMaxDepth: 5,
