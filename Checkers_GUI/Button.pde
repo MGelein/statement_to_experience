@@ -79,6 +79,7 @@ class Button{
     pushMatrix();
     translate(pos.x, pos.y);
     //Render the background
+    noStroke();
     fill(backgroundColor, hover ? 200: 255);
     rect(0, 0, dim.x, dim.y);
     //Prepare the text for rendering

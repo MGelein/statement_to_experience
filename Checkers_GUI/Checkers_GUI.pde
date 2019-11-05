@@ -31,6 +31,17 @@ void draw() {
   renderBoardState(displayedBoardState);
   //Render all the buttons
   for(Button b: buttons) b.render();
+  //Render the mouse overlay and handle clicks
+  if(isOnBoard(mouseX, mouseY)){
+    int x = mouseX - (int) boardOffset.x;
+    int y = mouseY - (int) boardOffset.y;
+    x /= CELL_SIZE;
+    y /= CELL_SIZE;
+    selPos.set(x * CELL_SIZE, y * CELL_SIZE);
+  }else{
+    //Hide the selected pos
+    selPos.set(-1000, -1000);
+  }
   //Check if we need to do any network updates
   checkNetwork();
 }
@@ -51,4 +62,16 @@ void mouseReleased(){
   for(Button b: buttons){
     if(b.hover) b.release();
   }
+}
+
+/**
+Returns if the mouse is on the board
+**/
+boolean isOnBoard(int x, int y){
+  if(x >= boardOffset.x && x <= boardOffset.x + CELL_SIZE * BOARD_SIZE){
+    if(y >= boardOffset.y && y <= boardOffset.y + CELL_SIZE * BOARD_SIZE){
+      return true;
+    }
+  }
+  return false;
 }
