@@ -57,6 +57,10 @@ export const messages = {
         `I have won against the greatest grandmasters, why do you think you are different?`,
         `bits and bytes will win this game but your actions wil never hurt me.`
     ],
+    idleTalk: () => [
+        `Wanna play a game?`,
+        `My last opponent was so terrible. Do you want to try?`
+    ],
     badMoveByHuman: (probabilityOfWinning: number, numberOfSuperiorPossibleMoves: number) => [
         `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
         `Haha, that was a bad move, you silly human.`,

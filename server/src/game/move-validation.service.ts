@@ -6,15 +6,12 @@ import { settings } from '../settings'
 @Injectable()
 export class MoveValidationService {
 
-    /**
-     * Checks whether a single move is valid
-     */
     isValid(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
         const player = board[fromRow][fromCol].toLowerCase()
         const distanceRows = Math.abs(toRow - fromRow)
         const distanceCols = Math.abs(toCol - fromCol)
 
-        if (toRow > settings.rowCount - 1 || toRow < 0 || toCol > settings.colCount - 1 || toCol < 0) {
+        if (toRow > settings.board.rowCount - 1 || toRow < 0 || toCol > settings.board.colCount - 1 || toCol < 0) {
             return 'You cannot move off the board'
         }
 
@@ -89,7 +86,7 @@ export class MoveValidationService {
 
         // let piecesOpponentInBetween = 0
         // for (let steps = 0; steps <= distance; steps++) {            
-        //     if (fromRow + rowdir * (steps + 1) >= settings.rowCount - 1 || fromCol + coldir * (steps + 1) >= settings.colCount - 1) {
+        //     if (fromRow + rowdir * (steps + 1) >= settings.board.rowCount - 1 || fromCol + coldir * (steps + 1) >= settings.board.colCount - 1) {
         //         return 'OK'
         //     }
 

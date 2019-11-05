@@ -30,7 +30,7 @@ export class BoardService {
    * Reset the entire board
    */
   restart(): boolean {
-    this.board = JSON.parse(JSON.stringify(settings.initialBoard8))
+    this.board = JSON.parse(JSON.stringify(settings.board.initialBoard8))
     return true
   }
 
@@ -76,7 +76,7 @@ export class BoardService {
 
     if (toRow === 0 && player === 'w') {
       newBoard[toRow][toCol] = 'W' // set the new cell to be a king
-    } else if (toRow === settings.rowCount - 1 && player === 'b') {
+    } else if (toRow === settings.board.rowCount - 1 && player === 'b') {
       newBoard[toRow][toCol] = 'B' // set the new cell to be a king
     } else {
       newBoard[toRow][toCol] = player // set the new cell to be the same piece as the old cell

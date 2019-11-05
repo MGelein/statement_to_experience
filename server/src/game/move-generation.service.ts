@@ -51,8 +51,8 @@ export class MoveGenerationService {
 
         if (board[row][col] === 'B' || board[row][col] === 'W') {
             // Search more than 2 steps away just for kings
-            for (let i = 2; i < settings.rowCount; i += 1) {
-                for (let j = 2; j < settings.colCount; j += 1) {
+            for (let i = 2; i < settings.board.rowCount; i += 1) {
+                for (let j = 2; j < settings.board.colCount; j += 1) {
                     // TODO
                 }
             }
@@ -82,8 +82,8 @@ export class MoveGenerationService {
 
         if (board[row][col] === 'B' || board[row][col] === 'W') {
             // Search more than 1 step away just for kings
-            for (let r = 2; r < settings.rowCount; r += 1) {
-                for (let c = 2; c < settings.colCount; c += 1) {
+            for (let r = 2; r < settings.board.rowCount; r += 1) {
+                for (let c = 2; c < settings.board.colCount; c += 1) {
                     directions.map(([rowdir, coldir]) => {
                         // console.log(this.isValid(board, row, col, row + rowdir * r, col + coldir * c))
                         if (this.isValid(board, row, col, row + rowdir * r, col + coldir * c) === 'OK') {

@@ -10,7 +10,7 @@ export class TextToSpeechService {
     // https://github.com/googleapis/nodejs-text-to-speech
   
     say(text: string): void {
-        if (settings.enableTextToSpeech) {
+        if (settings.voice.enabled) {
             say.speak(text)
         } else {
             console.log(`TTS: ${text}`)

@@ -43,7 +43,7 @@ export class BoardController {
       this.voiceService.triggerSlowMove(moveDuration)
     }
 
-    const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b', true)
+    const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
 
     if (turn && turn.length > 0) {
       turn.map((move: Move) => {
@@ -84,8 +84,8 @@ export class BoardController {
       //   ? this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
       //   : this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer, true)
       const turn = nextPlayer === 'b'
-        ? this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth - 2, nextPlayer, true)
-        : this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer, true)
+        ? this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth - 2, nextPlayer, settings.ai.alphaBetaPruning)
+        : this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, nextPlayer, settings.ai.alphaBetaPruning)
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {

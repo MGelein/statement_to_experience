@@ -36,8 +36,8 @@ export class BoardEvaluationService {
         const counts = this.countPieces(board)
         const opponent = player === 'b' ? 'w' : 'b' 
 
-        const playerValue = settings.basePawnValue * counts[player] + settings.baseKingValue * counts[player.toUpperCase()]
-        const opponentValue = settings.basePawnValue * counts[opponent] + settings.baseKingValue * counts[opponent.toUpperCase()]
+        const playerValue = settings.evaluation.basePawnValue * counts[player] + settings.evaluation.baseKingValue * counts[player.toUpperCase()]
+        const opponentValue = settings.evaluation.basePawnValue * counts[opponent] + settings.evaluation.baseKingValue * counts[opponent.toUpperCase()]
 
         return playerValue - opponentValue
     }
@@ -49,13 +49,13 @@ export class BoardEvaluationService {
 
         board.map((pieces: Piece[], row: number) => {
             pieces.map((piece: Piece) => {
-                const playerRowValue = player === 'b' ? row : settings.rowCount - row
-                const opponentRowValue = opponent === 'b' ? row : settings.rowCount - row
+                const playerRowValue = player === 'b' ? row : settings.board.rowCount - row
+                const opponentRowValue = opponent === 'b' ? row : settings.board.rowCount - row
 
-                if (piece === player) playerValue += settings.basePawnValue * playerRowValue
-                else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * playerRowValue
-                else if (piece === opponent) opponentValue += settings.basePawnValue * opponentRowValue
-                else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * opponentRowValue
+                if (piece === player) playerValue += settings.evaluation.basePawnValue * playerRowValue
+                else if (piece === player.toUpperCase()) playerValue += settings.evaluation.baseKingValue * playerRowValue
+                else if (piece === opponent) opponentValue += settings.evaluation.basePawnValue * opponentRowValue
+                else if (piece === opponent.toUpperCase()) opponentValue += settings.evaluation.baseKingValue * opponentRowValue
             })
         })
 
@@ -69,10 +69,10 @@ export class BoardEvaluationService {
 
         board.map((pieces: Piece[], row: number) => {
             pieces.map((piece: Piece, col: number) => {
-                if (piece === player) playerValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
-                else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
-                else if (piece === opponent) opponentValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
-                else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
+                if (piece === player) playerValue += settings.evaluation.basePawnValue * 5 + settings.evaluation.positionWeights[row][col]
+                else if (piece === player.toUpperCase()) playerValue += settings.evaluation.baseKingValue * 5 + settings.evaluation.positionWeights[row][col]
+                else if (piece === opponent) opponentValue += settings.evaluation.basePawnValue * 5 + settings.evaluation.positionWeights[row][col]
+                else if (piece === opponent.toUpperCase()) opponentValue += settings.evaluation.baseKingValue * 5 + settings.evaluation.positionWeights[row][col]
             })
         })
 
