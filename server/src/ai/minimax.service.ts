@@ -56,8 +56,7 @@ export class MinimaxService {
         const end = new Date()
         const duration = Math.round(((end.getTime() - start.getTime()) / 1000) * 100) / 100
 
-        console.log(`Max score for ${player} after ${depth}-level evaluations is ${maxScore}`)
-        console.log(`Minimax algorithm ran in ${duration}s`)
+        console.log(`Minimax evaluation ran in ${duration}s.`)
 
         return maxTurn
     }

@@ -1,4 +1,5 @@
 export const settings = {
+    enableTextToSpeech: true,
     rowCount: 8,
     colCount: 8,
     basePawnValue: 1,

@@ -1,18 +1,20 @@
 import { Controller, Get, Header, Param } from '@nestjs/common'
 import { BoardService, Board, Piece, Player, Move } from './board.service'
 import { MinimaxService } from '../ai/minimax.service'
-const say = require('say')
 
 import { settings } from '../settings'
+import { VoiceService } from '../voice/voice.service'
 
 @Controller('board')
 export class BoardController {
-  constructor(private readonly boardService: BoardService, private readonly minimaxService: MinimaxService) {}
+  constructor(private readonly boardService: BoardService, private readonly minimaxService: MinimaxService, private readonly voiceService: VoiceService) {}
 
   simulationInterval: any = null
   simulationDelayMs: number = 1000
 
   debugLogging: boolean = false
+
+  lastAIMoveAt: number = 0
 
   @Get()
   list(): Board {
@@ -23,7 +25,6 @@ export class BoardController {
   restart(): string {
     this.boardService.restart()
     clearInterval(this.simulationInterval)
-
     console.log('Command: Restart the game.')
 
     return 'OK'
@@ -43,13 +44,21 @@ export class BoardController {
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
     if (humanMove === 'OK' && params.end === '1') {
+      const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
+      if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
+        this.voiceService.triggerSlowMove(moveDuration)
+      }
+
       const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b', true)
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
+        this.lastAIMoveAt = new Date().getTime()
       }
+    } else if (humanMove !== 'OK') {
+      this.voiceService.triggerInvalidMove(humanMove)
     }
 
     return humanMove
@@ -72,10 +81,6 @@ export class BoardController {
         turn.map((move: Move) => {
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
-
-        if (nextPlayer === 'b') {
-          say.speak('That was a bad move...')
-        }
       } else {
         console.log('Game simulation has ended')
         clearInterval(this.simulationInterval)
