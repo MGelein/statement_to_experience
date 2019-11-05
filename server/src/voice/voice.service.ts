@@ -8,6 +8,10 @@ export class VoiceService {
 
     constructor(private readonly textToSpeechService: TextToSpeechService) {}
 
+    lastSpoken: Date = new Date()
+
+    history: string[] = []
+
     // TODO: we should count # of moves since every trigger last occurred, and then enforce a minimum move distance for some triggers
     // E.g. the slow move trigger should only occur every 3 human moves at the most
 
@@ -42,8 +46,13 @@ export class VoiceService {
     }
 
     private pick(texts: string[]) {
-        // TODO: we should store a memory of texts, and then not repeat the last one
-        return texts[Math.floor(Math.random() * texts.length)]
+        const nonRepeats = texts.filter((text: string) => !this.history.includes(text))
+        const text = nonRepeats[Math.floor(Math.random() * nonRepeats.length)]
+
+        this.history.push(text)
+        this.lastSpoken = new Date()
+
+        return text
     }
 
 }

@@ -11,7 +11,6 @@ type EvaluationMethod = 'base' | 'position-matrix' | 'row'
 @Injectable()
 export class BoardEvaluationService {
   
-    // TODO: implement row-based evaluation method
     evaluate(board: Board, player: Player, method: EvaluationMethod = 'position-matrix'): number {
         const counts = this.countPieces(board)
         const opponent = player === 'b' ? 'w' : 'b' 
@@ -25,42 +24,59 @@ export class BoardEvaluationService {
         }
 
         if (method === 'base') {
-            const playerValue = settings.basePawnValue * counts[player] + settings.baseKingValue * counts[player.toUpperCase()]
-            const opponentValue = settings.basePawnValue * counts[opponent] + settings.baseKingValue * counts[opponent.toUpperCase()]
-
-            return playerValue - opponentValue
+            return this.baseEvaluation(board, player)
         } else if (method === 'row') {
-            let playerValue = 0
-            let opponentValue = 0
-
-            board.map((pieces: Piece[], row: number) => {
-                pieces.map((piece: Piece) => {
-                    const playerRowValue = player === 'b' ? row : settings.rowCount - row
-                    const opponentRowValue = opponent === 'b' ? row : settings.rowCount - row
-
-                    if (piece === player) playerValue += settings.basePawnValue * playerRowValue
-                    else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * playerRowValue
-                    else if (piece === opponent) opponentValue += settings.basePawnValue * opponentRowValue
-                    else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * opponentRowValue
-                })
-            })
-
-            return playerValue - opponentValue
+            return this.rowBasedEvaluation(board, player)
         } else {
-            let playerValue = 0
-            let opponentValue = 0
-
-            board.map((pieces: Piece[], row: number) => {
-                pieces.map((piece: Piece, col: number) => {
-                    if (piece === player) playerValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
-                    else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
-                    else if (piece === opponent) opponentValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
-                    else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
-                })
-            })
-
-            return playerValue - opponentValue
+            return this.positionBasedEvaluation(board, player)
         }
+    }
+
+    private baseEvaluation(board: Board, player: Player): number {
+        const counts = this.countPieces(board)
+        const opponent = player === 'b' ? 'w' : 'b' 
+
+        const playerValue = settings.basePawnValue * counts[player] + settings.baseKingValue * counts[player.toUpperCase()]
+        const opponentValue = settings.basePawnValue * counts[opponent] + settings.baseKingValue * counts[opponent.toUpperCase()]
+
+        return playerValue - opponentValue
+    }
+
+    private rowBasedEvaluation(board: Board, player: Player): number {
+        const opponent = player === 'b' ? 'w' : 'b' 
+        let playerValue = 0
+        let opponentValue = 0
+
+        board.map((pieces: Piece[], row: number) => {
+            pieces.map((piece: Piece) => {
+                const playerRowValue = player === 'b' ? row : settings.rowCount - row
+                const opponentRowValue = opponent === 'b' ? row : settings.rowCount - row
+
+                if (piece === player) playerValue += settings.basePawnValue * playerRowValue
+                else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * playerRowValue
+                else if (piece === opponent) opponentValue += settings.basePawnValue * opponentRowValue
+                else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * opponentRowValue
+            })
+        })
+
+        return playerValue - opponentValue
+    }
+
+    private positionBasedEvaluation(board: Board, player: Player): number {
+        const opponent = player === 'b' ? 'w' : 'b' 
+        let playerValue = 0
+        let opponentValue = 0
+
+        board.map((pieces: Piece[], row: number) => {
+            pieces.map((piece: Piece, col: number) => {
+                if (piece === player) playerValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
+                else if (piece === player.toUpperCase()) playerValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
+                else if (piece === opponent) opponentValue += settings.basePawnValue * 5 + settings.positionWeights[row][col]
+                else if (piece === opponent.toUpperCase()) opponentValue += settings.baseKingValue * 5 + settings.positionWeights[row][col]
+            })
+        })
+
+        return playerValue - opponentValue
     }
 
     hasEnded(board: Board): boolean {
