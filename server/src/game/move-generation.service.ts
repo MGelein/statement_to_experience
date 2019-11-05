@@ -85,6 +85,7 @@ export class MoveGenerationService {
             for (let r = 2; r < settings.rowCount; r += 1) {
                 for (let c = 2; c < settings.colCount; c += 1) {
                     directions.map(([rowdir, coldir]) => {
+                        // console.log(this.isValid(board, row, col, row + rowdir * r, col + coldir * c))
                         if (this.isValid(board, row, col, row + rowdir * r, col + coldir * c) === 'OK') {
                             turns.push([{ fromRow: row, fromCol: col, toRow: row + rowdir * r, toCol: col + coldir * c }])
                         }

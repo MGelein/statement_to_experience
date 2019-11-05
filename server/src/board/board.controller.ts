@@ -34,15 +34,15 @@ export class BoardController {
     return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
   }
 
-  @Get('move/:from/:to')
+  @Get('move/:from/:to/:end')
   move(@Param() params): string {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
 
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
-    if (humanMove === 'OK') {
-      const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b')
+    if (humanMove === 'OK' && params.end === '1') {
+      const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b', true)
 
       if (turn && turn.length > 0) {
         turn.map((move: Move) => {
@@ -60,8 +60,11 @@ export class BoardController {
     let nextPlayer: Player = 'w'
 
     this.simulationInterval = setInterval(() => {
+      // const turn = nextPlayer === 'b'
+      //   ? this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
+      //   : this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer, true)
       const turn = nextPlayer === 'b'
-        ? this.minimaxService.runRandom(this.boardService.get(), nextPlayer)
+        ? this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth - 2, nextPlayer, true)
         : this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, nextPlayer, true)
 
       if (turn && turn.length > 0) {

@@ -34,19 +34,6 @@ export class MoveValidationService {
             return 'You cannot move to a cell with a piece from the same player'
         }
 
-        if (distanceRows === 2) {
-            const inbetweenRow = fromRow + ((toRow - fromRow) / 2)
-            const inbetweenCol = fromCol + ((toCol - fromCol) / 2)
-
-            if (board[inbetweenRow][inbetweenCol].toLowerCase() === player) {
-                return 'You cannot jump over your own piece'
-            }
-
-            if (board[inbetweenRow][inbetweenCol] === ' ') {
-                return 'You cannot jump over your an empty cell'
-            }
-        }
-
         const isKing = board[fromRow][fromCol] === 'B' || board[fromRow][fromCol] === 'W'
 
         if (isKing) {
@@ -73,6 +60,19 @@ export class MoveValidationService {
             return 'You cannot move backwards with a pawn'
         }
 
+        if (distanceRows === 2) {
+            const inbetweenRow = fromRow + ((toRow - fromRow) / 2)
+            const inbetweenCol = fromCol + ((toCol - fromCol) / 2)
+
+            if (board[inbetweenRow][inbetweenCol].toLowerCase() === player) {
+                return 'You cannot jump over your own piece'
+            }
+
+            if (board[inbetweenRow][inbetweenCol] === ' ') {
+                return 'You cannot jump over an empty cell'
+            }
+        }
+
         return 'OK'
     }
 
@@ -82,16 +82,23 @@ export class MoveValidationService {
 
         // // We already checked that the distance in rows is the same as in cols, so we can assume they're the same now
         // const distance = Math.abs(toRow - fromRow)
-        // const directionRows = toRow > fromRow ? 1 : -1
-        // const directionCols = toCol > fromCol ? 1 : -1
+        // const rowdir = toRow > fromRow ? 1 : -1
+        // const coldir = toCol > fromCol ? 1 : -1
+
+        // console.log(distance)
 
         // let piecesOpponentInBetween = 0
-        // for (let steps = 0; steps <= distance; steps++) {
-        //     if (fromRow + directionRows * steps >= settings.rowCount || fromCol + directionCols * steps >= settings.colCount) {
-        //         continue
+        // for (let steps = 0; steps <= distance; steps++) {            
+        //     if (fromRow + rowdir * (steps + 1) >= settings.rowCount - 1 || fromCol + coldir * (steps + 1) >= settings.colCount - 1) {
+        //         return 'OK'
         //     }
 
-        //     const piece = board[fromRow + directionRows * steps][fromCol + directionCols * steps]
+        //     const piece = board[fromRow + rowdir * (steps + 1)][fromCol + coldir * (steps + 1)]
+
+
+        //     if (!piece) {
+        //         return 'OK'
+        //     }
 
         //     if (piece.toLowerCase() === player) {
         //         return 'You cannot move or jump over your own pieces'

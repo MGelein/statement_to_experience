@@ -35,7 +35,6 @@ export class MinimaxService {
         possibleTurns.map((turn: Turn) => {
             const newBoard = this.boardService.applyTurn(board, turn)
 
-            // We reduce depth by 2 because this function already contains one level, and depth === 0 is also one level.
             const score = this.evaluateRecursively(newBoard, depth - 1, player, false, alpha, beta, alphaBetaPruning)
 
             if (score > maxScore) {
