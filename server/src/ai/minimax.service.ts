@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common'
 
 import { Player, Board, BoardService, Turn } from '../board/board.service'
-import { MoveEvaluationService } from '../game/move-evaluation.service'
+import { MoveGenerationService } from '../game/move-generation.service'
 import { BoardEvaluationService } from './board-evaluation.service'
 
 @Injectable()
 export class MinimaxService {
 
-    constructor(private readonly boardService: BoardService, private readonly moveEvaluationService: MoveEvaluationService, private readonly boardEvaluationService: BoardEvaluationService) {}
+    constructor(private readonly boardService: BoardService, private readonly moveGenerationService: MoveGenerationService, private readonly boardEvaluationService: BoardEvaluationService) {}
 
     runRandom(board: Board, player: Player): Turn {
-        const possibleTurns = this.moveEvaluationService.getAllPossibleTurns(JSON.parse(JSON.stringify(board)), player)
+        const possibleTurns = this.moveGenerationService.getAllPossibleTurns(JSON.parse(JSON.stringify(board)), player)
 
         if (possibleTurns.length === 0) {
             return []
@@ -22,7 +22,7 @@ export class MinimaxService {
     runMinimax(board: Board, depth: number, player: Player, alphaBetaPruning: boolean = true): Turn {
         const start = new Date()
 
-        const possibleTurns = this.moveEvaluationService.getAllPossibleTurns(board, player)        
+        const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, player)        
         if (possibleTurns.length === 0) {
             return []
         }
@@ -36,7 +36,7 @@ export class MinimaxService {
             const newBoard = this.boardService.applyTurn(board, turn)
 
             // We reduce depth by 2 because this function already contains one level, and depth === 0 is also one level.
-            const score = this.evaluateRecursively(newBoard, depth - 2, player, false, alpha, beta, alphaBetaPruning)
+            const score = this.evaluateRecursively(newBoard, depth - 1, player, false, alpha, beta, alphaBetaPruning)
 
             if (score > maxScore) {
                 maxTurn = turn
@@ -68,7 +68,7 @@ export class MinimaxService {
             return this.boardEvaluationService.evaluate(board, player)
         }
 
-        const possibleTurns = this.moveEvaluationService.getAllPossibleTurns(board, player)
+        const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, player)
         
         if (maximizing) {
             let maxScore = -Number.MAX_VALUE

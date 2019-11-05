@@ -57,7 +57,7 @@ export class BoardController {
   @Get('simulate')
   simulate(): string {
     console.log('Command: Start a game simulation.')
-    let nextPlayer: Player = 'b'
+    let nextPlayer: Player = 'w'
 
     this.simulationInterval = setInterval(() => {
       const turn = nextPlayer === 'b'
@@ -68,6 +68,9 @@ export class BoardController {
         turn.map((move: Move) => {
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
+      } else {
+        console.log('Game simulation has ended')
+        clearInterval(this.simulationInterval)
       }
 
       nextPlayer = nextPlayer === 'b' ? 'w' : 'b'

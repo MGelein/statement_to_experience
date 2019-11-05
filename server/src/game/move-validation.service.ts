@@ -11,7 +11,6 @@ export class MoveValidationService {
      */
     isValid(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
         const player = board[fromRow][fromCol].toLowerCase()
-        const isKing = board[fromRow][fromCol] === 'B' || board[fromRow][fromCol] === 'W'
         const distanceRows = Math.abs(toRow - fromRow)
         const distanceCols = Math.abs(toCol - fromCol)
 
@@ -31,7 +30,7 @@ export class MoveValidationService {
             return 'You have to move diagonally'
         }
 
-        if (board[toRow][toCol] === player) {
+        if (board[toRow][toCol].toLowerCase() === player) {
             return 'You cannot move to a cell with a piece from the same player'
         }
 
@@ -47,6 +46,8 @@ export class MoveValidationService {
                 return 'You cannot jump over your an empty cell'
             }
         }
+
+        const isKing = board[fromRow][fromCol] === 'B' || board[fromRow][fromCol] === 'W'
 
         if (isKing) {
             return this.isValidForAKing(board, fromRow, fromCol, toRow, toCol)
@@ -65,17 +66,44 @@ export class MoveValidationService {
         }
 
         if (distanceRows === 1 && player === 'b' && fromRow > toRow) {
-            return 'You cannot move backwards with a non-king piece'
+            return 'You cannot move backwards with a pawn'
         }
 
         if (distanceRows === 1 && player === 'w' && fromRow < toRow) {
-            return 'You cannot move backwards with a non-king piece'
+            return 'You cannot move backwards with a pawn'
         }
 
         return 'OK'
     }
 
     private isValidForAKing(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): string {
+        // const player = board[fromRow][fromCol].toLowerCase()
+        // const opponent = player === 'b' ? 'w' : 'b'
+
+        // // We already checked that the distance in rows is the same as in cols, so we can assume they're the same now
+        // const distance = Math.abs(toRow - fromRow)
+        // const directionRows = toRow > fromRow ? 1 : -1
+        // const directionCols = toCol > fromCol ? 1 : -1
+
+        // let piecesOpponentInBetween = 0
+        // for (let steps = 0; steps <= distance; steps++) {
+        //     if (fromRow + directionRows * steps >= settings.rowCount || fromCol + directionCols * steps >= settings.colCount) {
+        //         continue
+        //     }
+
+        //     const piece = board[fromRow + directionRows * steps][fromCol + directionCols * steps]
+
+        //     if (piece.toLowerCase() === player) {
+        //         return 'You cannot move or jump over your own pieces'
+        //     } else if (piece.toLowerCase() === opponent) {
+        //         piecesOpponentInBetween += 1
+
+        //         if (piecesOpponentInBetween > 1) {
+        //             return 'You cannot jump over more than 1 piece'
+        //         }
+        //     }
+        // }
+
         return 'OK'
     }
 

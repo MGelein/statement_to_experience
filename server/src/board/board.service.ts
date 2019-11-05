@@ -72,11 +72,14 @@ export class BoardService {
    */
   applyMove(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): Board {
     let newBoard = JSON.parse(JSON.stringify(board))
+    const player = board[fromRow][fromCol]
 
-    if (toRow === 0 || toRow === settings.rowCount - 1) {
-      newBoard[toRow][toCol] = newBoard[fromRow][fromCol] === 'b' ? 'B' : 'W' // set the new cell to be a king
+    if (toRow === 0 && player === 'w') {
+      newBoard[toRow][toCol] = 'W' // set the new cell to be a king
+    } else if (toRow === settings.rowCount - 1 && player === 'b') {
+      newBoard[toRow][toCol] = 'B' // set the new cell to be a king
     } else {
-      newBoard[toRow][toCol] = newBoard[fromRow][fromCol] // set the new cell to be the same piece as the old cell
+      newBoard[toRow][toCol] = player // set the new cell to be the same piece as the old cell
     }
 
     newBoard[fromRow][fromCol] = ' ' // set the old cell to be empty
