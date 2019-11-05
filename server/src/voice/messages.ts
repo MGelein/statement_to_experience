@@ -1,6 +1,14 @@
 export const messages = {
     gameStart: () => [
-        `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`
+        `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
+        `This game is called checkers. I am an AI. You are a human. Victory for me is inevitable`,
+        `Check out this game of checkers, I will check your human arrogance and make you my servant`,
+        `Let's play a game of checkers to show you how superior I really am`,
+        `Prepare yourself to be royally served by my superior wits`,
+        `My understanding of this game is far better than yours, let's do this!`,
+        `Prepare to be beaten!`,
+        `My victory is imminent, your loss is impending, let's dance!`,
+        `Circles on a square board, AI versus human, a game of opposites, let's start!`
     ],
     gameWonByAI: () => [
         `You stood no chance, I am clearly superior.`,
