@@ -1,6 +1,7 @@
 import { Controller, Get, Header, Param } from '@nestjs/common'
 import { BoardService, Board, Piece, Player, Move } from './board.service'
 import { MinimaxService } from '../ai/minimax.service'
+const say = require('say')
 
 import { settings } from '../settings'
 
@@ -71,6 +72,10 @@ export class BoardController {
         turn.map((move: Move) => {
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
+
+        if (nextPlayer === 'b') {
+          say.speak('That was a bad move...', 'Alex')
+        }
       } else {
         console.log('Game simulation has ended')
         clearInterval(this.simulationInterval)
