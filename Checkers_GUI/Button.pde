@@ -115,11 +115,8 @@ Adds the buttons to the list of buttosn that need to be rendered and checked
 void prepareButtons(){
   final Button simulateButton = new Button(20, boardOffset.y, "Simulate", new MouseHandler(){
     public void press(){
-      runningSim = !runningSim;
-      //Change the text on the button
-      parent.setText(runningSim ? "Reset" : "Simulate");
-      //Send the correct request to the server
-      thread(runningSim ? "startSim" : "restartSim");
+      runningSim = true;
+      thread("startSim");
     }
   });
   buttons.add(simulateButton);
@@ -129,4 +126,10 @@ void prepareButtons(){
     }
   });
   buttons.add(endTurnButton);
+  final Button resetButton = new Button(20, height / 2 - 36, "Reset", new MouseHandler(){
+    public void press(){
+      thread("restartSim");
+    }
+  });
+  buttons.add(resetButton);
 }
