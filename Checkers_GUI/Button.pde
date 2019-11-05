@@ -113,7 +113,7 @@ abstract class MouseHandler{
 Adds the buttons to the list of buttosn that need to be rendered and checked
 **/
 void prepareButtons(){
-  final Button simulateButton = new Button(50, 50, "Simulate", new MouseHandler(){
+  final Button simulateButton = new Button(20, boardOffset.y, "Simulate", new MouseHandler(){
     public void press(){
       runningSim = !runningSim;
       //Change the text on the button
@@ -123,7 +123,7 @@ void prepareButtons(){
     }
   });
   buttons.add(simulateButton);
-  final Button endTurnButton = new Button(50, 100, "End Turn", new MouseHandler(){
+  final Button endTurnButton = new Button(20, height - boardOffset.y - 72, "End Turn", new MouseHandler(){
     public void press(){
       thread("endTurn");
     }
