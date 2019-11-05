@@ -123,4 +123,10 @@ void prepareButtons(){
     }
   });
   buttons.add(simulateButton);
+  final Button endTurnButton = new Button(50, 100, "End Turn", new MouseHandler(){
+    public void press(){
+      thread("endTurn");
+    }
+  });
+  buttons.add(endTurnButton);
 }

@@ -17,6 +17,13 @@ int fromX, fromY;
 int toX, toY;
 
 /**
+Sends a signal to the server that the player move has ended
+**/
+void endTurn(){
+  loadStrings(SERVER_IP + "/board/move/end/");
+}
+
+/**
  Prepares this move for sending to the server, starts a thread for this move request
  **/
 void sendMove(PVector from, PVector to) {
