@@ -1,4 +1,13 @@
 export const messages = {
+    gameStart: () => [
+        `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`
+    ],
+    gameWonByAI: () => [
+        `You stood no chance, I am clearly superior.`
+    ],
+    gameLostByAI: () => [
+        `Did you secretly get another AI to play for you?`
+    ],
     invalidMove: (error: string) => [
         `Oh no, you can't do that. ${error}.`,
         `Haha, you silly human, you do know that is not allowed, right? ${error}.`,
@@ -25,7 +34,13 @@ export const messages = {
         `Even the nitwits that built me were not able to beat me.`,
         `I have won against the greatest grandmasters, why do you think you are different?`,
         `bits and bytes will win this game but your actions wil never hurt me.`
-    ]
+    ],
+    badMoveByHuman: (probabilityOfWinning: number, numberOfSuperiorPossibleMoves: number) => [
+        `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`
+    ],
+    grabKing: (numberOfMoves: number) => [
+        `The way this is going, I will get a king in ${numberOfMoves} moves..`
+    ],
 }
 
 // Other ideas:

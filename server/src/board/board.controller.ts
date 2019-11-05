@@ -49,7 +49,10 @@ export class BoardController {
       turn.map((move: Move) => {
         this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
       })
+    } else {
+      console.log('Game has ended')
     }
+    
     this.lastAIMoveAt = new Date().getTime()
 
     return 'OK'

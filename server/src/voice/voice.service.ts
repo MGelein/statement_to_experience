@@ -11,6 +11,21 @@ export class VoiceService {
     // TODO: we should count # of moves since every trigger last occurred, and then enforce a minimum move distance for some triggers
     // E.g. the slow move trigger should only occur every 3 human moves at the most
 
+    triggerGameStart() {
+        // const text = this.pick(messages.invalidMove(error))
+        // this.textToSpeechService.say(text)
+    }
+
+    triggerGameWonByAI() {
+        // const text = this.pick(messages.invalidMove(error))
+        // this.textToSpeechService.say(text)
+    }
+
+    triggerGameEndByAI() {
+        // const text = this.pick(messages.invalidMove(error))
+        // this.textToSpeechService.say(text)
+    }
+
     triggerInvalidMove(error: string) {
         const text = this.pick(messages.invalidMove(error))
         this.textToSpeechService.say(text)
