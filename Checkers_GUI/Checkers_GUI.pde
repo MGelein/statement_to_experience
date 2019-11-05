@@ -2,6 +2,8 @@
 final int BOARD_SIZE = 8;
 //The image that we'll display in the background, loaded from the data folder
 PImage bgImage;
+//The spacenbar key
+final int SPACE = 32;
 
 /**
 Runs once and handles setup
@@ -42,6 +44,10 @@ void draw() {
     //Hide the selected pos
     selPos.set(-1000, -1000);
   }
+  
+  //Check if we need to end the turn
+  if(Key.isDownOnce(SPACE)) thread("endTurn");
+  
   //Check if we need to do any network updates
   checkNetwork();
 }
@@ -79,6 +85,21 @@ void mouseReleased(){
   for(Button b: buttons){
     if(b.hover) b.release();
   }
+}
+
+/**
+Registers a keypress with the lib
+**/
+void keyPressed(){
+  println(keyCode);
+  Key.setState(keyCode, true);
+}
+
+/**
+Registers a key release with the lib
+**/
+void keyReleased(){
+  Key.setState(keyCode, false);
 }
 
 /**
