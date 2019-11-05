@@ -36,6 +36,25 @@ export class BoardController {
     return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
   }
 
+  @Get('move/end')
+  endMove(): string {
+    const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
+    if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
+      this.voiceService.triggerSlowMove(moveDuration)
+    }
+
+    const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b', true)
+
+    if (turn && turn.length > 0) {
+      turn.map((move: Move) => {
+        this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
+      })
+    }
+    this.lastAIMoveAt = new Date().getTime()
+
+    return 'OK'
+  }
+
   @Get('move/:from/:to/:end')
   move(@Param() params): string {
     const [fromRow, fromCol] = params.from.split('.')
@@ -43,21 +62,7 @@ export class BoardController {
 
     const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
 
-    if (humanMove === 'OK' && params.end === '1') {
-      const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
-      if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
-        this.voiceService.triggerSlowMove(moveDuration)
-      }
-
-      const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.defaultMiniMaxDepth, 'b', true)
-
-      if (turn && turn.length > 0) {
-        turn.map((move: Move) => {
-          this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
-        })
-        this.lastAIMoveAt = new Date().getTime()
-      }
-    } else if (humanMove !== 'OK') {
+    if (humanMove !== 'OK') {
       this.voiceService.triggerInvalidMove(humanMove)
     }
 
