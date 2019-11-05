@@ -74,7 +74,7 @@ export class BoardController {
         })
 
         if (nextPlayer === 'b') {
-          say.speak('That was a bad move...', 'Alex')
+          say.speak('That was a bad move...')
         }
       } else {
         console.log('Game simulation has ended')
