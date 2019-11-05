@@ -12,6 +12,8 @@ export class TextToSpeechService {
     say(text: string): void {
         if (settings.enableTextToSpeech) {
             say.speak(text)
+        } else {
+            console.log(`TTS: ${text}`)
         }
     }
 }
