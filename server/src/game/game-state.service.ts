@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common'
 
-import { Move } from '../board/board.service'
+import { Move, BoardService } from '../board/board.service'
 import { VoiceService } from '../voice/voice.service'
+import { BoardEvaluationService, Winner } from '../ai/board-evaluation.service'
 
 interface GameState {
     startedAt?: Date;
     endedAt?: Date;
-    moves: Move[]
+    moves: Move[];
+    winner?: Winner;
 }
 
 @Injectable()
@@ -17,7 +19,7 @@ export class GameStateService {
         endedAt: new Date()
     }
 
-    constructor(private readonly voiceService: VoiceService) {}
+    constructor(private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService) {}
 
     addMove(move: Move) {
         if (this.state.endedAt) {
@@ -34,12 +36,14 @@ export class GameStateService {
 
     restart() {
         this.state.endedAt = new Date()
-        this.voiceService.triggerGameEnd()
+        this.state.winner = this.boardEvaluationService.getWinner(this.boardService.get())
+        this.voiceService.triggerGameEnd(this.state.winner)
     }
 
     end() {
         this.state.endedAt = new Date()
-        this.voiceService.triggerGameEnd()
+        this.state.winner = this.boardEvaluationService.getWinner(this.boardService.get())
+        this.voiceService.triggerGameEnd(this.state.winner)
     }
 
 }

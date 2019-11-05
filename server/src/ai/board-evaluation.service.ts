@@ -7,6 +7,7 @@ import { settings } from '../settings'
 type PieceCounts = { [key: string]: number }
 
 type EvaluationMethod = 'base' | 'position-matrix' | 'row'
+export type Winner = null | Player | 'draw'
 
 @Injectable()
 export class BoardEvaluationService {
@@ -84,6 +85,18 @@ export class BoardEvaluationService {
         
         if ((counts['w'] === 0 && counts['W'] === 0) || (counts['b'] === 0 && counts['B'] === 0)) return true
         else return false
+    }
+
+    getWinner(board: Board): Winner {
+        const counts = this.countPieces(board)
+
+        if (counts['w'] === 0 && counts['W'] === 0) {
+            return 'b'
+        } else if (counts['b'] === 0 && counts['B'] === 0) {
+            return 'w'
+        } else {
+            return null
+        }
     }
 
     private countPieces(board: Board): PieceCounts {

@@ -3,11 +3,16 @@ import { Injectable } from '@nestjs/common'
 import { Player, Board, BoardService, Turn } from '../board/board.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { BoardEvaluationService } from './board-evaluation.service'
+import { VoiceService } from '../voice/voice.service'
 
 @Injectable()
 export class MinimaxService {
 
-    constructor(private readonly boardService: BoardService, private readonly moveGenerationService: MoveGenerationService, private readonly boardEvaluationService: BoardEvaluationService) {}
+    constructor(
+        private readonly boardService: BoardService, 
+        private readonly voiceService: VoiceService,
+        private readonly moveGenerationService: MoveGenerationService,
+        private readonly boardEvaluationService: BoardEvaluationService) {}
 
     runRandom(board: Board, player: Player): Turn {
         const possibleTurns = this.moveGenerationService.getAllPossibleTurns(JSON.parse(JSON.stringify(board)), player)
@@ -56,7 +61,11 @@ export class MinimaxService {
         const end = new Date()
         const duration = Math.round(((end.getTime() - start.getTime()) / 1000) * 100) / 100
 
-        console.log(`Minimax evaluation ran in ${duration}s.`)
+        console.log(`Minimax evaluation ran in ${duration}s and max score is ${maxScore} (depth = ${depth}).`)
+
+        if (maxScore === Number.MAX_VALUE) {
+            this.voiceService.triggerAICanWin()
+        }
 
         return maxTurn
     }

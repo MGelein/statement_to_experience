@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { TextToSpeechService } from './text-to-speech.service'
 import { messages } from './messages'
 import { settings } from '../settings'
+import { Winner } from '../ai/board-evaluation.service'
 
 // TODO: should move to a util pkg
 const randomChance = (chance: number = 0.25): boolean => {
@@ -32,9 +33,10 @@ export class VoiceService {
         if (this.idleInterval) clearInterval(this.idleInterval)
     }
 
-    triggerGameEnd() {
-        // TODO: determine winner and choose correct message type (human, ai, draw)
-        this.pick(messages.gameDraw())
+    triggerGameEnd(winner: Winner) {
+        if (winner === 'b') this.pick(messages.gameWonByAI())
+        else if (winner === 'w') this.pick(messages.gameLostByAI())
+        else this.pick(messages.gameDraw())
 
         this.idleInterval = setInterval(() => this.runInGameInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
         if (this.inGameInterval) clearInterval(this.inGameInterval)
@@ -55,6 +57,10 @@ export class VoiceService {
 
     triggerGrabKing(numberOfMoves: number) {
         if (this.shouldSpeak) this.pick(messages.grabKing(numberOfMoves))
+    }
+
+    triggerAICanWin() {
+        if (this.shouldSpeak) this.pick(messages.aiCanWin())
     }
 
     runInGameInterval(shouldSpeak: () => boolean) {

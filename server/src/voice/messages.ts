@@ -77,4 +77,7 @@ export const messages = {
         `A friendly warning: I can get a king in a couple of moves.`,
         `In ${numberOfMoves} turns your doom will come in the form of a king.`
     ],
+    aiCanWin: () => [
+        `I can beat you in just a few more moves, so watch out!`,
+    ]
 }

@@ -38,7 +38,7 @@ void sendMove(PVector from, PVector to) {
  Sends the move to the server
  **/
 void communicateMove() {
-  String[] responses = loadStrings(SERVER_IP + "/board/move/" + fromY + "." + fromX + "/" + toY + "." + toX + "/0");
+  String[] responses = loadStrings(SERVER_IP + "/board/move/" + fromY + "." + fromX + "/" + toY + "." + toX);
   for(String response : responses){
     println(response);
   }

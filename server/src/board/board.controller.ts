@@ -6,12 +6,14 @@ import { settings } from '../settings'
 import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { GameStateService } from '../game/game-state.service'
+import { BoardEvaluationService } from '../ai/board-evaluation.service'
 
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService,
     private readonly gameStateService: GameStateService,
     private readonly minimaxService: MinimaxService,
+    private readonly boardEvaluationService: BoardEvaluationService,
     private readonly voiceService: VoiceService,
     private readonly moveGenerationService: MoveGenerationService) {}
 
@@ -29,8 +31,8 @@ export class BoardController {
 
   @Get('restart')
   restart(): string {
-    this.boardService.restart()
     this.gameStateService.restart()
+    this.boardService.restart()
     clearInterval(this.simulationInterval)
     console.log('Command: Restart the game.')
 
@@ -43,29 +45,7 @@ export class BoardController {
     return this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
   }
 
-  @Get('move/end')
-  endMove(): string {
-    const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
-    if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
-      this.voiceService.triggerSlowMove(moveDuration)
-    }
-
-    const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
-
-    if (turn && turn.length > 0) {
-      turn.map((move: Move) => {
-        this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
-      })
-    } else {
-      console.log('Game has ended')
-    }
-    
-    this.lastAIMoveAt = new Date().getTime()
-
-    return 'OK'
-  }
-
-  @Get('move/:from/:to/:end')
+  @Get('move/:from/:to')
   move(@Param() params): string {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
@@ -88,29 +68,35 @@ export class BoardController {
       // No more jumps are possible, so the turn ends
       if (jumpsFromHere.length === 0) {
         const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
-        if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
-          this.voiceService.triggerSlowMove(moveDuration)
-        }
-    
-        const startEvaluation = new Date().getTime()
-        const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
-        const endEvaluation = new Date().getTime()
 
-        if (turn && turn.length > 0) {
-          // Wait at least a short while until applying the move, because if it happens too fast (less than a few hundred ms)
-          // after the person's move, then the digital display will show both turns at the same time, which is confusing
-          setTimeout(() => {
-            turn.map((move: Move) => {
-              this.gameStateService.addMove(move)
-              this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
-            })
-          }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
-        } else {
+        if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
           console.log('Game has ended')
           this.gameStateService.end()
+        } else {
+          if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
+            this.voiceService.triggerSlowMove(moveDuration)
+          }
+      
+          const startEvaluation = new Date().getTime()
+          const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
+          const endEvaluation = new Date().getTime()
+
+          if (turn && turn.length > 0) {
+            // Wait at least a short while until applying the move, because if it happens too fast (less than a few hundred ms)
+            // after the person's move, then the digital display will show both turns at the same time, which is confusing
+            setTimeout(() => {
+              turn.map((move: Move) => {
+                this.gameStateService.addMove(move)
+                this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
+              })
+            }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
+          } else {
+            console.log('Game has ended')
+            this.gameStateService.end()
+          }
+          
+          this.lastAIMoveAt = new Date().getTime()  
         }
-        
-        this.lastAIMoveAt = new Date().getTime()  
       }
     }
 

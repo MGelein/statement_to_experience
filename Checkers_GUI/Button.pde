@@ -120,12 +120,6 @@ void prepareButtons(){
     }
   });
   buttons.add(simulateButton);
-  final Button endTurnButton = new Button(20, height - boardOffset.y - 72, "End Turn", new MouseHandler(){
-    public void press(){
-      thread("endTurn");
-    }
-  });
-  buttons.add(endTurnButton);
   final Button resetButton = new Button(20, height / 2 - 36, "Reset", new MouseHandler(){
     public void press(){
       thread("restartSim");
