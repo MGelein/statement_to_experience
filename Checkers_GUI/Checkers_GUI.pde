@@ -53,6 +53,23 @@ void mousePressed(){
   for(Button b: buttons){
     if(b.hover) b.press();
   }
+  //Try and set the srcPos or send the target pos
+  if(isOnBoard(mouseX, mouseY)){
+    int x = mouseX - (int) boardOffset.x;
+    int y = mouseY - (int) boardOffset.y;
+    x /= CELL_SIZE;
+    y /= CELL_SIZE;
+    //If the src pos has not been set
+    if(srcPos.x < 0) srcPos.set(x * CELL_SIZE, y * CELL_SIZE);
+    else{
+      targetPos.set(x * CELL_SIZE, y * CELL_SIZE);
+      //Now that we have set the targetpos, send the coords to the server
+      sendMove(srcPos, targetPos);
+      //And reset the send positions
+      srcPos.set(-1000, -1000);
+      targetPos.set(-1000, -1000);
+    }
+  }
 }
 
 /**
