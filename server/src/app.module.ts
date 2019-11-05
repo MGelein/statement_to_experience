@@ -11,11 +11,12 @@ import { MinimaxService } from './ai/minimax.service';
 import { BoardEvaluationService } from './ai/board-evaluation.service';
 import { TextToSpeechService } from './voice/text-to-speech.service';
 import { VoiceService } from './voice/voice.service';
+import { GameStateService } from './game/game-state.service';
 
 @Module({
   imports: [],
   controllers: [AppController, BoardController],
-  providers: [StorageService, BoardService, BoardEvaluationService, MoveValidationService, MoveGenerationService, MinimaxService, TextToSpeechService, VoiceService],
+  providers: [StorageService, BoardService, BoardEvaluationService, GameStateService, MoveValidationService, MoveGenerationService, MinimaxService, TextToSpeechService, VoiceService],
 })
 export class AppModule {
   

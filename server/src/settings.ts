@@ -6,7 +6,7 @@ export const settings = {
     },
     voice: {
         enabled: true,
-        minTimeBetweenMessagesInSeconds: 5,
+        minTimeBetweenMessagesInSeconds: 10,
         intervalInSeconds: 10,
         idleTalkEnabled: true
     },

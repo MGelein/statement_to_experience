@@ -10,6 +10,9 @@ export const messages = {
         `My victory is imminent, your loss is impending, let's dance!`,
         `Circles on a square board, AI versus human, a game of opposites, let's start!`
     ],
+    gameDraw: () => [
+        `Let's try again.`
+    ],
     gameWonByAI: () => [
         `You stood no chance, I am clearly superior.`,
         `Victory is mine once again`,

@@ -5,10 +5,12 @@ import { MinimaxService } from '../ai/minimax.service'
 import { settings } from '../settings'
 import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
+import { GameStateService } from '../game/game-state.service'
 
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService,
+    private readonly gameStateService: GameStateService,
     private readonly minimaxService: MinimaxService,
     private readonly voiceService: VoiceService,
     private readonly moveGenerationService: MoveGenerationService) {}
@@ -28,6 +30,7 @@ export class BoardController {
   @Get('restart')
   restart(): string {
     this.boardService.restart()
+    this.gameStateService.restart()
     clearInterval(this.simulationInterval)
     console.log('Command: Restart the game.')
 
@@ -66,6 +69,14 @@ export class BoardController {
   move(@Param() params): string {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
+    
+    const move: Move = {
+      fromRow: Number(fromRow),
+      fromCol: Number(fromCol),
+      toRow: Number(toRow),
+      toCol: Number(toCol)
+    }
+    this.gameStateService.addMove(move)
 
     const humanMove = this.boardService.move(Number(fromRow), Number(fromCol), Number(toRow), Number(toCol))
 
@@ -90,11 +101,13 @@ export class BoardController {
           // after the person's move, then the digital display will show both turns at the same time, which is confusing
           setTimeout(() => {
             turn.map((move: Move) => {
+              this.gameStateService.addMove(move)
               this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
             })
           }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
         } else {
           console.log('Game has ended')
+          this.gameStateService.end()
         }
         
         this.lastAIMoveAt = new Date().getTime()  
