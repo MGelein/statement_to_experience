@@ -11,6 +11,8 @@ color edgeHighlight = color(181, 140, 86);
 color edgeLowlight = color(100, 63, 25);
 //The boardState we're currently display
 BoardState displayedBoardState = new BoardState();
+//The selection pos
+PVector selPos = new PVector(-1000, -1000);
 
 /**
 Renders the current state of the board. Does a lot of vector drawing
@@ -57,6 +59,36 @@ void renderBoardState(BoardState b) {
   }
   noFill();
   popMatrix();
+  //If we want to show the selected pos
+  if(selPos.x >= 0){
+    pushMatrix();
+    translate(boardOffset.x, boardOffset.y);
+    noFill();
+    Piece p = getPiece(b, (int) (selPos.x / CELL_SIZE), (int) (selPos.y / CELL_SIZE));
+    int red, green, blue, alpha;
+    if(p == null){
+      red = green = 0;
+      alpha = blue = 200;
+    }else{
+      if(p.col == BoardColor.White){
+        red = blue = 0;
+        green = alpha = 255;
+      }else{
+        red = alpha = 255;
+        green = blue = 0;
+      }
+    }
+    stroke(red, green, blue, alpha);
+    square(selPos.x, selPos.y, CELL_SIZE);
+    popMatrix();
+  }
+}
+
+/**
+Returns the piece at a certain position on the board
+**/
+Piece getPiece(BoardState b, int x, int y){
+  return b.board[x][y].piece;
 }
 
 /**
