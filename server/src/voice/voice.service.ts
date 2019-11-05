@@ -51,15 +51,13 @@ export class VoiceService {
     }
 
     runInGameInterval() {
-        // TODO: check that some thing wasn't said in the last x seconds
-        // TODO: add some randomnness here (e.g. 50% over an interval of 10 seconds)
-        if (this.shouldSpeak) this.pick(messages.randomTrashTalk())
+        if (this.shouldSpeak && this.randomChance(0.50)) this.pick(messages.randomTrashTalk())
     }
 
     runIdleInterval() {
-        // TODO: check that some thing wasn't said in the last x seconds
-        // TODO: add some randomnness here (e.g. 25% over an interval of 10 seconds)
-        this.pick(messages.idleTalk())
+        if (settings.voice.idleTalkEnabled) {
+            if (this.shouldSpeak && this.randomChance(0.25)) this.pick(messages.idleTalk())
+        }
     }
 
     private pick(texts: string[]) {
@@ -75,6 +73,10 @@ export class VoiceService {
     private shouldSpeak() {
         const diff = (new Date().getTime()) - this.lastSpoken.getTime()
         return diff > settings.voice.minTimeBetweenMessagesInSeconds * 1000
+    }
+
+    private randomChance(chance: number = 0.25) {
+        return Math.random() < chance
     }
 
 }

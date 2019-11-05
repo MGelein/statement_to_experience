@@ -68,12 +68,15 @@ export class MoveGenerationService {
                 turns = [...turns, ...withMultiJumps]
             }
         })
+        // console.log(turns)
 
         // Require multi-jumps if possible, otherwise just return the previous turn
         if (turns.length > 0) {
             return turns
-        } else {
+        } else if (previousTurn.length > 0) {
             return [previousTurn]
+        } else {
+            return []
         }
     }
 

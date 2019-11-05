@@ -33,10 +33,10 @@ export const messages = {
     invalidMove: (error: string) => [
         `Oh no, you can't do that. ${error}.`,
         `Haha, you silly human, you do know that is not allowed, right? ${error}.`,
-        `So because you win you decide to cheat?`,
-        `That is cheating, and cheating is forbidden`,
-        `You know you can't do that.`,
-        `Yes, you can also just make up new moves when you can't win! Stop it and behave yourself!`
+        `So because you win you decide to cheat? ${error}.`,
+        `That is cheating, and cheating is forbidden. ${error}.`,
+        `You know you can't do that. ${error}.`,
+        `Yes, you can also just make up new moves when you can't win! Stop it and behave yourself! ${error}.`
     ],
     slowMove: (timeInSeconds: number) => [
         `Watching paint dry is exciting compared to this.`,
@@ -75,11 +75,3 @@ export const messages = {
         `In ${numberOfMoves} turns your doom will come in the form of a king.`
     ],
 }
-
-// Other ideas:
-// - Time over the last move
-//    => I could have done x many moves/calculations
-// - Probability of winning
-// - There were x many better moves than the one you just did; I would have done x actually..
-// - Random trashtalk inbetween
-// - Over x moves I can get a king
