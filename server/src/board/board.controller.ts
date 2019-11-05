@@ -60,7 +60,9 @@ export class BoardController {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
 
-    const humanMove = this.boardService.move(fromRow as number, fromCol as number, toRow as number, toCol as number)
+    console.log(`Move to ${toRow}.${toCol}`)
+
+    const humanMove = this.boardService.move(Number(fromRow), Number(fromCol), Number(toRow), Number(toCol))
 
     if (humanMove !== 'OK') {
       this.voiceService.triggerInvalidMove(humanMove)
