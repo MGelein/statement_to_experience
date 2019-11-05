@@ -112,7 +112,7 @@ abstract class MouseHandler{
 /**
 Adds the buttons to the list of buttosn that need to be rendered and checked
 **/
-void prepareButtons(){
+void prepareButtons(){  
   final Button simulateButton = new Button(20, boardOffset.y, "Simulate", new MouseHandler(){
     public void press(){
       runningSim = true;
