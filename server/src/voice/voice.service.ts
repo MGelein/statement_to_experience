@@ -75,8 +75,10 @@ export class VoiceService {
     }
 
     pick(texts: string[]) {
-        const nonRepeats = texts.filter((text: string) => !this.history.includes(text))
-        const text = nonRepeats[Math.floor(Math.random() * nonRepeats.length)]
+        // TODO: should basically clear history after every message of this message type has been said
+        // const nonRepeats = texts.filter((text: string) => this.history.includes(text))
+
+        const text = texts[Math.floor(Math.random() * texts.length)]
 
         this.history.push(text)
         this.lastSpoken = new Date()

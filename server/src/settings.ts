@@ -1,6 +1,6 @@
 export const settings = {
     ai: {
-        minimaxDepth: 5,
+        minimaxDepth: 7,
         alphaBetaPruning: true,
         minEvaluationTimeInSeconds: 1.5
     },

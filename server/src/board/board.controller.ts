@@ -46,9 +46,13 @@ export class BoardController {
   }
 
   @Get('move/:from/:to')
-  move(@Param() params): string {
+  async move(@Param() params): Promise<string> {
     const [fromRow, fromCol] = params.from.split('.')
     const [toRow, toCol] = params.to.split('.')
+
+    if (fromRow === toRow && fromCol === toCol) {
+      return 'Empty move'
+    }
     
     const move: Move = {
       fromRow: Number(fromRow),
@@ -64,6 +68,7 @@ export class BoardController {
       this.voiceService.triggerInvalidMove(humanMove)
     } else {
       const jumpsFromHere = this.moveGenerationService.getJumpsFrom(this.boardService.get(), Number(toRow), Number(toCol))
+      console.log(jumpsFromHere)
 
       // No more jumps are possible, so the turn ends
       if (jumpsFromHere.length === 0) {
@@ -76,31 +81,35 @@ export class BoardController {
           if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
             this.voiceService.triggerSlowMove(moveDuration)
           }
-      
-          const startEvaluation = new Date().getTime()
-          const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
-          const endEvaluation = new Date().getTime()
-
-          if (turn && turn.length > 0) {
-            // Wait at least a short while until applying the move, because if it happens too fast (less than a few hundred ms)
-            // after the person's move, then the digital display will show both turns at the same time, which is confusing
-            setTimeout(() => {
-              turn.map((move: Move) => {
-                this.gameStateService.addMove(move)
-                this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
-              })
-            }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
-          } else {
-            console.log('Game has ended')
-            this.gameStateService.end()
-          }
           
-          this.lastAIMoveAt = new Date().getTime()  
+          this.playAIMove()
         }
       }
     }
 
     return humanMove
+  }
+
+  async playAIMove() {
+    const startEvaluation = new Date().getTime()
+    const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
+    
+    const endEvaluation = new Date().getTime()
+    this.lastAIMoveAt = new Date().getTime()  
+
+    if (turn && turn.length > 0) {
+      // Wait at least a short while until applying the move, because if it happens too fast (less than a few hundred ms)
+      // after the person's move, then the digital display will show both turns at the same time, which is confusing
+      setTimeout(() => {
+        turn.map((move: Move) => {
+          this.gameStateService.addMove(move)
+          this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
+        })
+      }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
+    } else {
+      console.log('Game has ended')
+      this.gameStateService.end()
+    }
   }
 
   @Get('simulate')

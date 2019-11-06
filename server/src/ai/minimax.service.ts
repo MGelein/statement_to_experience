@@ -72,10 +72,12 @@ export class MinimaxService {
 
     evaluateRecursively(board: Board, depth: number, player: Player, maximizing: boolean, alpha: number, beta: number, alphaBetaPruning: boolean): number {
         if (this.boardEvaluationService.hasEnded(board) || depth === 0) {
-            return this.boardEvaluationService.evaluate(board, player)
+            const boardAfterQuiescenceSearch = this.runQuiescenceSearch(board, player)
+            return this.boardEvaluationService.evaluate(boardAfterQuiescenceSearch, player)
         }
 
-        const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, player)
+        const playFromPerspective = maximizing ? player : (player === 'b' ? 'w' : 'b')
+        const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, playFromPerspective)
         
         if (maximizing) {
             let maxScore = -Number.MAX_VALUE
@@ -124,6 +126,14 @@ export class MinimaxService {
         }
     }
 
+    private runQuiescenceSearch(board: Board, player: Player ) {
+        // TODO: implement quiescence search
+        // Check if there are any forced jumps at this move. If so, make these jumps, and then keep checking for the alternating player,
+        // until there are no more forced jumps. Then evaluate the board at that position
+            
+        return board
+    }
+
     /**
      * Improvements over basic minimax:
      * 
@@ -135,5 +145,15 @@ export class MinimaxService {
      * 
      * Source: https://gamedev.stackexchange.com/questions/31166/how-to-utilize-minimax-algorithm-in-checkers-game
      */
+
+     /**
+      * Quiescence search:
+      * 
+      * One critical advanced notion for checkers AI specifically is the concept of Quiescence search: imagine that you go down six moves into your tree,
+      * and at the tail end your opponent has just made a capture where your (forced) reply is an immediate recapture. Unfortunately,
+      * the positional evaluation function can't see the recapture, so it evaluates the position as being a piece up for your opponent even though
+      * you're about to regain parity. Quiescence search is an attempt to solve this problem by forcing the evaluator to go down into a branch
+      * until all possible forced captures have been made, and only then evaluate the position.
+      */
 
 }
