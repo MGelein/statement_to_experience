@@ -3,6 +3,10 @@ PImage board;
 int minimapSize = 0;
 float sizeFactor = 1;
 float perspectiveFactor = 1f;
+boolean upPressed = false;
+boolean downPressed = false;
+//costs ton of resources to calculate
+boolean usePerspectiveCorrectionColor = true;
 
 void settings(){
   board = loadImage("board3.jpg");
@@ -21,6 +25,12 @@ void setup(){
 }
 
 void draw(){
+  if(upPressed){
+    perspectiveFactor += 0.01f;
+  }else if(downPressed){
+    perspectiveFactor -= 0.01f;
+  }
+  
   background(0);
   image(board, minimapSize, 0, board.width * sizeFactor, board.height * sizeFactor);
   
@@ -42,6 +52,22 @@ void draw(){
   rect(width - 70, height - 20, 70, 20);
   fill(255);
   text((int) frameRate + " fps", width - 65, height - 5);
+}
+
+void keyPressed(){
+  if(keyCode == UP){
+    upPressed = true;
+  }else if(keyCode == DOWN){
+    downPressed = true;
+  }
+}
+
+void keyReleased(){
+  if(keyCode == UP){
+    upPressed = false;
+  }else if(keyCode == DOWN){
+    downPressed = false;
+  }
 }
 
 void mousePressed(){

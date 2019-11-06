@@ -29,6 +29,7 @@ class DragPoint {
 
 class DragSquare {
   DragPoint[] points = new DragPoint[4];
+  float xRat, yRat;
 
   DragSquare() {
     points[0] = new DragPoint(minimapSize + 20, 20);
@@ -46,8 +47,8 @@ class DragSquare {
     lineBetween(points[1], points[2]);
     lineBetween(points[2], points[3]);
     lineBetween(points[3], points[0]);
-    float xRat = pow(getXRatio(), perspectiveFactor);
-    float yRat = pow(getYRatio(), perspectiveFactor);
+    xRat = pow(getXRatio(), perspectiveFactor);
+    yRat = pow(getYRatio(), perspectiveFactor);
     for(float fraction = 0.125f; fraction < 1; fraction+= 0.125){
       float fracY = pow(fraction, xRat);
       float fracX = pow(fraction, yRat);
@@ -85,6 +86,10 @@ class DragSquare {
   }
   
   color colorAtScaledPoint(float fracX, float fracY){
+    if(usePerspectiveCorrectionColor){
+      fracY = pow(fracY, xRat);
+      fracX = pow(fracX, yRat);
+    }
     PVector left = pointBetween(points[0].pos, points[3].pos, fracY);
     PVector right = pointBetween(points[1].pos, points[2].pos, fracY);
     PVector pos = pointBetween(left, right, fracX);
