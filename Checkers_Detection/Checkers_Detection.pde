@@ -1,6 +1,7 @@
 DragSquare dragSquare;
 PImage board;
 int minimapSize = 0;
+int minimapRes = 2;
 float sizeFactor = 1;
 float perspectiveFactor = 1f;
 boolean upPressed = false;
@@ -36,17 +37,27 @@ void draw(){
   
   //Draw the mipmap
   loadPixels();
-  for(int x = 0; x < minimapSize; x++){
-    for(int y = 0; y < minimapSize; y++){
+  for(int x = 0; x < minimapSize; x+= minimapRes){
+    for(int y = 0; y < minimapSize; y+= minimapRes){
       float fracX = x / (minimapSize * 1.0f);
       float fracY = y / (minimapSize * 1.0f);
-      pixels[min(pixels.length - 1, x + y * width)] = dragSquare.colorAtScaledPoint(fracX, fracY);
+      color c = dragSquare.colorAtScaledPoint(fracX, fracY);
+      for(int posX = 0; posX < minimapRes; posX++){
+        for(int posY = 0; posY < minimapRes; posY++){
+          pixels[min(pixels.length - 1, (x + posX) + (y + posY) * width)] = c;
+        }
+      }
     }
   }
   updatePixels();
   
   //And finally render the dragsquare on top of it all
   dragSquare.render();
+  
+  stroke(255);
+  line(minimapSize, 0, minimapSize, height);
+  stroke(0);
+  line(minimapSize + 1, 0, minimapSize + 1, height);
   
   fill(0);
   rect(width - 70, height - 20, 70, 20);
