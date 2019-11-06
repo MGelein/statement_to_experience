@@ -67,11 +67,11 @@ export class BoardController {
     if (humanMove !== 'OK') {
       this.voiceService.triggerInvalidMove(humanMove)
     } else {
+      const lastMoveWasAJump = Math.abs(toRow - fromRow) > 1
       const jumpsFromHere = this.moveGenerationService.getJumpsFrom(this.boardService.get(), Number(toRow), Number(toCol))
-      console.log(jumpsFromHere)
 
       // No more jumps are possible, so the turn ends
-      if (jumpsFromHere.length === 0) {
+      if (!lastMoveWasAJump || jumpsFromHere.length === 0) {
         const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
 
         if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
@@ -93,7 +93,7 @@ export class BoardController {
   async playAIMove() {
     const startEvaluation = new Date().getTime()
     const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
-    
+
     const endEvaluation = new Date().getTime()
     this.lastAIMoveAt = new Date().getTime()  
 
@@ -105,6 +105,11 @@ export class BoardController {
           this.gameStateService.addMove(move)
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
+
+        if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
+          console.log('Game has ended')
+          this.gameStateService.end()
+        }
       }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
     } else {
       console.log('Game has ended')

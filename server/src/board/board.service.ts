@@ -72,23 +72,26 @@ export class BoardService {
    */
   applyMove(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): Board {
     let newBoard = JSON.parse(JSON.stringify(board))
-    const player = board[fromRow][fromCol]
+    const source = board[fromRow][fromCol]
 
-    if (toRow === 0 && player === 'w') {
+    if (toRow === 0 && source === 'w') {
       newBoard[toRow][toCol] = 'W' // set the new cell to be a king
-    } else if (toRow === settings.board.rowCount - 1 && player === 'b') {
+    } else if (toRow === settings.board.rowCount - 1 && source === 'b') {
       newBoard[toRow][toCol] = 'B' // set the new cell to be a king
     } else {
-      newBoard[toRow][toCol] = player // set the new cell to be the same piece as the old cell
+      newBoard[toRow][toCol] = source // set the new cell to be the same piece as the old cell
     }
 
     newBoard[fromRow][fromCol] = ' ' // set the old cell to be empty
 
-    if (Math.abs(fromRow - toRow) === 2) {
-      const inbetweenRow = fromRow + ((toRow - fromRow) / 2)
-      const inbetweenCol = fromCol + ((toCol - fromCol) / 2)
+    const distance = Math.abs(fromRow - toRow)
 
-      newBoard[inbetweenRow][inbetweenCol] = ' ' // set the cell inbetween to be empty
+    const rowdir = toRow > fromRow ? 1 : -1
+    const coldir = toCol > fromCol ? 1 : -1
+
+    // Remove all pieces inbetween
+    for (let steps = 1; steps < distance; steps++) {
+      newBoard[fromRow + rowdir * steps][fromCol + coldir * steps] = ' '
     }
 
     return newBoard

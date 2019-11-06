@@ -49,26 +49,32 @@ export class MoveGenerationService {
     getJumpsFrom(board: Board, row: number, col: number, previousTurn: Turn = []): Turn[] {
         let turns: Turn[] = []
 
-        if (board[row][col] === 'B' || board[row][col] === 'W') {
-            // Search more than 2 steps away just for kings
-            for (let i = 2; i < settings.board.rowCount; i += 1) {
-                for (let j = 2; j < settings.board.colCount; j += 1) {
-                    // TODO
-                }
-            }
-        }
+        const isKing = board[row][col] === 'B' || board[row][col] === 'W'
+        const maxSteps = isKing ? settings.board.rowCount - 1 : 2
 
         // Search 2 steps, so a single jump, away for both pawns and kings
-        directions.map(([rowdir, coldir]) => {
-            if (this.isValid(board, row, col, row + rowdir * 2, col + coldir * 2) === 'OK') {
-                const newTurn: Turn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * 2, toCol: col + coldir * 2 }]
-                const newBoard = this.boardService.applyTurn(board, newTurn)
+        for (let steps = 2; steps <= maxSteps; steps++) {
+            directions.map(([rowdir, coldir]) => {
+                if (this.isValid(board, row, col, row + rowdir * steps, col + coldir * steps) === 'OK') {
+                    // Check all steps inbetween; if there is no piece inbetween, then this is a move, not a jump
+                    let hasPiecesInbetween = false
+                    for (let inbetweenSteps = 1; inbetweenSteps < steps; inbetweenSteps++) {
+                        const piece = board[row + rowdir * inbetweenSteps][col + coldir * inbetweenSteps]
+                        if (piece !== ' ') {
+                            hasPiecesInbetween = true
+                        }
+                    }
 
-                const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard, row + rowdir * 2, col + coldir * 2, newTurn)
-                turns = [...turns, ...withMultiJumps]
-            }
-        })
-        // console.log(turns)
+                    if (hasPiecesInbetween) {
+                        const newTurn: Turn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * steps, toCol: col + coldir * steps }]
+                        const newBoard = this.boardService.applyTurn(board, newTurn)
+
+                        const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard, row + rowdir * steps, col + coldir * steps, newTurn)
+                        turns = [...turns, ...withMultiJumps]
+                    }
+                }
+            })
+        }
 
         // Require multi-jumps if possible, otherwise just return the previous turn
         if (turns.length > 0) {
@@ -85,22 +91,20 @@ export class MoveGenerationService {
 
         if (board[row][col] === 'B' || board[row][col] === 'W') {
             // Search more than 1 step away just for kings
-            for (let r = 2; r < settings.board.rowCount; r += 1) {
-                for (let c = 2; c < settings.board.colCount; c += 1) {
-                    directions.map(([rowdir, coldir]) => {
-                        // console.log(this.isValid(board, row, col, row + rowdir * r, col + coldir * c))
-                        if (this.isValid(board, row, col, row + rowdir * r, col + coldir * c) === 'OK') {
-                            turns.push([{ fromRow: row, fromCol: col, toRow: row + rowdir * r, toCol: col + coldir * c }])
-                        }
-                    })            
-                }
+            for (let steps = 2; steps < settings.board.rowCount; steps += 1) {
+                directions.map(([rowdir, coldir]) => {
+                    // console.log(this.isValid(board, row, col, row + rowdir * r, col + coldir * c))
+                    if (this.isValid(board, row, col, row + rowdir * steps, col + coldir * steps) === 'OK') {
+                        turns.push([{ fromRow: row, fromCol: col, toRow: row + rowdir * steps, toCol: col + coldir * steps }])
+                    }
+                })
             }
         }
 
         // Search 1 step awway for both pawns and kings
         directions.map(([rowdir, coldir]) => {
-            if (this.isValid(board, row, col, row + rowdir * 1, col + coldir * 1) === 'OK') {
-                turns.push([{ fromRow: row, fromCol: col, toRow: row + rowdir * 1, toCol: col + coldir * 1 }])
+            if (this.isValid(board, row, col, row + rowdir, col + coldir) === 'OK') {
+                turns.push([{ fromRow: row, fromCol: col, toRow: row + rowdir, toCol: col + coldir }])
             }
         })
 
