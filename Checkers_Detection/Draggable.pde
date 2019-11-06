@@ -47,8 +47,8 @@ class DragSquare {
     lineBetween(points[1], points[2]);
     lineBetween(points[2], points[3]);
     lineBetween(points[3], points[0]);
-    xRat = pow(getXRatio(), perspectiveFactor);
-    yRat = pow(getYRatio(), perspectiveFactor);
+    xRat = pow(getXRatio(), perspectiveFactorY);
+    yRat = pow(getYRatio(), perspectiveFactorX);
     for(float fraction = 0.125f; fraction < 1; fraction+= 0.125){
       float fracY = pow(fraction, xRat);
       float fracX = pow(fraction, yRat);

@@ -3,9 +3,9 @@ PImage board;
 int minimapSize = 0;
 int minimapRes = 2;
 float sizeFactor = 1;
-float perspectiveFactor = 1f;
-boolean upPressed = false;
-boolean downPressed = false;
+float perspectiveFactorX= 1f;
+float perspectiveFactorY = 1f;
+boolean upPressed, downPressed, leftPressed, rightPressed;
 //costs ton of resources to calculate
 boolean usePerspectiveCorrectionColor = true;
 
@@ -26,11 +26,8 @@ void setup(){
 }
 
 void draw(){
-  if(upPressed){
-    perspectiveFactor += 0.01f;
-  }else if(downPressed){
-    perspectiveFactor -= 0.01f;
-  }
+  perspectiveFactorY += (upPressed ? 0.02f : downPressed ? -0.02f: 0);
+  perspectiveFactorX += (leftPressed ? 0.08f : rightPressed ? -0.08f: 0);
   
   background(0);
   image(board, minimapSize, 0, board.width * sizeFactor, board.height * sizeFactor);
@@ -66,19 +63,17 @@ void draw(){
 }
 
 void keyPressed(){
-  if(keyCode == UP){
-    upPressed = true;
-  }else if(keyCode == DOWN){
-    downPressed = true;
-  }
+  if(keyCode == UP) upPressed = true;
+  if(keyCode == DOWN) downPressed = true;
+  if(keyCode == LEFT) leftPressed = true;
+  if(keyCode == RIGHT) rightPressed = true;
 }
 
 void keyReleased(){
-  if(keyCode == UP){
-    upPressed = false;
-  }else if(keyCode == DOWN){
-    downPressed = false;
-  }
+  if(keyCode == UP) upPressed = false;
+  if(keyCode == DOWN) downPressed = false;
+  if(keyCode == LEFT) leftPressed = false;
+  if(keyCode == RIGHT) rightPressed = false;
 }
 
 void mousePressed(){
