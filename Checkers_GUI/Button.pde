@@ -109,7 +109,7 @@ void prepareButtons(){
     }
   });
   buttons.add(simulateButton);
-  final Button resetButton = new Button(30, boardOffset.y + 80, "Reset", new MouseHandler(){
+  final Button resetButton = new Button(30, boardOffset.y + 80, "Resign", new MouseHandler(){
     public void press(){
       thread("restartSim");
     }
