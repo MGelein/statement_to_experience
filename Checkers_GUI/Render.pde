@@ -19,6 +19,8 @@ PVector srcPos = new PVector(-1000, -1000);
 PVector targetPos = new PVector(-1000, -1000);
 //The text that is draw over the game
 String overlay = "";
+//The scalefactor of the overlay
+float overlayScaleFactor = 0;
 
 /**
 Sets the text overlay, leave empty to reset overlay
@@ -46,20 +48,25 @@ Checks if we even need to render the overlay, and if so, does so
 **/
 void renderOverlay(){
   //Ignore empty overlay
-  if(overlay.length() < 2) return;
+  if(overlay.length() < 2) {
+    overlayScaleFactor *= 0.5f;
+    if(overlayScaleFactor < 0.01) return;
+  }else{
+    overlayScaleFactor += (1 - overlayScaleFactor) * 0.5f;
+  }
   textFont(boldFont);
-  textSize(64);
+  textSize(64 * overlayScaleFactor);
   float tw = textWidth(overlay);
   //First render outer shadow
   strokeWeight(1);
-  stroke(255, 120);
-  fill(0, 120);
-  rect(width / 2 - tw / 2 - 32 - 10, height / 2 - 116 - 10, tw + 64 + 20, 128 + 20);
-  stroke(255);
+  stroke(255, 120 * overlayScaleFactor);
+  fill(0, 120 * overlayScaleFactor);
+  rect(width / 2 - tw / 2 - 42 * overlayScaleFactor, height / 2 - 126, (tw + 84) * overlayScaleFactor, 148 * overlayScaleFactor);
+  stroke(255 * overlayScaleFactor);
   strokeWeight(3);
-  fill(0, 200);
-  rect(width / 2 - tw / 2 - 32, height / 2 - 116, tw + 64, 128);
-  fill(255);
+  fill(0, 200 * overlayScaleFactor);
+  rect(width / 2 - tw / 2 - 32, height / 2 - 116, (tw + 64) * overlayScaleFactor, 128 * overlayScaleFactor);
+  fill(255, 255 * overlayScaleFactor);
   text(overlay, width / 2 - tw / 2, height / 2 - 32);
 }
 
