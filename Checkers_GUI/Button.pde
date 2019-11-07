@@ -100,7 +100,7 @@ abstract class MouseHandler{
 }
 
 /**
-Add the buttons to the list of buttosn that need to be rendered and checked
+Add the buttons to the list of buttons that need to be rendered and checked
 **/
 void prepareButtons(){  
   final Button simulateButton = new Button(30, boardOffset.y, "Simulate", new MouseHandler(){
@@ -110,7 +110,7 @@ void prepareButtons(){
     }
   });
   buttons.add(simulateButton);
-  final Button resetButton = new Button(30, boardOffset.y + 80, "Resign", new MouseHandler(){
+  final Button resetButton = new Button(30, boardOffset.y + 80, currentPlayer == null ? "Restart": "Resign", new MouseHandler(){
     public void press(){
       thread("restartSim");
     }

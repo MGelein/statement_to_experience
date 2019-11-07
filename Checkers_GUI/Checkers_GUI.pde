@@ -76,13 +76,26 @@ void mousePressed(){
     x /= CELL_SIZE;
     y /= CELL_SIZE;
     //If the src pos has not been set
-    if(srcPos.x < 0) srcPos.set(x * CELL_SIZE, y * CELL_SIZE);
+    if(srcPos.x < 0) {
+      if(x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) return;
+      BoardCell cell = displayedBoardState.board[x][y];
+      if(cell.piece == null) return;
+      if(cell.col == BoardColor.White) return;
+      //If we reach here, this was a valid position
+      srcPos.set(x * CELL_SIZE, y * CELL_SIZE);
+    }
     else{
       targetPos.set(x * CELL_SIZE, y * CELL_SIZE);
+      //If they are the same spot, ignore this click
+      if(targetPos.equals(srcPos)) {
+        targetPos.set(-1000, -1000);
+        return;
+      }
       //Now that we have set the targetpos, send the coords to the server
-      sendMove(srcPos, targetPos);
-      //And reset the send positions
-      srcPos.set(-1000, -1000);
+      if(sendMove(srcPos, targetPos)){
+        //And reset the send positions
+        srcPos.set(-1000, -1000);
+      }
       targetPos.set(-1000, -1000);
     }
   }

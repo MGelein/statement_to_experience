@@ -39,14 +39,25 @@ void endTurn(){
 }
 
 /**
- Prepares this move for sending to the server, starts a thread for this move request
+ Prepares this move for sending to the server, starts a thread for this move request,
+ returns if this move was event sent to the server
  **/
-void sendMove(PVector from, PVector to) {
+boolean sendMove(PVector from, PVector to) {
   fromX = (int) (from.x / CELL_SIZE);
   fromY = (int) (from.y / CELL_SIZE);
+  if(fromX < 0 || fromX >= BOARD_SIZE || fromY < 0 || fromY >= BOARD_SIZE) return false;
+  BoardCell source = displayedBoardState.board[fromX][fromY];
+  if(source.col == BoardColor.White) return false;
+  if(source.piece == null) return false;
   toX = (int) (to.x / CELL_SIZE);
   toY = (int) (to.y / CELL_SIZE);
+  if(toX < 0 || toX >= BOARD_SIZE || toY < 0 || toY >= BOARD_SIZE) return false;
+  BoardCell target = displayedBoardState.board[toX][toY];
+  if(target.col == BoardColor.White) return false;
+  if(target.piece != null) return false;
+  //Start the thread and communicate we are sending this to server
   thread("communicateMove");
+  return true;
 }
 
 /**
