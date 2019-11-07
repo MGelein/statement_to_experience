@@ -38,8 +38,9 @@ export class GameStateService {
     }
 
     restart() {
+        this.state.moves = []
         this.state.endedAt = new Date()
-        this.state.winner = this.boardEvaluationService.getWinner(this.boardService.get())
+        this.state.winner = null
         this.voiceService.triggerGameEnd(this.state.winner)
     }
 
