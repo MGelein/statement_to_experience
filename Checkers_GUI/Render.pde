@@ -21,37 +21,41 @@ PVector targetPos = new PVector(-1000, -1000);
 String overlay = "";
 //The scalefactor of the overlay
 float overlayScaleFactor = 0;
+//The thickness of the src selected line
+float srcThickness = 2;
+//The angle of the sinusoid animation
+float srcAngle = 0;
 
 /**
-Sets the text overlay, leave empty to reset overlay
-**/
-void setOverlay(String line){
-  if(line.trim().length() < 2) overlay = "";
-  switch(line.replaceAll("Overlay: ", "").toLowerCase().trim()){
-    case "draw":
-      overlay = "It's a draw!";
-      break;
-    case "lost":
-      overlay = "You lost!";
-      break;
-    case "won":
-      overlay = "You won!";
-      break;
-    default:
-      overlay = "";
-      break;
+ Sets the text overlay, leave empty to reset overlay
+ **/
+void setOverlay(String line) {
+  if (line.trim().length() < 2) overlay = "";
+  switch(line.replaceAll("Overlay: ", "").toLowerCase().trim()) {
+  case "draw":
+    overlay = "It's a draw!";
+    break;
+  case "lost":
+    overlay = "You lost!";
+    break;
+  case "won":
+    overlay = "You won!";
+    break;
+  default:
+    overlay = "";
+    break;
   }
 }
 
 /**
-Checks if we even need to render the overlay, and if so, does so
-**/
-void renderOverlay(){
+ Checks if we even need to render the overlay, and if so, does so
+ **/
+void renderOverlay() {
   //Ignore empty overlay
-  if(overlay.length() < 2) {
+  if (overlay.length() < 2) {
     overlayScaleFactor *= 0.5f;
-    if(overlayScaleFactor < 0.01) return;
-  }else{
+    if (overlayScaleFactor < 0.01) return;
+  } else {
     overlayScaleFactor += (1 - overlayScaleFactor) * 0.5f;
   }
   textFont(boldFont);
@@ -115,33 +119,56 @@ void renderBoardState(BoardState b) {
   }
   noFill();
   popMatrix();
+  //Change the srcThickness
+  srcAngle += 0.4f;
+  srcThickness = 5 + sin(srcAngle) * 3;
+
   //If we want to show the selected pos
-  if (selPos.x >= 0) renderBoardSquareEdge(b, selPos);
-  if (srcPos.x >= 0) renderBoardSquareEdge(b, srcPos);
+  if (selPos.x >= 0) renderBoardSquareEdge(b, selPos, 2);
+  if (srcPos.x >= 0) renderBoardSquareEdge(b, srcPos, srcThickness);
 }
 
 /**
-Renders an edge around a specific square
-**/
-void renderBoardSquareEdge(BoardState b, PVector pos) {
+ Renders an edge around a specific square
+ **/
+void renderBoardSquareEdge(BoardState b, PVector pos, float sw) {
+  int tX = (int) (pos.x / CELL_SIZE);
+  int tY = (int) (pos.y / CELL_SIZE);
+  if (tX < 0 || tX >= BOARD_SIZE || tY < 0 || tY >= BOARD_SIZE) return;
+  BoardCell c = b.board[tX][tY];
+  Piece p = c.piece;
+  boolean isSrc = pos.equals(srcPos);
+  //Ignore white squares
+  if (c.col == BoardColor.White) return;
+  if (isSrc) {
+    if (p == null || p.col == BoardColor.Black) {
+      srcPos.set(-1000, -1000);
+      return;
+    } else {
+      stroke(0, 255, 0);
+    }
+  } else {
+    if (srcPos.x < 0) {
+      //No source has been set, so we are only allowed to select a white piece
+      if(p == null || p.col == BoardColor.Black){
+        return;
+      }else{
+        stroke(0, 255, 0);
+      }
+    } else {
+      //If the source position has been set, we're looking for a destination
+      if (p == null) {
+        stroke(0, 255, 0);
+      } else {
+        stroke(255, 0, 0);
+      }
+    }
+  }
+  //Now we can do the actual drawing
   pushMatrix();
   translate(boardOffset.x, boardOffset.y);
   noFill();
-  Piece p = getPiece(b, (int) (pos.x / CELL_SIZE), (int) (pos.y / CELL_SIZE));
-  int red, green, blue, alpha;
-  if (p == null) {
-    red = green = 0;
-    alpha = blue = 200;
-  } else {
-    if (p.col == BoardColor.White) {
-      red = blue = 0;
-      green = alpha = 255;
-    } else {
-      red = alpha = 255;
-      green = blue = 0;
-    }
-  }
-  stroke(red, green, blue, alpha);
+  strokeWeight(sw);
   square(pos.x, pos.y, CELL_SIZE);
   popMatrix();
 }
@@ -150,7 +177,7 @@ void renderBoardSquareEdge(BoardState b, PVector pos) {
  Returns the piece at a certain position on the board
  **/
 Piece getPiece(BoardState b, int x, int y) {
-  if(x >= BOARD_SIZE || x < 0 || y >= BOARD_SIZE || y < 0) return null;
+  if (x >= BOARD_SIZE || x < 0 || y >= BOARD_SIZE || y < 0) return null;
   return b.board[x][y].piece;
 }
 
@@ -182,9 +209,9 @@ void drawBoard() {
 }
 
 /**
-Renders the turn indicator, showing who has to make a move now
-**/
-void renderTurnIndicator(){
+ Renders the turn indicator, showing who has to make a move now
+ **/
+void renderTurnIndicator() {
   String turnLabel = currentPlayer == BoardColor.White ? "Turn: White" : currentPlayer == null ? "Turn: --" : "Turn: Black";
   String label = currentPlayer == BoardColor.White ? "Waiting for you..." : currentPlayer == null ? "Waiting for restart..." : "Waiting for AI...";
   pushMatrix();
@@ -209,51 +236,51 @@ void renderTurnIndicator(){
 }
 
 /**
-Draws the rect that holds all the UI components
-**/
-void renderUIBG(){
+ Draws the rect that holds all the UI components
+ **/
+void renderUIBG() {
   stroke(255);
   strokeWeight(1);
   fill(0, 100);
   rect(20, boardOffset.y - 20, boardOffset.x - 60, height - boardOffset.y);
-  
+
   //Render all the buttons
-  for(Button b: buttons) b.render();
-  
+  for (Button b : buttons) b.render();
+
   //Renders the indicator that shows who has to play now
   renderTurnIndicator();
 }
 
 /**
-Loads and desaturates the BG image
-**/
-void prepareBG(){
+ Loads and desaturates the BG image
+ **/
+void prepareBG() {
   bgImage = loadImage("bg.jpg");
   bgImage.loadPixels();
   float desaturation = 0.2f;
-  for(int i = 0; i < bgImage.pixels.length; i++){
+  for (int i = 0; i < bgImage.pixels.length; i++) {
     bgImage.pixels[i] = lerpColor(bgImage.pixels[i], color(brightness(bgImage.pixels[i]) * 0.5f), desaturation);
   }
   bgImage.updatePixels();
 }
 
 /**
-Moves the log lines from the threaded arraylist to the rendering list
-**/
-void updateLog(){
-  for(String l : newLog){
+ Moves the log lines from the threaded arraylist to the rendering list
+ **/
+void updateLog() {
+  for (String l : newLog) {
     logLines.add(0, l);
   }
   newLog.clear();
-  while(logLines.size() > LOG_SIZE){
+  while (logLines.size() > LOG_SIZE) {
     logLines.remove(LOG_SIZE - 1);
   }
 }
 
 /**
-Renders the log of response we got for the moves
-**/
-void renderLog(){
+ Renders the log of response we got for the moves
+ **/
+void renderLog() {
   //First update the log
   updateLog();
   //Now render it 
@@ -270,9 +297,9 @@ void renderLog(){
   translate(10, 50);
   textFont(mainFont);
   textSize(16);
-  for(String logLine: logLines){
+  for (String logLine : logLines) {
     text(logLine, 0, 0, boardOffset.x - 60, 80);
-    if(textWidth(logLine) > boardOffset.x - 60){
+    if (textWidth(logLine) > boardOffset.x - 60) {
       translate(0, 30);
     };
     translate(0, 20);
