@@ -17,6 +17,8 @@ int fromX, fromY;
 int toX, toY;
 //The log of responses from the server
 ArrayList<String> logLines = new ArrayList<String>();
+//List of log lines to be added
+ArrayList<String> newLog = new ArrayList<String>();
 //Amount of logs in the side window
 final int LOG_SIZE = 15;
 
@@ -25,10 +27,7 @@ void addLog(String desc, String[] response){
   for(String line : response){
     b.append(line);
   }
-  logLines.add(0, desc + ": " + b.toString());
-  while(logLines.size() > LOG_SIZE){
-    logLines.remove(LOG_SIZE - 1);
-  }
+  newLog.add(desc + ": " + b.toString());
 }
 
 /**

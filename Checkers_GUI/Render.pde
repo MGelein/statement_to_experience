@@ -42,6 +42,22 @@ void setOverlay(String line){
 }
 
 /**
+Checks if we even need to render the overlay, and if so, does so
+**/
+void renderOverlay(){
+  //Ignore empty overlay
+  if(overlay.length() < 2) return;
+  textFont(boldFont);
+  textSize(64);
+  float tw = textWidth(overlay);
+  stroke(255);
+  fill(0, 200);
+  rect(width / 2 - tw / 2 - 32, height / 2 - 116, tw + 64, 128);
+  fill(255);
+  text(overlay, width / 2 - tw / 2, height / 2 - 32);
+}
+
+/**
  Renders the current state of the board. Does a lot of vector drawing
  **/
 void renderBoardState(BoardState b) {
@@ -156,12 +172,13 @@ void drawBoard() {
 Renders the turn indicator, showing who has to make a move now
 **/
 void renderTurnIndicator(){
-  textSize(24);
   String turnLabel =  currentPlayer == BoardColor.White ? "Turn: White" : "Turn: Black";
   String label = currentPlayer == BoardColor.White ? "Waiting for you..." : "Waiting for AI...";
   pushMatrix();
   translate(30, height - boardOffset.y - 30);
   fill(0);
+  textFont(boldFont);
+  textSize(24);  
   text(turnLabel, 0, 0);
   translate(2, 2);
   fill(255);
@@ -169,6 +186,8 @@ void renderTurnIndicator(){
   translate(-2, 30);
   //Draw the text
   fill(0);
+  textFont(mainFont);
+  textSize(24);
   text(label, 0, 0);
   translate(2, 2);
   fill(255);
@@ -206,19 +225,37 @@ void prepareBG(){
 }
 
 /**
+Moves the log lines from the threaded arraylist to the rendering list
+**/
+void updateLog(){
+  for(String l : newLog){
+    logLines.add(0, l);
+  }
+  newLog.clear();
+  while(logLines.size() > LOG_SIZE){
+    logLines.remove(LOG_SIZE - 1);
+  }
+}
+
+/**
 Renders the log of response we got for the moves
 **/
 void renderLog(){
+  //First update the log
+  updateLog();
+  //Now render it 
   stroke(255);
   strokeWeight(1);
   fill(0, 100);
   pushMatrix();
   translate(width - boardOffset.x + 40, boardOffset.y - 20);
   rect(0, 0, boardOffset.x - 60, height - boardOffset.y);
+  textFont(boldFont);
   textSize(24);
   fill(255);
   text("Server Response: ", 10, 30);
   translate(10, 50);
+  textFont(mainFont);
   textSize(16);
   for(String logLine: logLines){
     text(logLine, 0, 0, boardOffset.x - 60, 80);

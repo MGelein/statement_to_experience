@@ -84,6 +84,7 @@ class Button{
     rect(0, 0, dim.x, dim.y);
     //Prepare the text for rendering
     fill(pressed ? backgroundColor: foregroundColor, hover ? 200: 255);
+    textFont(mainFont);
     textSize(fontSize);
     text(text, textOff.x, textOff.y);
     popMatrix();
@@ -99,7 +100,7 @@ abstract class MouseHandler{
 }
 
 /**
-Adds the buttons to the list of buttosn that need to be rendered and checked
+Add the buttons to the list of buttosn that need to be rendered and checked
 **/
 void prepareButtons(){  
   final Button simulateButton = new Button(30, boardOffset.y, "Simulate", new MouseHandler(){

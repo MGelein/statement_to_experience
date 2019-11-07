@@ -6,6 +6,9 @@ PImage bgImage;
 final int SPACE = 32;
 //Sets the current player in the game
 BoardColor currentPlayer = BoardColor.White;
+//The two fonts used in the application
+PFont mainFont;
+PFont boldFont;
 
 /**
 Runs once and handles setup
@@ -21,6 +24,10 @@ void setup() {
   prepareButtons();
   //Set the framerate lower, why waste power?
   frameRate(30);
+  //Load the font and set it as the main font
+  mainFont = createFont("caviar_dreams/CaviarDreams.ttf", 64);
+  boldFont = createFont("caviar_dreams/CaviarDreams_Bold.ttf", 64);
+  textFont(mainFont);
 }
 
 /**
@@ -48,6 +55,8 @@ void draw() {
     //Hide the selected pos
     selPos.set(-1000, -1000);
   }
+  //Finally, on top of everything, render the overlay if we need to
+  renderOverlay();
   
   //Check if we need to do any network updates
   checkNetwork();
