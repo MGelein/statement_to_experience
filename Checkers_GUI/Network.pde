@@ -106,6 +106,9 @@ BoardState createBoardState(String[] lines) {
     if(line.toLowerCase().startsWith("turn")){
       currentPlayer = line.toLowerCase().indexOf('b') > -1 ? BoardColor.Black : BoardColor.White;
       continue;
+    }else if(line.toLowerCase().startsWith("overlay")){
+      setOverlay(line);
+      continue;
     }
     //Skip any lines that are not as long as the board size
     if (line.length() < BOARD_SIZE) continue;

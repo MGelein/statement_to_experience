@@ -17,6 +17,29 @@ PVector selPos = new PVector(-1000, -1000);
 PVector srcPos = new PVector(-1000, -1000);
 //The position we're moving to
 PVector targetPos = new PVector(-1000, -1000);
+//The text that is draw over the game
+String overlay = "";
+
+/**
+Sets the text overlay, leave empty to reset overlay
+**/
+void setOverlay(String line){
+  if(line.trim().length() < 2) overlay = "";
+  switch(line.replaceAll("Overlay: ", "").toLowerCase().trim()){
+    case "draw":
+      overlay = "It's a draw!";
+      break;
+    case "lost":
+      overlay = "You lost!";
+      break;
+    case "won":
+      overlay = "You won!";
+      break;
+    default:
+      overlay = "";
+      break;
+  }
+}
 
 /**
  Renders the current state of the board. Does a lot of vector drawing
