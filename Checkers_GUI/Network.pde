@@ -101,8 +101,10 @@ BoardState createBoardState(String[] lines) {
       } else if (cell == 'b' || cell == 'B') {
         b.board[x][y].piece = new Piece(BoardColor.Black, cell == 'B');
       }
+      if(x >= BOARD_SIZE) continue;
       x++;
     }
+    if(y >= BOARD_SIZE) continue;
     y++;
   }
   return b;

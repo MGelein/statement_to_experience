@@ -98,6 +98,7 @@ void renderBoardSquareEdge(BoardState b, PVector pos) {
  Returns the piece at a certain position on the board
  **/
 Piece getPiece(BoardState b, int x, int y) {
+  if(x >= BOARD_SIZE || x < 0 || y >= BOARD_SIZE || y < 0) return null;
   return b.board[x][y].piece;
 }
 
