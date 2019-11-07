@@ -133,13 +133,16 @@ Renders the turn indicator, showing who has to make a move now
 **/
 void renderTurnIndicator(){
   textSize(24);
+  String turnLabel =  currentPlayer == BoardColor.White ? "Turn: White" : "Turn: Black";
   String label = currentPlayer == BoardColor.White ? "Waiting for you..." : "Waiting for AI...";
   pushMatrix();
-  translate(20, height - boardOffset.y);
-  //Draw the background
-  noStroke();
-  fill(0, 120);
-  rect(-10, -35, 250, 50);
+  translate(30, height - boardOffset.y - 30);
+  fill(0);
+  text(turnLabel, 0, 0);
+  translate(2, 2);
+  fill(255);
+  text(turnLabel, 0, 0);
+  translate(-2, 30);
   //Draw the text
   fill(0);
   text(label, 0, 0);
@@ -147,4 +150,20 @@ void renderTurnIndicator(){
   fill(255);
   text(label, 0, 0);
   popMatrix();
+}
+
+/**
+Draws the rect that holds all the UI components
+**/
+void renderUIBG(){
+  stroke(255);
+  strokeWeight(1);
+  fill(0, 100);
+  rect(20, boardOffset.y - 20, boardOffset.x - 60, height - boardOffset.y);
+  
+  //Render all the buttons
+  for(Button b: buttons) b.render();
+  
+  //Renders the indicator that shows who has to play now
+  renderTurnIndicator();
 }

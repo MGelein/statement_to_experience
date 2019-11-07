@@ -16,9 +16,8 @@ class Button{
   //The size of the font on the button
   int fontSize = 32;
   //The two colors to draw the button in
-  color backgroundColor = color(244, 142, 83);
-  color highlightColor = color(242, 197, 171);
-  color lowlightColor = color(214,  108, 47);  
+  color backgroundColor = color(0, 180);
+  color highlightColor = color(120, 180); 
   color foregroundColor = color(255);
   //If we have the mouse pressed down on it
   boolean pressed = false;
@@ -79,24 +78,14 @@ class Button{
     pushMatrix();
     translate(pos.x, pos.y);
     //Render the background
-    noStroke();
-    fill(backgroundColor, hover ? 200: 255);
+    stroke(pressed ? backgroundColor : foregroundColor);
+    strokeWeight(1);
+    fill(pressed ? foregroundColor : hover ? backgroundColor: highlightColor);
     rect(0, 0, dim.x, dim.y);
     //Prepare the text for rendering
-    fill(foregroundColor, hover ? 200: 255);
+    fill(pressed ? backgroundColor: foregroundColor, hover ? 200: 255);
     textSize(fontSize);
     text(text, textOff.x, textOff.y);
-    //Now draw the shading
-    noFill();
-    float sw = fontSize * .125f;
-    strokeWeight(sw);
-    sw *= .5f;
-    stroke(pressed ? lowlightColor: highlightColor, hover ? 200 : 255);
-    line(sw, sw, sw, dim.y - sw);
-    line(sw, sw, dim.x - sw, sw);
-    stroke(pressed ? highlightColor : lowlightColor, hover ? 200 : 255);
-    line(dim.x - sw, dim.y - sw, dim.x - sw, sw);
-    line(dim.x - sw, dim.y - sw, sw, dim.y - sw);
     popMatrix();
   }
 }
@@ -113,14 +102,14 @@ abstract class MouseHandler{
 Adds the buttons to the list of buttosn that need to be rendered and checked
 **/
 void prepareButtons(){  
-  final Button simulateButton = new Button(20, boardOffset.y, "Simulate", new MouseHandler(){
+  final Button simulateButton = new Button(30, boardOffset.y, "Simulate", new MouseHandler(){
     public void press(){
       runningSim = true;
       thread("startSim");
     }
   });
   buttons.add(simulateButton);
-  final Button resetButton = new Button(20, height / 2 - 36, "Reset", new MouseHandler(){
+  final Button resetButton = new Button(30, boardOffset.y + 80, "Reset", new MouseHandler(){
     public void press(){
       thread("restartSim");
     }
