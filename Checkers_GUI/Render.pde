@@ -50,7 +50,13 @@ void renderOverlay(){
   textFont(boldFont);
   textSize(64);
   float tw = textWidth(overlay);
+  //First render outer shadow
+  strokeWeight(1);
+  stroke(255, 120);
+  fill(0, 120);
+  rect(width / 2 - tw / 2 - 32 - 10, height / 2 - 116 - 10, tw + 64 + 20, 128 + 20);
   stroke(255);
+  strokeWeight(3);
   fill(0, 200);
   rect(width / 2 - tw / 2 - 32, height / 2 - 116, tw + 64, 128);
   fill(255);
