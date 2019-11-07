@@ -178,8 +178,8 @@ void drawBoard() {
 Renders the turn indicator, showing who has to make a move now
 **/
 void renderTurnIndicator(){
-  String turnLabel =  currentPlayer == BoardColor.White ? "Turn: White" : "Turn: Black";
-  String label = currentPlayer == BoardColor.White ? "Waiting for you..." : "Waiting for AI...";
+  String turnLabel = currentPlayer == BoardColor.White ? "Turn: White" : currentPlayer == null ? "Turn: --" : "Turn: Black";
+  String label = currentPlayer == BoardColor.White ? "Waiting for you..." : currentPlayer == null ? "Waiting for restart..." : "Waiting for AI...";
   pushMatrix();
   translate(30, height - boardOffset.y - 30);
   fill(0);
