@@ -70,7 +70,7 @@ void mousePressed(){
     if(b.hover) b.press();
   }
   //Try and set the srcPos or send the target pos
-  if(isOnBoard(mouseX, mouseY)){
+  if(isOnBoard(mouseX, mouseY) && currentPlayer == BoardColor.White){
     int x = mouseX - (int) boardOffset.x;
     int y = mouseY - (int) boardOffset.y;
     x /= CELL_SIZE;

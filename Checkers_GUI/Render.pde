@@ -132,6 +132,7 @@ void renderBoardState(BoardState b) {
  Renders an edge around a specific square
  **/
 void renderBoardSquareEdge(BoardState b, PVector pos, float sw) {
+  if(currentPlayer != BoardColor.White) return;
   int tX = (int) (pos.x / CELL_SIZE);
   int tY = (int) (pos.y / CELL_SIZE);
   if (tX < 0 || tX >= BOARD_SIZE || tY < 0 || tY >= BOARD_SIZE) return;
