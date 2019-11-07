@@ -111,7 +111,7 @@ BoardState createBoardState(String[] lines) {
       continue;
     }
     //Skip any lines that are not as long as the board size
-    if (line.length() < BOARD_SIZE) continue;
+    if (line.length() != BOARD_SIZE) continue;
     x = 0;
     for (int i = 0; i < line.length(); i++) {
       char cell = line.charAt(i);
