@@ -127,3 +127,24 @@ void drawBoard() {
   line(-1, boardEdgeSize, boardEdgeSize, boardEdgeSize);
   line(boardEdgeSize, -1, boardEdgeSize, boardEdgeSize);
 }
+
+/**
+Renders the turn indicator, showing who has to make a move now
+**/
+void renderTurnIndicator(){
+  textSize(24);
+  String label = currentPlayer == BoardColor.White ? "Waiting for you..." : "Waiting for AI...";
+  pushMatrix();
+  translate(20, height - boardOffset.y);
+  //Draw the background
+  noStroke();
+  fill(0, 120);
+  rect(-10, -35, 250, 50);
+  //Draw the text
+  fill(0);
+  text(label, 0, 0);
+  translate(2, 2);
+  fill(255);
+  text(label, 0, 0);
+  popMatrix();
+}

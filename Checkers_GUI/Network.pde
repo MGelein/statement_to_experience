@@ -7,7 +7,7 @@ int lastMillis = 0;
 //The amount of millis since last network update
 int lastUpdate = 0;
 //Amount of time in ms between each update request to the server
-final int UPDATE_MS = 500;
+final int UPDATE_MS = 100;
 //If we're currently running the sim
 boolean runningSim = false;
 //the server ip adress
@@ -88,6 +88,11 @@ BoardState createBoardState(String[] lines) {
   int x = 0;
   int y = 0;
   for (String line : lines) {
+    //First check if this line starts with 'turn'
+    if(line.toLowerCase().startsWith("turn")){
+      currentPlayer = line.toLowerCase().indexOf('b') > -1 ? BoardColor.Black : BoardColor.White;
+      continue;
+    }
     //Skip any lines that are not as long as the board size
     if (line.length() < BOARD_SIZE) continue;
     x = 0;

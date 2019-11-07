@@ -4,6 +4,8 @@ final int BOARD_SIZE = 8;
 PImage bgImage;
 //The spacenbar key
 final int SPACE = 32;
+//Sets the current player in the game
+BoardColor currentPlayer = BoardColor.White;
 
 /**
 Runs once and handles setup
@@ -48,6 +50,9 @@ void draw() {
   //Check if we need to end the turn
   if(Key.isDownOnce(SPACE)) thread("endTurn");
   
+  //Renders the indicator that shows who has to play now
+  renderTurnIndicator();
+  
   //Check if we need to do any network updates
   checkNetwork();
 }
@@ -91,7 +96,6 @@ void mouseReleased(){
 Registers a keypress with the lib
 **/
 void keyPressed(){
-  println(keyCode);
   Key.setState(keyCode, true);
 }
 
