@@ -16,7 +16,7 @@ void setup() {
   //The boardoffset is calculated on the fly based on the cell size and board size
   boardOffset.set((width - CELL_SIZE * BOARD_SIZE) / 2, (height - CELL_SIZE * BOARD_SIZE) / 2);
   //Load the bg jpg
-  bgImage = loadImage("bg.jpg");
+  prepareBG();
   //Prepare the buttons for the UI that we will need
   prepareButtons();
   //Set the framerate lower, why waste power?
@@ -35,6 +35,8 @@ void draw() {
   renderBoardState(displayedBoardState);
   //Render the GUI holder on the left side
   renderUIBG();
+  //Render the server responses to moves on the right side
+  renderLog();
   //Render the mouse overlay and handle clicks
   if(isOnBoard(mouseX, mouseY)){
     int x = mouseX - (int) boardOffset.x;

@@ -15,12 +15,28 @@ final String SERVER_IP = "http://localhost:3000";
 //The location we need to send the move from
 int fromX, fromY;
 int toX, toY;
+//The log of responses from the server
+ArrayList<String> logLines = new ArrayList<String>();
+//Amount of logs in the side window
+final int LOG_SIZE = 15;
+
+void addLog(String desc, String[] response){
+  StringBuilder b = new StringBuilder();
+  for(String line : response){
+    b.append(line);
+  }
+  logLines.add(0, desc + ": " + b.toString());
+  while(logLines.size() > LOG_SIZE){
+    logLines.remove(LOG_SIZE - 1);
+  }
+}
 
 /**
 Sends a signal to the server that the player move has ended
 **/
 void endTurn(){
-  loadStrings(SERVER_IP + "/board/move/end/");
+  String[] response = loadStrings(SERVER_IP + "/board/move/end/");
+  addLog("END GAME", response);
 }
 
 /**
@@ -39,9 +55,7 @@ void sendMove(PVector from, PVector to) {
  **/
 void communicateMove() {
   String[] responses = loadStrings(SERVER_IP + "/board/move/" + fromY + "." + fromX + "/" + toY + "." + toX);
-  for(String response : responses){
-    println(response);
-  }
+  addLog("MOVE", responses);
 }
 
 /**
@@ -119,12 +133,14 @@ BoardState createBoardState(String[] lines) {
  Starts the sim by sending a request to the server
  **/
 void startSim() {
-  loadStrings(SERVER_IP + "/board/simulate");
+  String[] response = loadStrings(SERVER_IP + "/board/simulate");
+  addLog("RUN SIMULATION", response);
 }
 
 /**
  Sends a request to restart the sim
  **/
 void restartSim() {
-  loadStrings(SERVER_IP + "/board/restart");
+  String[] response = loadStrings(SERVER_IP + "/board/restart");
+  addLog("RESET BOARD", response);
 }

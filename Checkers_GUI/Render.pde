@@ -6,9 +6,9 @@ float edgeSize = -1;
 //The offset that is cached on how much the top left of the board needs to be translated
 PVector boardOffset = new PVector();
 //Sets the color of the edge
-color edgeColor = color(157, 112, 53);
-color edgeHighlight = color(181, 140, 86);
-color edgeLowlight = color(100, 63, 25);
+color edgeColor = color(20);
+color edgeHighlight = color(100);
+color edgeLowlight = color(0);
 //The boardState we're currently display
 BoardState displayedBoardState = new BoardState();
 //The selection pos
@@ -109,6 +109,7 @@ void drawBoard() {
   //Draw the first background layer
   noStroke();
   fill(edgeColor);
+  strokeWeight(2);
   float boardEdgeSize = CELL_SIZE * BOARD_SIZE + edgeSize;
   square(-edgeSize, -edgeSize, boardEdgeSize + edgeSize  );
   //Draw the two edge shadows and highlights
@@ -166,4 +167,42 @@ void renderUIBG(){
   
   //Renders the indicator that shows who has to play now
   renderTurnIndicator();
+}
+
+/**
+Loads and desaturates the BG image
+**/
+void prepareBG(){
+  bgImage = loadImage("bg.jpg");
+  bgImage.loadPixels();
+  float desaturation = 0.2f;
+  for(int i = 0; i < bgImage.pixels.length; i++){
+    bgImage.pixels[i] = lerpColor(bgImage.pixels[i], color(brightness(bgImage.pixels[i]) * 0.5f), desaturation);
+  }
+  bgImage.updatePixels();
+}
+
+/**
+Renders the log of response we got for the moves
+**/
+void renderLog(){
+  stroke(255);
+  strokeWeight(1);
+  fill(0, 100);
+  pushMatrix();
+  translate(width - boardOffset.x + 40, boardOffset.y - 20);
+  rect(0, 0, boardOffset.x - 60, height - boardOffset.y);
+  textSize(24);
+  fill(255);
+  text("Server Response: ", 10, 30);
+  translate(10, 50);
+  textSize(16);
+  for(String logLine: logLines){
+    text(logLine, 0, 0, boardOffset.x - 60, 80);
+    if(textWidth(logLine) > boardOffset.x - 60){
+      translate(0, 30);
+    };
+    translate(0, 20);
+  }
+  popMatrix();
 }
