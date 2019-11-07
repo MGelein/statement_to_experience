@@ -8,6 +8,11 @@ import { VoiceService } from '../voice/voice.service'
 @Injectable()
 export class MinimaxService {
 
+    winningLeaveCount: number = 0
+    totalLeaveCount: number = 0
+
+    lastWinChance: number = 0
+
     constructor(
         private readonly boardService: BoardService, 
         private readonly voiceService: VoiceService,
@@ -61,7 +66,14 @@ export class MinimaxService {
         const end = new Date()
         const duration = Math.round(((end.getTime() - start.getTime()) / 1000) * 100) / 100
 
-        console.log(`Minimax evaluation ran in ${duration}s and max score is ${maxScore} (depth = ${depth}).`)
+        const winChance = this.winningLeaveCount / this.totalLeaveCount
+        const winChanceDiff = Math.abs(winChance - this.lastWinChance)
+        const winChanceSign = this.lastWinChance > winChance ? '-' : '+'
+        console.log(`AI: win-chance=${Math.round(winChance * 100)}% (${winChanceSign}${Math.round(winChanceDiff * 100)}%), advantage=${maxScore}, eval-time=${duration}s (depth=${depth})`)
+
+        this.winningLeaveCount = 0
+        this.totalLeaveCount = 0
+        this.lastWinChance = winChance
 
         if (maxScore === Number.MAX_VALUE) {
             this.voiceService.triggerAICanWin()
@@ -73,7 +85,12 @@ export class MinimaxService {
     evaluateRecursively(board: Board, depth: number, player: Player, maximizing: boolean, alpha: number, beta: number, alphaBetaPruning: boolean): number {
         if (this.boardEvaluationService.hasEnded(board) || depth === 0) {
             const boardAfterQuiescenceSearch = this.runQuiescenceSearch(board, player)
-            return this.boardEvaluationService.evaluate(boardAfterQuiescenceSearch, player)
+            const score = this.boardEvaluationService.evaluate(boardAfterQuiescenceSearch, player)
+
+            if (score >= 0) this.winningLeaveCount++
+            this.totalLeaveCount++
+
+            return score
         }
 
         const playFromPerspective = maximizing ? player : (player === 'b' ? 'w' : 'b')
