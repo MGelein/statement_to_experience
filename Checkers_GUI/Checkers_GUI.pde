@@ -33,8 +33,8 @@ void draw() {
   image(bgImage, 0, 0, width, height);
   //Now render the boardstate on top of the background
   renderBoardState(displayedBoardState);
-  //Render all the buttons
-  for(Button b: buttons) b.render();
+  //Render the GUI holder on the left side
+  renderUIBG();
   //Render the mouse overlay and handle clicks
   if(isOnBoard(mouseX, mouseY)){
     int x = mouseX - (int) boardOffset.x;
@@ -46,12 +46,6 @@ void draw() {
     //Hide the selected pos
     selPos.set(-1000, -1000);
   }
-  
-  //Check if we need to end the turn
-  if(Key.isDownOnce(SPACE)) thread("endTurn");
-  
-  //Renders the indicator that shows who has to play now
-  renderTurnIndicator();
   
   //Check if we need to do any network updates
   checkNetwork();
@@ -90,20 +84,6 @@ void mouseReleased(){
   for(Button b: buttons){
     if(b.hover) b.release();
   }
-}
-
-/**
-Registers a keypress with the lib
-**/
-void keyPressed(){
-  Key.setState(keyCode, true);
-}
-
-/**
-Registers a key release with the lib
-**/
-void keyReleased(){
-  Key.setState(keyCode, false);
 }
 
 /**
