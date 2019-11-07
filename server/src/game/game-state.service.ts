@@ -11,12 +11,15 @@ interface GameState {
     winner?: Winner;
 }
 
+
+
 @Injectable()
 export class GameStateService {
 
     state: GameState = {
         moves: [],
-        endedAt: new Date()
+        endedAt: new Date(),
+        winner: null
     }
 
     constructor(private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService) {}

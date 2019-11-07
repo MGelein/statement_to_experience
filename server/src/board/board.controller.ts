@@ -45,8 +45,16 @@ export class BoardController {
   @Get('csv')
   @Header('Content-Type', 'text/plain')
   csv(): string {
-    const turn = 'Turn: ' + (this.aiIsThinking ? 'b' : 'w') + '\n\n'
-    return turn + this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
+    let output = ''
+    output += 'Turn: ' + (this.aiIsThinking ? 'b' : 'w') + '\n'
+
+    let overlay = ''
+    if (this.gameStateService.state.winner === 'b') overlay = 'LOST'
+    else if (this.gameStateService.state.winner === 'w') overlay = 'WON'
+    else if (this.gameStateService.state.winner === 'draw') overlay = 'DRAW'
+    output += 'Overlay: ' + overlay + '\n\n'
+
+    return output + this.boardService.get().map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
   }
 
   @Get('move/:from/:to')
