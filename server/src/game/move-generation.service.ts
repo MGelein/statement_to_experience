@@ -17,33 +17,42 @@ export class MoveGenerationService {
     constructor(private readonly boardService: BoardService, private readonly moveValidationService: MoveValidationService) {}
 
     getAllPossibleTurns(board: Board, player: Player): Turn[] {
-        let jumps: Turn[] = []
+        const jumps = this.getAllPossibleJumps(board, player)
+
+        // If you can jump, you must jump; only consider turns if no jumps are possible
+        if (jumps.length > 0) {
+            return jumps
+        }
+
         let moves: Turn[] = []
 
         board.map((pieces: Piece[], row: number) => {
             pieces.map((piece: Piece, col: number) => {
                 if (piece.toLowerCase() === player.toLowerCase()) {
-                    let hasJumps = false
-                    this.getJumpsFrom(board, row, col).map((turn: Turn) => {
-                        if (turn.length !== 0) {
-                            jumps.push(turn)
-                            hasJumps = true
-                        }
-                    })
-
-                    if (!hasJumps) {
-                        moves = [...moves, ...this.getMovesFrom(board, row, col)]
-                    }
+                    moves = [...moves, ...this.getMovesFrom(board, row, col)]
                 }
             })
         })
 
-        // If you can jump, you must jump; only consider turns if no jumps are possible
-        if (jumps.length > 0) {
-            return jumps
-        } else {
-            return moves
-        }
+        return moves
+    }
+
+    getAllPossibleJumps(board: Board, player: Player): Turn[] {
+        let jumps: Turn[] = []
+
+        board.map((pieces: Piece[], row: number) => {
+            pieces.map((piece: Piece, col: number) => {
+                if (piece.toLowerCase() === player.toLowerCase()) {
+                    this.getJumpsFrom(board, row, col).map((turn: Turn) => {
+                        if (turn.length !== 0) {
+                            jumps.push(turn)
+                        }
+                    })
+                }
+            })
+        })
+
+        return jumps
     }
 
     getJumpsFrom(board: Board, row: number, col: number, previousTurn: Turn = []): Turn[] {

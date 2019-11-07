@@ -7,6 +7,7 @@ import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { GameStateService } from '../game/game-state.service'
 import { BoardEvaluationService } from '../ai/board-evaluation.service'
+import { MoveValidationService } from '../game/move-validation.service'
 
 @Controller('board')
 export class BoardController {
@@ -15,6 +16,7 @@ export class BoardController {
     private readonly minimaxService: MinimaxService,
     private readonly boardEvaluationService: BoardEvaluationService,
     private readonly voiceService: VoiceService,
+    private readonly moveValidationService: MoveValidationService,
     private readonly moveGenerationService: MoveGenerationService) {}
 
   simulationInterval: any = null
@@ -69,18 +71,31 @@ export class BoardController {
     }
     this.gameStateService.addMove(move)
 
-    const humanMove = this.boardService.move(Number(fromRow), Number(fromCol), Number(toRow), Number(toCol))
+    const previousBoard = this.boardService.get()
+  
+    const moveIsValid = this.moveValidationService.isValid(previousBoard, Number(fromRow), Number(fromCol), Number(toRow), Number(toCol))
 
-    if (humanMove !== 'OK') {
-      this.voiceService.triggerInvalidMove(humanMove)
+    if (moveIsValid !== 'OK') {
+      this.voiceService.triggerInvalidMove(moveIsValid)
     } else {
       const lastMoveWasAJump = Math.abs(toRow - fromRow) > 1
 
-      // TODO: check if it was a move, but if there were jumps possible, then block the move
+      // Check if it was a move, but if there were jumps possible, then block the move
+      if (!lastMoveWasAJump) {
+        const player = previousBoard[Number(fromRow)][Number(fromCol)].toLowerCase() as Player
+        const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(previousBoard, player)
 
+        if (jumpsFromPreviousPosition.length !== 0) {
+          this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
+          return 'You have to jump if you can jump.'
+        }
+      }
+
+      this.boardService.move(Number(fromRow), Number(fromCol), Number(toRow), Number(toCol))
+      
       const jumpsFromHere = this.moveGenerationService.getJumpsFrom(this.boardService.get(), Number(toRow), Number(toCol))
 
-      // No more jumps are possible, so the turn ends
+      // End the turn if that last move was either not a jump, or no more jumps are possible
       if (!lastMoveWasAJump || jumpsFromHere.length === 0) {
         const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
 
@@ -97,7 +112,7 @@ export class BoardController {
       }
     }
 
-    return humanMove
+    return moveIsValid
   }
 
   async playAIMove() {
