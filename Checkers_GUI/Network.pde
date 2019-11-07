@@ -103,7 +103,9 @@ BoardState createBoardState(String[] lines) {
   for (String line : lines) {
     //First check if this line starts with 'turn'
     if(line.toLowerCase().startsWith("turn")){
-      currentPlayer = line.toLowerCase().indexOf('b') > -1 ? BoardColor.Black : BoardColor.White;
+      currentPlayer = null;
+      if(line.toLowerCase().indexOf('b') > -1) currentPlayer = BoardColor.Black;
+      else if(line.toLowerCase().indexOf('w') > -1) currentPlayer = BoardColor.White;
       continue;
     }else if(line.toLowerCase().startsWith("overlay")){
       setOverlay(line);
