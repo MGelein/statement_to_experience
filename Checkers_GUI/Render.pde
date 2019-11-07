@@ -120,7 +120,7 @@ void renderBoardState(BoardState b) {
   noFill();
   popMatrix();
   //Change the srcThickness
-  srcAngle += 0.4f;
+  srcAngle += 0.25f;
   srcThickness = 5 + sin(srcAngle) * 3;
 
   //If we want to show the selected pos

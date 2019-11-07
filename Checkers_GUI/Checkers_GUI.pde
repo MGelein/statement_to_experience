@@ -88,6 +88,8 @@ void mousePressed(){
       targetPos.set(x * CELL_SIZE, y * CELL_SIZE);
       //If they are the same spot, ignore this click
       if(targetPos.equals(srcPos)) {
+        //If we click the sourcepos, we want to deselect
+        srcPos.set(-1000, -1000);
         targetPos.set(-1000, -1000);
         return;
       }
