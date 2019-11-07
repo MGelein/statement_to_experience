@@ -79,5 +79,8 @@ export const messages = {
     ],
     aiCanWin: () => [
         `I can beat you in just a few more moves, so watch out!`,
-    ]
+    ],
+    notYourTurn: () => [
+        `Oh no, you have to wait until I'm done with my turn, you cheater.`
+    ],
 }

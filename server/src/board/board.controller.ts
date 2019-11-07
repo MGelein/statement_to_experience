@@ -23,6 +23,7 @@ export class BoardController {
   debugLogging: boolean = false
 
   lastAIMoveAt: number = 0
+  aiIsThinking: boolean = false
 
   @Get()
   list(): Board {
@@ -53,6 +54,11 @@ export class BoardController {
     if (fromRow === toRow && fromCol === toCol) {
       return 'Empty move'
     }
+
+    if (this.aiIsThinking) {
+      this.voiceService.triggerNotYourTurn()
+      return 'It is not your turn yet'
+    }
     
     const move: Move = {
       fromRow: Number(fromRow),
@@ -68,6 +74,9 @@ export class BoardController {
       this.voiceService.triggerInvalidMove(humanMove)
     } else {
       const lastMoveWasAJump = Math.abs(toRow - fromRow) > 1
+
+      // TODO: check if it was a move, but if there were jumps possible, then block the move
+
       const jumpsFromHere = this.moveGenerationService.getJumpsFrom(this.boardService.get(), Number(toRow), Number(toCol))
 
       // No more jumps are possible, so the turn ends
@@ -91,6 +100,7 @@ export class BoardController {
   }
 
   async playAIMove() {
+    this.aiIsThinking = true
     const startEvaluation = new Date().getTime()
     const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
 
@@ -110,6 +120,8 @@ export class BoardController {
           console.log('Game has ended')
           this.gameStateService.end()
         }
+
+        this.aiIsThinking = false
       }, Math.max(0, (settings.ai.minEvaluationTimeInSeconds * 1000) - (endEvaluation - startEvaluation)))
     } else {
       console.log('Game has ended')

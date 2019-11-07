@@ -14,7 +14,7 @@ const randomChance = (chance: number = 0.25): boolean => {
 export class VoiceService {
 
     constructor(private readonly textToSpeechService: TextToSpeechService) {
-        this.idleInterval = setInterval(() => this.runInGameInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
+        this.idleInterval = setInterval(() => this.runIdleInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
     }
 
     lastSpoken: Date = new Date()
@@ -34,11 +34,11 @@ export class VoiceService {
     }
 
     triggerGameEnd(winner: Winner) {
-        if (winner === 'b') this.pick(messages.gameWonByAI())
-        else if (winner === 'w') this.pick(messages.gameLostByAI())
-        else this.pick(messages.gameDraw())
+        if (winner === 'b') this.pick(messages.gameWonByAI(), true)
+        else if (winner === 'w') this.pick(messages.gameLostByAI(), true)
+        else this.pick(messages.gameDraw(), true)
 
-        this.idleInterval = setInterval(() => this.runInGameInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
+        this.idleInterval = setInterval(() => this.runIdleInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
         if (this.inGameInterval) clearInterval(this.inGameInterval)
     }
 
@@ -55,6 +55,10 @@ export class VoiceService {
         if (this.shouldSpeak) this.pick(messages.slowMove(timeInSeconds))
     }
 
+    triggerNotYourTurn() {
+        if (this.shouldSpeak) this.pick(messages.notYourTurn())
+    }
+
     triggerGrabKing(numberOfMoves: number) {
         if (this.shouldSpeak) this.pick(messages.grabKing(numberOfMoves))
     }
@@ -64,17 +68,17 @@ export class VoiceService {
     }
 
     runInGameInterval(shouldSpeak: () => boolean) {
-        if (shouldSpeak && randomChance(0.50)) this.pick(messages.randomTrashTalk())
+        if (shouldSpeak && randomChance(0.20)) this.pick(messages.randomTrashTalk())
     }
 
     runIdleInterval(shouldSpeak: () => boolean) {
-        const chance = randomChance(0.25)
+        const chance = randomChance(0.10)
         if (settings.voice.idleTalkEnabled) {
             if (shouldSpeak && chance) this.pick(messages.idleTalk())
         }
     }
 
-    pick(texts: string[]) {
+    pick(texts: string[], overwrite: boolean = false) {
         // TODO: should basically clear history after every message of this message type has been said
         // const nonRepeats = texts.filter((text: string) => this.history.includes(text))
 
@@ -83,7 +87,7 @@ export class VoiceService {
         this.history.push(text)
         this.lastSpoken = new Date()
 
-        this.textToSpeechService.say(text)
+        this.textToSpeechService.say(text, overwrite)
     }
 
     shouldSpeak(): boolean {

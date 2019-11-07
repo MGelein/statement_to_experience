@@ -11,8 +11,10 @@ export class TextToSpeechService {
   
     queue: string[] = []
 
-    say(text: string): void {
+    say(text: string, overwrite: boolean = false): void {
         if (settings.voice.enabled) {
+            if (overwrite) this.queue = []
+
             this.queue.push(text)
             if (this.queue.length === 1) {
                 this.processQueue()
