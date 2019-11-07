@@ -46,7 +46,7 @@ export class BoardController {
   @Header('Content-Type', 'text/plain')
   csv(): string {
     let output = ''
-    output += 'Turn: ' + (this.aiIsThinking ? 'b' : 'w') + '\n'
+    output += 'Turn: ' + (this.gameStateService.state.winner ? '' : (this.aiIsThinking ? 'b' : 'w')) + '\n'
 
     let overlay = ''
     if (this.gameStateService.state.winner === 'b') overlay = 'LOST'
