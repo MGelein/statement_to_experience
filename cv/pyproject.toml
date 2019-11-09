@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "cv"
+version = "0.1.0"
+description = ""
+authors = ["Jeroen Offerijns <jeroen@offerijns.com>"]
+
+[tool.poetry.dependencies]
+python = "^2.7"
+opencv-python = "^4.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

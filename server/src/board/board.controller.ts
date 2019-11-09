@@ -5,7 +5,7 @@ import { MinimaxService } from '../ai/minimax.service'
 import { settings } from '../settings'
 import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
-import { GameStateService } from '../game/game-state.service'
+import { GameStateService, PlayerMove } from '../game/game-state.service'
 import { BoardEvaluationService } from '../ai/board-evaluation.service'
 import { MoveValidationService } from '../game/move-validation.service'
 
@@ -42,6 +42,14 @@ export class BoardController {
     return 'OK'
   }
 
+  @Get('moves/csv')
+  @Header('Content-Type', 'text/plain')
+  movesCSV(): string {
+    return this.gameStateService.state.moves.map((playerMove: PlayerMove) => {
+      return `${playerMove.player}: (${playerMove.move.fromRow},${playerMove.move.fromCol}) to (${playerMove.move.toRow},${playerMove.move.toCol})`
+    }).join('\n')
+  }
+
   @Get('csv')
   @Header('Content-Type', 'text/plain')
   csv(): string {
@@ -70,14 +78,6 @@ export class BoardController {
       this.voiceService.triggerNotYourTurn()
       return 'It is not your turn yet'
     }
-    
-    const move: Move = {
-      fromRow: Number(fromRow),
-      fromCol: Number(fromCol),
-      toRow: Number(toRow),
-      toCol: Number(toCol)
-    }
-    this.gameStateService.addMove(move)
 
     const previousBoard = this.boardService.get()
   
@@ -98,6 +98,16 @@ export class BoardController {
           return 'You have to jump if you can jump.'
         }
       }
+
+
+      const player = previousBoard[Number(fromRow)][Number(fromCol)] as Player
+      const move: Move = {
+        fromRow: Number(fromRow),
+        fromCol: Number(fromCol),
+        toRow: Number(toRow),
+        toCol: Number(toCol)
+      }
+      this.gameStateService.addMove(player, move)
 
       this.boardService.move(Number(fromRow), Number(fromCol), Number(toRow), Number(toCol))
       
@@ -136,7 +146,7 @@ export class BoardController {
       // after the person's move, then the digital display will show both turns at the same time, which is confusing
       setTimeout(() => {
         turn.map((move: Move) => {
-          this.gameStateService.addMove(move)
+          this.gameStateService.addMove('b', move)
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
 
