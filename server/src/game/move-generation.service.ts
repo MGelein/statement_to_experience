@@ -59,9 +59,10 @@ export class MoveGenerationService {
         let turns: Turn[] = []
 
         const isKing = board[row][col] === 'B' || board[row][col] === 'W'
+
+        // Pawns can jump 2 steps, while kings can jump infinitely far
         const maxSteps = isKing ? settings.board.rowCount - 1 : 2
 
-        // Search 2 steps, so a single jump, away for both pawns and kings
         for (let steps = 2; steps <= maxSteps; steps++) {
             directions.map(([rowdir, coldir]) => {
                 if (this.isValid(board, row, col, row + rowdir * steps, col + coldir * steps) === 'OK') {
@@ -76,7 +77,7 @@ export class MoveGenerationService {
 
                     if (hasPiecesInbetween) {
                         const newTurn: Turn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * steps, toCol: col + coldir * steps }]
-                        const newBoard = this.boardService.applyTurn(board, newTurn)
+                        const newBoard = this.boardService.applyMove(board, row, col, row + rowdir * steps, col + coldir * steps)
 
                         const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard, row + rowdir * steps, col + coldir * steps, newTurn)
                         turns = [...turns, ...withMultiJumps]
@@ -102,7 +103,6 @@ export class MoveGenerationService {
             // Search more than 1 step away just for kings
             for (let steps = 2; steps < settings.board.rowCount; steps += 1) {
                 directions.map(([rowdir, coldir]) => {
-                    // console.log(this.isValid(board, row, col, row + rowdir * r, col + coldir * c))
                     if (this.isValid(board, row, col, row + rowdir * steps, col + coldir * steps) === 'OK') {
                         turns.push([{ fromRow: row, fromCol: col, toRow: row + rowdir * steps, toCol: col + coldir * steps }])
                     }
