@@ -80,6 +80,7 @@ void checkNetwork() {
     if (lastUpdate > UPDATE_MS) {
       lastUpdate -= UPDATE_MS;
       thread("updateBoardState");
+      thread("updateMoveList");
     }
     lastMillis = currentTime;
   } else {
@@ -92,6 +93,13 @@ void checkNetwork() {
     hasNetworkUpdate = false;
     displayedBoardState = networkBoardState;
   }
+}
+
+/**
+Ready to update the list of moves
+**/
+void updateMoveList(){
+  
 }
 
 /**

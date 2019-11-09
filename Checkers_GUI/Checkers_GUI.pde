@@ -57,6 +57,7 @@ void draw() {
   }
   //Finally, on top of everything, render the overlay if we need to
   renderOverlay();
+  renderHighlights();
   
   //Check if we need to do any network updates
   checkNetwork();
