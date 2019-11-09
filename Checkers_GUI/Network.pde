@@ -21,19 +21,23 @@ ArrayList<String> logLines = new ArrayList<String>();
 ArrayList<String> newLog = new ArrayList<String>();
 //Amount of logs in the side window
 final int LOG_SIZE = 15;
+//The amount of moves there were in the last update of the moves list
+int lastMoveAmt = 0;
+//If this is the first check we do, we don't need to do any ugly highlights
+boolean firstCheck = true;
 
-void addLog(String desc, String[] response){
+void addLog(String desc, String[] response) {
   StringBuilder b = new StringBuilder();
-  for(String line : response){
+  for (String line : response) {
     b.append(line);
   }
   newLog.add(desc + ": " + b.toString());
 }
 
 /**
-Sends a signal to the server that the player move has ended
-**/
-void endTurn(){
+ Sends a signal to the server that the player move has ended
+ **/
+void endTurn() {
   String[] response = loadStrings(SERVER_IP + "/board/move/end/");
   addLog("END GAME", response);
 }
@@ -45,16 +49,16 @@ void endTurn(){
 boolean sendMove(PVector from, PVector to) {
   fromX = (int) (from.x / CELL_SIZE);
   fromY = (int) (from.y / CELL_SIZE);
-  if(fromX < 0 || fromX >= BOARD_SIZE || fromY < 0 || fromY >= BOARD_SIZE) return false;
+  if (fromX < 0 || fromX >= BOARD_SIZE || fromY < 0 || fromY >= BOARD_SIZE) return false;
   BoardCell source = displayedBoardState.board[fromX][fromY];
-  if(source.col == BoardColor.White) return false;
-  if(source.piece == null) return false;
+  if (source.col == BoardColor.White) return false;
+  if (source.piece == null) return false;
   toX = (int) (to.x / CELL_SIZE);
   toY = (int) (to.y / CELL_SIZE);
-  if(toX < 0 || toX >= BOARD_SIZE || toY < 0 || toY >= BOARD_SIZE) return false;
+  if (toX < 0 || toX >= BOARD_SIZE || toY < 0 || toY >= BOARD_SIZE) return false;
   BoardCell target = displayedBoardState.board[toX][toY];
-  if(target.col == BoardColor.White) return false;
-  if(target.piece != null) return false;
+  if (target.col == BoardColor.White) return false;
+  if (target.piece != null) return false;
   //Start the thread and communicate we are sending this to server
   thread("communicateMove");
   return true;
@@ -96,10 +100,52 @@ void checkNetwork() {
 }
 
 /**
-Ready to update the list of moves
-**/
-void updateMoveList(){
-  
+ Ready to update the list of moves
+ **/
+void updateMoveList() {
+  String[] response = loadStrings(SERVER_IP + "/board/moves/csv/");
+  if (response.length != lastMoveAmt) {
+    if (!firstCheck) {
+      for (int i = lastMoveAmt; i < response.length; i++) {
+        String line = response[i].toLowerCase();
+        //Ignore whites moves, we don't need to highlight those
+        if (line.charAt(0) == 'w') continue;
+        //Only add highligt for blackmoves
+        parseHighlightMove(line);
+      }
+    } else {
+      firstCheck = false;
+    }
+    lastMoveAmt = response.length;
+  }
+}
+
+/**
+ Parses a single move and turns it into a highlight
+ **/
+void parseHighlightMove(String l) {
+  l = l.replaceAll("[ b:w\\(\\)]", "");
+  String[] parts = l.split("to");
+  for (String p : parts) {
+    parseHighlightCoord(p.split(","));
+  }
+}
+
+/**
+ Parses a single highlight coord and checks if it even needs to be added to the 
+ list of highlight effects
+ **/
+void parseHighlightCoord(String[] parts) {
+  if (parts.length < 2) return;
+  int y = parseInt(parts[0]);
+  int x = parseInt(parts[1]);
+  //Only check for doubles if there is actually something to check
+  if (highlights.list.size() > 0) {
+    Highlight lastHighlight = highlights.list.get(highlights.list.size() - 1);
+    //Do nothing if this is also the last added highligt, prevents the structure of "From A to B and then from B to C"
+    if (lastHighlight.x == x && lastHighlight.y == y) return;
+  }
+  addHighlight(x, y);
 }
 
 /**
@@ -121,12 +167,12 @@ BoardState createBoardState(String[] lines) {
   int y = 0;
   for (String line : lines) {
     //First check if this line starts with 'turn'
-    if(line.toLowerCase().startsWith("turn")){
+    if (line.toLowerCase().startsWith("turn")) {
       currentPlayer = null;
-      if(line.toLowerCase().indexOf('b') > -1) currentPlayer = BoardColor.Black;
-      else if(line.toLowerCase().indexOf('w') > -1) currentPlayer = BoardColor.White;
+      if (line.toLowerCase().indexOf('b') > -1) currentPlayer = BoardColor.Black;
+      else if (line.toLowerCase().indexOf('w') > -1) currentPlayer = BoardColor.White;
       continue;
-    }else if(line.toLowerCase().startsWith("overlay")){
+    } else if (line.toLowerCase().startsWith("overlay")) {
       setOverlay(line);
       continue;
     }
@@ -143,10 +189,10 @@ BoardState createBoardState(String[] lines) {
       } else if (cell == 'b' || cell == 'B') {
         b.board[x][y].piece = new Piece(BoardColor.Black, cell == 'B');
       }
-      if(x >= BOARD_SIZE) continue;
+      if (x >= BOARD_SIZE) continue;
       x++;
     }
-    if(y >= BOARD_SIZE) continue;
+    if (y >= BOARD_SIZE) continue;
     y++;
   }
   return b;
