@@ -4,6 +4,7 @@ import { Player, Board, BoardService, Turn } from '../board/board.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { BoardEvaluationService } from './board-evaluation.service'
 import { VoiceService } from '../voice/voice.service'
+import { settings } from '../settings'
 
 @Injectable()
 export class MinimaxService {
@@ -31,6 +32,10 @@ export class MinimaxService {
 
     runMinimax(board: Board, depth: number, player: Player, alphaBetaPruning: boolean = true): Turn {
         const start = new Date()
+
+        if (Math.random() > settings.ai.strength) {
+            return this.runRandom(board, player)
+        }
 
         const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, player)        
         if (possibleTurns.length === 0) {

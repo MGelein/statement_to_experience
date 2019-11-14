@@ -4,7 +4,7 @@ import { Move, BoardService, Player } from '../board/board.service'
 import { VoiceService } from '../voice/voice.service'
 import { BoardEvaluationService, Winner } from '../ai/board-evaluation.service'
 
-interface PlayerMove {
+export interface PlayerMove {
     player: Player,
     move: Move
 }
