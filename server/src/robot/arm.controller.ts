@@ -18,8 +18,8 @@ export class ArmController {
   }
 
   @Get('position/move/:name')
-  move(@Param() params): string {
-    const ret = this.robotCommandService.sendSavedCommand(params.name)
+  async move(@Param() params): Promise<string> {
+    const ret = await this.robotCommandService.sendSavedCommand(params.name)
     if (ret) return 'OK'
     else return `Failed to send command ${params.name}`
   }
@@ -28,6 +28,12 @@ export class ArmController {
   delete(@Param() params): string {
     this.robotCommandService.unsetSavedCommand(params.name)
     return 'OK'
+  }
+
+  @Get('position/list')
+  @Header('Content-Type', 'text/plain')
+  async list(): Promise<string> {
+    return this.robotCommandService.getSavedCommands().then((keys: string[]) => keys.join('\n'))
   }
 
 }

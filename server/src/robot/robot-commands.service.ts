@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common'
 import * as SerialPort from 'serialport'
 import { Move } from '../board/board.service'
+import { StorageService } from '../storage.service'
+
+const storagePrefix = '/arm/commands/'
 
 @Injectable()
 export class RobotCommandsService {
 
     port: any = null
-
-    savedCommands: { [key: string]: string } = {}
       
-    constructor() {
+    constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
             const path = ports[0].path
@@ -32,21 +33,31 @@ export class RobotCommandsService {
     }
 
     setSavedCommand(name: string, command: string): void {
-        this.savedCommands[name] = command
+        this.storage.set(storagePrefix + name, command)
     }
 
     unsetSavedCommand(name: string): void {
-        delete this.savedCommands
+        this.storage.delete(storagePrefix + name)
     }
 
-    sendSavedCommand(name: string): boolean {
-        if (!(name in this.savedCommands)) return false
-        return this.sendCommand(this.savedCommands[name])
+    sendSavedCommand(name: string): Promise<boolean> {
+        return this.storage.get(storagePrefix + name).then((command: string) => {
+            if (!command) return false
+            else return this.sendCommand(command)
+        })
+    }
+
+    getSavedCommands(): Promise<string[]> {
+        return this.storage.keys().then((keys: string[]) => {
+            return keys
+                .filter((key: string) => key.startsWith(storagePrefix))
+                .map((key: string) => key.substr(storagePrefix.length))
+        })
     }
 
     sendCommand(command: string): boolean {
         console.log(`Robot Command: ${command}`)
-        return this.port.write(command, (err: any) => {
+        return this.port.write(command + '\n', (err: any) => {
             if (err) {
                 console.warn('Error on writing to serial port: ', err.message)
                 return false
