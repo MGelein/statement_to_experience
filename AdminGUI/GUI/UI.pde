@@ -6,14 +6,24 @@ float thinStroke = 2;
 float fontSize;
 
 void loadUIControls(){
-  float sliderHeight = height - fontSize * 8;
-  shoulderSlider = new Slider("Shoulder", fontSize * 5, fontSize * 5, 1000, 2000, sliderHeight);
-  elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 5, 1000, 2000, sliderHeight);
-  linActSlider = new Slider("Lin.Act", fontSize * 23, fontSize * 5, 1000, 2000, sliderHeight);
+  float sliderHeight = height - fontSize * 10;
+  shoulderSlider = new Slider("Shoulder", fontSize * 5, fontSize * 7, 1000, 2000, sliderHeight);
+  elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 7, 1000, 2000, sliderHeight);
+  linActSlider = new Slider("Lin.Act", fontSize * 23, fontSize * 7, 1000, 2000, sliderHeight);
   
   float toggleSize = fontSize * 5;
-  directToggle = new Toggle("Direct Comm.", fontSize * 32, fontSize * 5, toggleSize);
-  magnetToggle = new Toggle("Elec.Magnet", fontSize * 32, fontSize * 13, toggleSize);
+  directToggle = new Toggle("Direct Comm.", fontSize * 32, fontSize * 7, toggleSize);
+  magnetToggle = new Toggle("Elec.Magnet", fontSize * 40, fontSize * 7, toggleSize);
+  
+  float buttonHeight = fontSize * 5;
+  float buttonWidth = fontSize * 5;
+  saveButton = new Button("Save As", fontSize * 32, fontSize * 17, buttonWidth, buttonHeight, new ClickHandler(){
+    public void press(){println("testing save button");}
+  });
+  
+  servoLabel = new Label("Servo Controls", fontSize * 8, fontSize * 2.5f);
+  buttonLabel = new Label("Robot Buttons", fontSize * 36, fontSize * 2.5f);
+  presetLabel = new Label("Preset Editor", fontSize * 36, fontSize * 13);
 }
 
 void loadUISettings(){
@@ -23,6 +33,71 @@ void loadUISettings(){
   textSize(fontSize);
   thinStroke = height / 450f;
   thickStroke = thinStroke * 3f;
+}
+
+abstract class ClickHandler{
+  abstract void press();
+}
+
+class Label{
+  String name;
+  float x, y;
+  
+  Label(String name, float x, float y){
+    this.x = x;
+    this.y = y;
+    this.name = name;
+  }
+  
+  void render(){
+    textSize(fontSize * 1.5f);
+    stroke(fgColor);
+    fill(fgColor);
+    strokeWeight(thinStroke);
+    float tw = textWidth(name);
+    line(x - tw / 2, y, x + tw / 2, y);
+    text(name, x - tw / 2, y);
+  }
+}
+
+class Button{
+  float x, y;
+  float h, w;
+  String name;
+  boolean pressed, hover;
+  ClickHandler clickHandler;
+  
+  Button(String name, float x, float y, float w, float h, ClickHandler handler){
+    this.name = name;
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    clickHandler = handler;
+  }
+  
+  boolean isUnderMouse(){
+    float hh = h / 2;
+    float hw = w / 2;
+    return mouseX > x - hw && mouseX < x + hw && mouseY > y - hh && mouseY < y + hh;
+  }
+  
+  void render(){
+    textSize(fontSize);
+    hover = isUnderMouse();
+    if(!mousePressed) pressed = false;
+    if(mousePressed && hover && !pressed){
+      pressed = true;
+      if(clickHandler != null) clickHandler.press();
+    }
+    
+    fill(pressed ? fgColor : bgColor, hover ? 120 : 255);
+    stroke(fgColor, hover ? 200 : 255);
+    strokeWeight(thinStroke);
+    rect(x, y, w, h);
+    fill(fgColor);
+    text(name, x - textWidth(name) / 2, y + fontSize * .3f);
+  }
 }
 
 class Slider{
@@ -59,6 +134,7 @@ class Slider{
   }
   
   void render(){
+    textSize(fontSize);
     if(!mousePressed) pressed = false;
     else if(mousePressed && isUnderMouse()) pressed = true;
     
@@ -112,6 +188,7 @@ class Toggle{
   }
   
   void render(){
+    textSize(fontSize);
     if(!mousePressed) pressed = false;
     if(mousePressed && isUnderMouse() && !pressed){
       toggleValue();

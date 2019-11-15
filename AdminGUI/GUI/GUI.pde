@@ -1,8 +1,15 @@
 Slider shoulderSlider;
 Slider elbowSlider;
 Slider linActSlider;
+
 Toggle directToggle;
 Toggle magnetToggle;
+
+Button saveButton;
+
+Label servoLabel;
+Label buttonLabel;
+Label presetLabel;
 
 void setup(){
   size(1600, 900, P2D);
@@ -15,11 +22,19 @@ void setup(){
 
 void draw(){
   background(0);
+  
   shoulderSlider.render();
   elbowSlider.render();
   linActSlider.render();
+  
   directToggle.render();
   magnetToggle.render();
+  
+  saveButton.render();
+  
+  servoLabel.render();
+  buttonLabel.render();
+  presetLabel.render();
 }
 
 float toPrecision(float val, int precision){
