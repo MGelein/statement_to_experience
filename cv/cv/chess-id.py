@@ -115,28 +115,36 @@ def find_board(img):
     Given a filename, returns the board image.
     """
     start = time()
-    print(img.shape)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.blur(gray, (3, 3))
     
     # Canny edge detection
-    edges = auto_canny(gray)
-    if np.count_nonzero(edges) / float(gray.shape[0] * gray.shape[1]) > 0.05: # 0.05 was 0.015
-        print('too many edges')
-        return None
+    # edges = auto_canny(gray)
+    # if np.count_nonzero(edges) / float(gray.shape[0] * gray.shape[1]) > 0.015: # 0.05 was 0.015
+    #     print('too many edges')
+    #     return None
 
-    # Hough line detection
-    lines = cv2.HoughLines(edges, 1, np.pi/180, 200)
-    if lines is None:
-        print('no lines')
-        return None
+    # # Hough line detection
+    # lines = cv2.HoughLines(edges, 1, np.pi/180, 200)
+    # if lines is None:
+    #     print('no lines')
+    #     return None
 
-    # lines = np.reshape(lines, (-1, 2))
-    
+    edges = cv2.Canny(gray, 75, 150)
+    lines = cv2.HoughLinesP(edges, 1, np.pi/180, 30, maxLineGap=250)
+
     for line in lines:
-        for x1,y1,x2,y2 in line:
-            cv2.line(img, (x1,y1),(x2,y2),(0,255,0),2)
+        x1, y1, x2, y2 = line[0]
+        cv2.line(img, (x1,y1),(x2,y2),(0,255,0),2)
+        
+    # lines = np.reshape(lines, (-1, 2))
+    # print(lines)
+    
+    # for line in lines:
+    #     print(line)
+    #     for x1,y1,x2,y2 in line:
+    #         cv2.line(img, (x1,y1),(x2,y2),(0,255,0),2)
 
     # Compute intersection points
     h, v = hor_vert_lines(lines)
@@ -169,7 +177,7 @@ def split_board(img):
     return arr
 
 if __name__ == '__main__':
-    filename = 'img/5.png'
+    filename = 'img/5.jpg'
     img = cv2.imread(filename)
 
     board = find_board(img)
@@ -178,4 +186,4 @@ if __name__ == '__main__':
     cv2.imshow('dst', sm)
 
     if cv2.waitKey(0) & 0xff == 27:
-        cv2.destroyAllWindows()
+        cv2.destroyAllWindows() 

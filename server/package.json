@@ -23,7 +23,8 @@
     "reflect-metadata": "0.1.13",
     "rimraf": "2.6.3",
     "rxjs": "6.4.0",
-    "say": "^0.16.0"
+    "say": "^0.16.0",
+    "serialport": "^8.0.5"
   },
   "devDependencies": {
     "@types/node": "11.13.4",
