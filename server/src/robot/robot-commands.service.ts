@@ -6,6 +6,8 @@ import { Move } from '../board/board.service'
 export class RobotCommandsService {
 
     port: any = null
+
+    savedCommands: { [key: string]: string } = {}
       
     constructor() {
         SerialPort.list().then((ports: any[]) => {
@@ -29,7 +31,21 @@ export class RobotCommandsService {
         this.sendCommand('move:(${source.fromRow},${source.fromCol})->(${target.toRow},${target.toCol})')
     }
 
-    private sendCommand(command: string): boolean {
+    setSavedCommand(name: string, command: string): void {
+        this.savedCommands[name] = command
+    }
+
+    unsetSavedCommand(name: string): void {
+        delete this.savedCommands
+    }
+
+    sendSavedCommand(name: string): boolean {
+        if (!(name in this.savedCommands)) return false
+        return this.sendCommand(this.savedCommands[name])
+    }
+
+    sendCommand(command: string): boolean {
+        console.log(`Robot Command: ${command}`)
         return this.port.write(command, (err: any) => {
             if (err) {
                 console.warn('Error on writing to serial port: ', err.message)
