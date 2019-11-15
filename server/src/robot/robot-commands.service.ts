@@ -26,7 +26,7 @@ export class RobotCommandsService {
         console.log(`Robot: Move (${source.fromRow}, ${source.fromCol}) to (${target.toRow}, ${target.toCol}).`)
 
         // TODO: move the piece in (fromRow, fromCol) of source to (toRow, toCol) of target
-        this.sendCommand('move:(${source.fromRow}, ${source.fromCol})->(${target.toRow}, ${target.toCol})')
+        this.sendCommand('move:(${source.fromRow},${source.fromCol})->(${target.toRow},${target.toCol})')
     }
 
     private sendCommand(command: string): boolean {
