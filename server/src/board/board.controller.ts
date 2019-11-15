@@ -8,6 +8,7 @@ import { MoveGenerationService } from '../game/move-generation.service'
 import { GameStateService, PlayerMove } from '../game/game-state.service'
 import { BoardEvaluationService } from '../ai/board-evaluation.service'
 import { MoveValidationService } from '../game/move-validation.service'
+import { RobotCommandsService } from '../robot/robot-commands.service'
 
 @Controller('board')
 export class BoardController {
@@ -17,6 +18,7 @@ export class BoardController {
     private readonly boardEvaluationService: BoardEvaluationService,
     private readonly voiceService: VoiceService,
     private readonly moveValidationService: MoveValidationService,
+    private readonly robotCommandsService: RobotCommandsService,
     private readonly moveGenerationService: MoveGenerationService) {}
 
   simulationInterval: any = null
@@ -149,6 +151,8 @@ export class BoardController {
           this.gameStateService.addMove('b', move)
           this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
         })
+
+        this.robotCommandsService.applyTurn(turn)
 
         if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
           console.log('Game has ended')

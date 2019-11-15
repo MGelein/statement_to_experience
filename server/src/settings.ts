@@ -1,6 +1,6 @@
 export const settings = {
     ai: {
-        strength: 1.0,
+        strength: 0.1,
         minimaxDepth: 4,
         alphaBetaPruning: true,
         minEvaluationTimeInSeconds: 1.5

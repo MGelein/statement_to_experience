@@ -12,11 +12,26 @@ import { BoardEvaluationService } from './ai/board-evaluation.service';
 import { TextToSpeechService } from './voice/text-to-speech.service';
 import { VoiceService } from './voice/voice.service';
 import { GameStateService } from './game/game-state.service';
+import { RobotCommandsService } from './robot/robot-commands.service';
 
 @Module({
   imports: [],
-  controllers: [AppController, BoardController],
-  providers: [StorageService, BoardService, BoardEvaluationService, GameStateService, MoveValidationService, MoveGenerationService, MinimaxService, TextToSpeechService, VoiceService],
+  controllers: [
+    AppController,
+    BoardController
+  ],
+  providers: [
+    StorageService,
+    BoardService,
+    BoardEvaluationService,
+    GameStateService,
+    MoveValidationService,
+    MoveGenerationService,
+    MinimaxService,
+    TextToSpeechService,
+    RobotCommandsService,
+    VoiceService
+  ],
 })
 export class AppModule {
   
