@@ -1,0 +1,29 @@
+Ziet er goed uit dus, ik heb ondertussen op de reis teurg op de motor even zitten denken over hoe de communicatie nou precies moet. 
+
+Zou jij het volgende kunnen implementeren:
+- /arm/position/save/NAME/COMMAND, hiermee zou je een letterlijke configuratie (vertegenwoordigd door COMMAND) mee kunnen saven als NAME
+- /arm/position/move/NAME, hiermee zorg je ervoor dat de server over de Serial connectie het command dat bij NAME hoort stuurt
+- /arm/position/delete/NAME, hiermee verwijder je een positie uit het geheugen van de server
+- /arm/direct/COMMAND, hiermee kan je direct een commando sturen, dat zsm doorgestuurd wordt
+- /arm/set/speed/VALUE, hiermee stel je de speed value van de arm in, die moet gelijk ook doorgegeven met een nog nader te bepalen serial commando
+- /arm/set/trim/shoulder/, stelt de offset van shoulder/elbow/wrist in
+
+Je hebt dus achter de schermen een serie 'presets' met een naam die je kunt aanroepen. Deze presets moeten persistent zijn, ook als de server opnieuw opstart. De trim values moeten van de values worden afgetrokken voordat ze naar de arduino worden gestuurd, maar dat ligt aan de specifieke command structuur.
+
+Ik denk nu dat de command structuur bijvoorbeeld als volgt is:
+MOVE:1500,1500,1500,0 
+Dit stelt elk van de servos op het midden af, en de magneet is uit
+
+MOVE:1500,1500,1800,1
+Dit stelt alle servos op het midden behalve de lineare actuator die ietsje naar beneden is en de magneet staat aan
+
+MOVE:~,~,1000,~
+Dit laat de shoulder en elbow servo's staan en de magneet blijft in de huidige positie, maar trekt de lineare actuator terug in
+
+MOVE:1000,1000,1000,~
+Dit stelt alle servos in op 0 graden maar laat de magneet in de status die hij was
+
+MOVE:~,~,~,1
+Zet de magneet aan ongeacht de positie van de arm.
+
+Voordat je dit command stuurt moet je dat dus zorgen dat de waarde die gestuurd is ook al de trim/offset heeft toegepast, dus als de offset 10 is, dan moet je die eerst van de 1500 afhalen voor je hem stuurt.
