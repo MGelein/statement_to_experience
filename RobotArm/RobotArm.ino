@@ -69,8 +69,8 @@ byte commandMode = CMD_NONE;
 byte numsRead = 0;
 bool firstMove = false;
 
+const int FPS_INTERVAL = 5000;
 int accumulator = 0;
-int elapsed = 0;
 unsigned long lastFrame = 0;
 unsigned long now = 0;
 unsigned long frameCount = 0;
@@ -149,11 +149,11 @@ void loop() {
   elapsed = now - lastFrame;
   accumulator += elapsed;
   lastFrame = now;
-  if (accumulator > 1000) {
-    accumulator -= 1000;
+  if (accumulator > FPS_INTERVAL) {
+    accumulator -= FPS_INTERVAL;
     Serial.print("FPS ");
-    Serial.print(String(frameCount));
-    Serial.print("\t");
+    Serial.print(String(frameCount / 5));
+    Serial.print("\t\t");
     Serial.print(msShoulder);
     Serial.print("\t");
     Serial.print(msElbow);
