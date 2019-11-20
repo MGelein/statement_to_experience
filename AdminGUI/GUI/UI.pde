@@ -1,4 +1,4 @@
-final int HUE = 30;
+int HUE = 30;
 color fgColor;
 color bgColor;
 float thickStroke;

@@ -9,6 +9,13 @@
  */
 #include <Servo.h> 
 
+const int MAX_SHOULDER = 2300;
+const int MIN_SHOULDER = 600;
+const int MAX_ELBOW = 2200;
+const int MIN_ELBOW = 600;
+const int MAX_LINACT = 2300;
+const int MIN_LINACT = 800;
+
 //The pins for each of the externals
 const int MAGNET_PIN = 12;
 const int SHOULDER_PIN = 3;
@@ -56,6 +63,7 @@ const byte ACC = 2;
 const byte TRIM = 3;
 byte commandMode = NONE;
 byte numsRead = 0;
+bool firstMove = false;
 
 int accumulator = 0;
 int elapsed = 0;
@@ -71,6 +79,12 @@ void setup() {
   shoulder.attach(SHOULDER_PIN);
   elbow.attach(ELBOW_PIN);
   linAct.attach(LINACT_PIN);
+
+  //Setup the first move
+  targetShoulder = 1200;
+  targetElbow = 1200;
+  targetLinAct = 800;
+  firstMove = true;
   
   //Set up serial connection
   Serial.begin(115200);
@@ -91,6 +105,12 @@ void loop() {
       shoulder.writeMicroseconds(targetShoulder + trimShoulder);
       elbow.writeMicroseconds(targetElbow + trimElbow);
       linAct.writeMicroseconds(targetLinAct + trimLinAct);
+      if(firstMove){
+        firstMove = false;
+        targetShoulder = 1500;
+        targetElbow = 1500;
+        targetLinAct = 1500;
+      }
     }
   }else{
     //We're not done moving, so set this flag
@@ -106,18 +126,18 @@ void loop() {
     else if(diffShoulder < -acc) msShoulder -= acc;
     else msShoulder += diffShoulder;
     
-    if(diffElbow > acc) msElbow += acc;
-    else if(diffElbow < -acc) msElbow -= acc;
+    if(diffElbow > 2 * acc) msElbow += 2 * acc;
+    else if(diffElbow < -2 * acc) msElbow -= 2 * acc;
     else msElbow += diffElbow;
     
-    if(diffLinAct > acc) msLinAct += acc;
-    else if(diffLinAct < -acc) msLinAct -= acc;
+    if(diffLinAct > 4 * acc) msLinAct += 4 * acc;
+    else if(diffLinAct < - 4 * acc) msLinAct -= 4 * acc;
     else msLinAct += diffLinAct;
 
     //Write the new position to the servos
-    shoulder.writeMicroseconds(targetShoulder + trimShoulder);
-    elbow.writeMicroseconds(targetElbow + trimElbow);
-    linAct.writeMicroseconds(targetLinAct + trimLinAct);
+    shoulder.writeMicroseconds(msShoulder + trimShoulder);
+    elbow.writeMicroseconds(msElbow + trimElbow);
+    linAct.writeMicroseconds(msLinAct + trimLinAct);
   }
 
   frameCount ++;
@@ -180,10 +200,13 @@ void parseSerial(){
     if(commandMode == MOVE){
       if(numsRead == 1){
         targetShoulder = num;
+        targetShoulder = constrain(targetShoulder, MIN_SHOULDER, MAX_SHOULDER);
       }else if(numsRead == 2){
         targetElbow = num;
+        targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
       }else if(numsRead == 3){
         targetLinAct = num;
+        targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
       }else if(numsRead == 4){
         //Write the magnet to the correct state immediately
         digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
