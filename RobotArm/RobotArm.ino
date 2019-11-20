@@ -207,9 +207,11 @@ void parseSerial() {
     if (commandMode == CMD_POS) {
       if (numsRead == 1) {
         targetShoulder = num;
+        changeShoulder = targetShoulder - msShoulder;
         targetShoulder = constrain(targetShoulder, MIN_SHOULDER, MAX_SHOULDER);
       } else if (numsRead == 2) {
         targetElbow = num;
+        changeElbow = targetElbow - msElbow;
         targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
       }
     } else if (commandMode == CMD_LIN) {
