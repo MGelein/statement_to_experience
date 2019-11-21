@@ -123,7 +123,7 @@ export class BoardController {
           console.log('Game has ended')
           this.gameStateService.end()
         } else {
-          if (this.lastAIMoveAt !== 0 && moveDuration > 10) {
+          if (this.lastAIMoveAt !== 0 && moveDuration > settings.voice.slowMoveTimeInSeconds) {
             this.voiceService.triggerSlowMove(moveDuration)
           }
           

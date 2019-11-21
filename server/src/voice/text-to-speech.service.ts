@@ -9,15 +9,18 @@ export class TextToSpeechService {
     // TODO: consider using Google Cloud Text-to-Speech if it is available
     // https://github.com/googleapis/nodejs-text-to-speech
   
-    queue: string[] = []
+    queuedMessage: string | null = null
+    queuedPriority: number = 0.0
 
-    say(text: string, overwrite: boolean = false): void {
+    constructor() {
+        setTimeout(() => this.processQueue(), 3000)
+    }
+
+    say(text: string, overwrite: boolean = false, priority: number = 1.0): void {
         if (settings.voice.enabled) {
-            if (overwrite) this.queue = []
-
-            this.queue.push(text)
-            if (this.queue.length === 1) {
-                this.processQueue()
+            if (priority >= this.queuedPriority) {
+                this.queuedMessage = text
+                this.queuedPriority = priority
             }
         } else {
             console.log(`TTS: ${text}`)
@@ -25,13 +28,17 @@ export class TextToSpeechService {
     }
 
     processQueue() {
-        say.speak(this.queue[0], null, 1.0, () => {
-            this.queue.shift()
-
-            if (this.queue.length > 0) {
+        if (this.queuedMessage) {
+            const text = this.queuedMessage
+            this.queuedMessage = null
+            this.queuedPriority = 0.0
+            
+            say.speak(text, null, 1.0, () => {
                 setTimeout(() => this.processQueue(), 1000)
-            }
-        })
+            })
+        } else {
+            setTimeout(() => this.processQueue(), 200)
+        }
     }
 
 }
