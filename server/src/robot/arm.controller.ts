@@ -7,7 +7,7 @@ export class ArmController {
 
   @Get('direct/:command')
   direct(@Param() params): string {
-    this.robotCommandService.sendCommand(params.command)
+    this.robotCommandService.queueCommand(params.command)
     return 'OK'
   }
 
@@ -19,7 +19,7 @@ export class ArmController {
 
   @Get('position/move/:name')
   async move(@Param() params): Promise<string> {
-    const ret = await this.robotCommandService.sendSavedCommand(params.name)
+    const ret = await this.robotCommandService.queueSavedCommand(params.name)
     if (ret) return 'OK'
     else return `Failed to send command ${params.name}`
   }

@@ -22,6 +22,9 @@ export class RobotCommandsService {
                   console.warn('Error: ', err.message)
                 }
               })
+            this.port.on("readable", () =>{
+                console.log(this.port.read());
+            })
         })
     }
 
@@ -92,7 +95,7 @@ export class RobotCommandsService {
         this.commandQ.push(command)
         //If this was the first command that was added we can immediately send it
         if(this.commandQ.length == 1){
-            sendNextCommand();
+            this.sendNextCommand();
         }
     }
 
