@@ -11,26 +11,26 @@ export class ArmController {
     return 'OK'
   }
 
-  @Get('position/save/:name/:command')
+  @Get('command/save/:name/:command')
   save(@Param() params): string {
     this.robotCommandService.setSavedCommand(params.name, params.command)
     return 'OK'
   }
 
-  @Get('position/move/:name')
+  @Get('command/exec/:name')
   async move(@Param() params): Promise<string> {
     const ret = await this.robotCommandService.queueSavedCommand(params.name)
     if (ret) return 'OK'
     else return `Failed to send command ${params.name}`
   }
 
-  @Get('position/delete/:name')
+  @Get('command/delete/:name')
   delete(@Param() params): string {
     this.robotCommandService.unsetSavedCommand(params.name)
     return 'OK'
   }
 
-  @Get('position/list')
+  @Get('command/list')
   @Header('Content-Type', 'text/plain')
   async list(): Promise<string> {
     return this.robotCommandService.getSavedCommands().then((keys: string[]) => keys.join('\n'))
