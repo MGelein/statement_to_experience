@@ -100,10 +100,11 @@ export class RobotCommandsService {
     }
 
     getSavedCommands(): Promise<string[]> {
-        return this.storage.keys().then((keys: string[]) => {
-            return keys
-                .filter((key: string) => key.startsWith(storagePrefix))
-                .map((key: string) => key.substr(storagePrefix.length))
+        return this.storage.keys().then(async (keys: string[]) => {
+            const filteredKeys = keys.filter((key: string) => key.startsWith(storagePrefix))
+            const values = await Promise.all(filteredKeys.map((key: string) => this.storage.get(key)))
+
+            return filteredKeys.map((key: string, i: number) => key.substr(storagePrefix.length) + '\t' + values[i])
         })
     }
 
