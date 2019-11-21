@@ -10,6 +10,7 @@ const storagePrefix = '/arm/commands/'
 export class RobotCommandsService {
 
     port: any = null
+    commandQ: string[] = [];
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
@@ -34,11 +35,11 @@ export class RobotCommandsService {
 
     createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number):void{
         const startPosition: string = fromCol + "_" + fromRow
-        this.sendSavedCommand(startPosition)
+        this.queueSavedCommand(startPosition)
         this.lowerAndPickup()
         if(settings.robot.goHomeAfterEveryMove) this.goHome();
         const endPosition: string = toRow + "_" + toCol
-        this.sendSavedCommand(endPosition);
+        this.queueSavedCommand(endPosition);
         this.lowerAndDrop();
         this.goHome();
     }
@@ -56,17 +57,17 @@ export class RobotCommandsService {
     }
 
     setMagnet(enabled: boolean):void {
-        if(enabled) this.sendSavedCommand("enableMagnet")
-        else this.sendSavedCommand("disableMagnet")
+        if(enabled) this.queueSavedCommand("enableMagnet")
+        else this.queueSavedCommand("disableMagnet")
     }
 
     goHome(): void{
-        this.sendSavedCommand("home")
+        this.queueSavedCommand("home")
     }
 
     setLinearActuator(doLower: boolean){
-        if(doLower) this.sendSavedCommand("lowerLinAct")
-        else this.sendSavedCommand("raiseLinAct")
+        if(doLower) this.queueSavedCommand("lowerLinAct")
+        else this.queueSavedCommand("raiseLinAct")
     }
 
     setSavedCommand(name: string, command: string): void {
@@ -77,11 +78,22 @@ export class RobotCommandsService {
         this.storage.delete(storagePrefix + name)
     }
 
-    sendSavedCommand(name: string): Promise<boolean> {
+    queueSavedCommand(name: string): Promise<boolean> {
         return this.storage.get(storagePrefix + name).then((command: string) => {
             if (!command) return false
-            else return this.sendCommand(command)
+            else {
+                this.queueCommand(command)
+                return true
+            } 
         })
+    }
+
+    queueCommand(command: string){
+        this.commandQ.push(command)
+        //If this was the first command that was added we can immediately send it
+        if(this.commandQ.length == 1){
+            sendNextCommand();
+        }
     }
 
     getSavedCommands(): Promise<string[]> {
@@ -92,7 +104,8 @@ export class RobotCommandsService {
         })
     }
 
-    sendCommand(command: string): boolean {
+    sendNextCommand(): boolean {
+        const command = this.commandQ.shift();
         console.log(`Robot Command: ${command}`)
         return this.port.write(command + '\n', (err: any) => {
             if (err) {
