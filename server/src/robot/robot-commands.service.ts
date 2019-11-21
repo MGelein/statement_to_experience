@@ -104,7 +104,11 @@ export class RobotCommandsService {
             const filteredKeys = keys.filter((key: string) => key.startsWith(storagePrefix))
             const values = await Promise.all(filteredKeys.map((key: string) => this.storage.get(key)))
 
-            return filteredKeys.map((key: string, i: number) => key.substr(storagePrefix.length) + '\t' + values[i])
+            return filteredKeys.map((key: string, i: number) => {
+                const actualKey = key.substr(storagePrefix.length)
+                const spacer = actualKey.length < 4 ? "\t\t" : "\t"; 
+                return actualKey + spacer + values[i]
+            })
         })
     }
 
