@@ -25,7 +25,11 @@ const int ELBOW_PIN = 6;
 const int LINACT_PIN = 9;
 
 //The variables used for the acceleration
-int acc = 1;
+int baseAcc = 1;
+const int ELBOW_MULT = 2;
+const int LINACT_MULT = 4;
+int elbowAcc = baseAcc * ELBOW_MULT;
+int linactAcc = baseAcc * LINACT_MULT;
 
 //The trim values for each of the servos, this is in microseconds
 int trimShoulder = 0;
@@ -105,10 +109,7 @@ void loop() {
     if (!moveDone) {
       moveDone = true;
       Serial.println("OK");
-      //Write microseconds to each for the last time to finish this move
-      shoulder.writeMicroseconds(targetShoulder + trimShoulder);
-      elbow.writeMicroseconds(targetElbow + trimElbow);
-      linAct.writeMicroseconds(targetLinAct + trimLinAct);
+      //First move to calibrate it while booting
       if (firstMove) {
         firstMove = false;
         targetShoulder = 1500;
@@ -126,16 +127,16 @@ void loop() {
     diffLinAct = targetLinAct - msLinAct;
 
     //Now move towards the target for each of the servos
-    if (diffShoulder > acc) msShoulder += acc;
-    else if (diffShoulder < -acc) msShoulder -= acc;
+    if (diffShoulder > baseAcc) msShoulder += baseAcc;
+    else if (diffShoulder < -baseAcc) msShoulder -= baseAcc;
     else msShoulder += diffShoulder;
 
-    if (diffElbow > 2 * acc) msElbow += 2 * acc;
-    else if (diffElbow < -2 * acc) msElbow -= 2 * acc;
+    if (diffElbow > elbowAcc) msElbow += elbowAcc;
+    else if (diffElbow < -elbowAcc) msElbow -= elbowAcc;
     else msElbow += diffElbow;
 
-    if (diffLinAct > 4 * acc) msLinAct += 4 * acc;
-    else if (diffLinAct < - 4 * acc) msLinAct -= 4 * acc;
+    if (diffLinAct > linactAcc) msLinAct += linactAcc;
+    else if (diffLinAct < - linactAcc) msLinAct -= linactAcc;
     else msLinAct += diffLinAct;
 
     //Write the new position to the servos
@@ -146,21 +147,9 @@ void loop() {
 
   frameCount ++;
   now = millis();
-  elapsed = now - lastFrame;
-  accumulator += elapsed;
+  accumulator += now - lastFrame;
   lastFrame = now;
-  if (accumulator > FPS_INTERVAL) {
-    accumulator -= FPS_INTERVAL;
-    Serial.print("FPS ");
-    Serial.print(String(frameCount / 5));
-    Serial.print("\t\t");
-    Serial.print(msShoulder);
-    Serial.print("\t");
-    Serial.print(msElbow);
-    Serial.print("\t");
-    Serial.println(msLinAct);
-    frameCount = 0;
-  }
+  if (accumulator > FPS_INTERVAL) logFPS();
 
   //Check if any bytes can be read from the serial monitor
   if (Serial.available() > 0) {
@@ -169,6 +158,19 @@ void loop() {
 
   //Add a tiny bit of delay to allow for serial to buffer and stuff
   delay(5);
+}
+
+void logFPS() {
+  accumulator -= FPS_INTERVAL;
+  Serial.print("FPS ");
+  Serial.print(String(frameCount / 5));
+  Serial.print("\t\t");
+  Serial.print(msShoulder);
+  Serial.print("\t");
+  Serial.print(msElbow);
+  Serial.print("\t");
+  Serial.println(msLinAct);
+  frameCount = 0;
 }
 
 /**
@@ -215,12 +217,16 @@ void parseSerial() {
         targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
       }
     } else if (commandMode == CMD_LIN) {
-      targetLinAct = num;
-      targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
+      if (numsRead == 1) {
+        targetLinAct = num;
+        targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
+      }
     } else if (commandMode == CMD_MAGNET) {
-      //Write the magnet to the correct state immediately
-      digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
-      magnetState = num;
+      if (numsRead == 1) {
+        //Write the magnet to the correct state immediately
+        digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
+        magnetState = num;
+      }
     } else if (commandMode == CMD_TRIM) {
       if (numsRead == 1) {
         trimShoulder = num;
@@ -231,7 +237,9 @@ void parseSerial() {
       }
     } else if (commandMode == CMD_ACC) {
       if (numsRead == 1) {
-        acc = num;
+        baseAcc = num;
+        elbowAcc = num * ELBOW_MULT;
+        linactAcc = num * LINACT_MULT;
       }
     }
   }
@@ -252,9 +260,10 @@ void logReceivedCommand() {
   } else if (commandMode == CMD_MAGNET) {
     Serial.print("MAGNET M(");
     Serial.println(magnetState > 0 ? "HIGH)" : "LOW)");
+    Serial.println("OK");
   } else if (commandMode == CMD_ACC) {
     Serial.print("ACCELERATION ");
-    Serial.println(String(acc));
+    Serial.println(String(baseAcc));
     Serial.println("OK");
   } else if (commandMode == CMD_TRIM) {
     Serial.print("TRIM S(");
