@@ -106,17 +106,7 @@ void setup() {
 void loop() {
   //Check if we're done moving
   if (targetShoulder == msShoulder && targetElbow == msElbow && targetLinAct == msLinAct) {
-    if (!moveDone) {
-      moveDone = true;
-      Serial.println("OK");
-      //First move to calibrate it while booting
-      if (firstMove) {
-        firstMove = false;
-        targetShoulder = 1500;
-        targetElbow = 1500;
-        targetLinAct = 1500;
-      }
-    }
+    endMove();
   } else {
     //We're not done moving, so set this flag
     moveDone = false;
@@ -152,14 +142,33 @@ void loop() {
   if (accumulator > FPS_INTERVAL) logFPS();
 
   //Check if any bytes can be read from the serial monitor
-  if (Serial.available() > 0) {
-    parseSerial();
-  }
+  if (Serial.available() > 0) parseSerial();
 
   //Add a tiny bit of delay to allow for serial to buffer and stuff
   delay(5);
 }
 
+/**
+ * This is called if we are at the target position. The first time this function is called
+ * we print confirmation
+ */
+void endMove() {
+  if (!moveDone) {
+    moveDone = true;
+    Serial.println("OK");
+    //First move to calibrate it while booting
+    if (firstMove) {
+      firstMove = false;
+      targetShoulder = 1500;
+      targetElbow = 1500;
+      targetLinAct = 1500;
+    }
+  }
+}
+
+/**
+   Once every interval this posts the FPS and current angle data to the serial port
+*/
 void logFPS() {
   accumulator -= FPS_INTERVAL;
   Serial.print("FPS ");
