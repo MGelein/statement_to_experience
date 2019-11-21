@@ -74,4 +74,7 @@ export const settings = {
         //     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         // ]
     },
+    robot: {
+        goHomeAfterEveryMove: true
+    }
 }

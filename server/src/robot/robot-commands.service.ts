@@ -1,3 +1,4 @@
+import { settings } from "../settings"
 import { Injectable } from '@nestjs/common'
 import * as SerialPort from 'serialport'
 import { Move } from '../board/board.service'
@@ -28,8 +29,44 @@ export class RobotCommandsService {
         const target = turn[turn.length - 1]
         console.log(`Robot: Move (${source.fromRow}, ${source.fromCol}) to (${target.toRow}, ${target.toCol}).`)
 
-        // TODO: move the piece in (fromRow, fromCol) of source to (toRow, toCol) of target
-        this.sendCommand('move:(${source.fromRow},${source.fromCol})->(${target.toRow},${target.toCol})')
+        this.createMoveCommand(source.fromRow, source.fromCol, target.toCol, target.toRow);
+    }
+
+    createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number):void{
+        const startPosition: string = fromCol + "_" + fromRow
+        this.sendSavedCommand(startPosition)
+        this.lowerAndPickup()
+        if(settings.robot.goHomeAfterEveryMove) this.goHome();
+        const endPosition: string = toRow + "_" + toCol
+        this.sendSavedCommand(endPosition);
+        this.lowerAndDrop();
+        this.goHome();
+    }
+
+    lowerAndPickup(): void{
+        this.setLinearActuator(true)
+        this.setMagnet(true)
+        this.setLinearActuator(false)
+    }
+
+    lowerAndDrop():void {
+        this.setLinearActuator(true)
+        this.setMagnet(false)
+        this.setLinearActuator(false)
+    }
+
+    setMagnet(enabled: boolean):void {
+        if(enabled) this.sendSavedCommand("enableMagnet")
+        else this.sendSavedCommand("disableMagnet")
+    }
+
+    goHome(): void{
+        this.sendSavedCommand("home")
+    }
+
+    setLinearActuator(doLower: boolean){
+        if(doLower) this.sendSavedCommand("lowerLinAct")
+        else this.sendSavedCommand("raiseLinAct")
     }
 
     setSavedCommand(name: string, command: string): void {
