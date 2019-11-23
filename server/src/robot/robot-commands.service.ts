@@ -10,28 +10,44 @@ const storagePrefix = '/arm/commands/'
 export class RobotCommandsService {
 
     port: any = null
-    commandQ: string[] = [];
+    commandQ: string[] = []
+    receivedParts: string[] = []
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
             const path = ports[0].path
 
-            this.port = new SerialPort(path, (err: any) => {
+            this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
                 if (err) {
                   console.warn('Error: ', err.message)
                 }
               })
             this.port.on("readable", () =>{
-                console.log(this.port.read());
-            })
+                this.receivedParts.push(this.port.read().toString())
+                this.checkReceivedData()
+            });
         })
+    }
+
+    checkReceivedData(){
+        const data = this.receivedParts.join('').replace('\r', '');
+        const lines = data.split("\n")
+        while(lines.length > 1){
+            this.parseDataLine(lines.shift())
+        }
+        this.receivedParts = [...lines]
+    }
+
+    parseDataLine(line:string){
+        line = line.trim().toUpperCase()
+        if(line === 'OK') this.sendNextCommand()
+        else console.log('Arduino: ' + line)
     }
 
     applyTurn(turn: Move[]) {
         const source = turn[0]
         const target = turn[turn.length - 1]
-        console.log(`Robot: Move (${source.fromRow}, ${source.fromCol}) to (${target.toRow}, ${target.toCol}).`)
 
         this.createMoveCommand(source.fromRow, source.fromCol, target.toCol, target.toRow);
     }
@@ -113,8 +129,9 @@ export class RobotCommandsService {
     }
 
     sendNextCommand(): boolean {
-        const command = this.commandQ.shift();
-        console.log(`Robot Command: ${command}`)
+        if(this.commandQ.length < 1) return
+        const command = this.commandQ.shift()
+        console.log(`Server: ${command}`)
         return this.port.write(command + '\n', (err: any) => {
             if (err) {
                 console.warn('Error on writing to serial port: ', err.message)
