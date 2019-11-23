@@ -4,6 +4,26 @@ color bgColor;
 float thickStroke;
 float thinStroke = 2;
 float fontSize;
+ArrayList<Button> cmdButtons = new ArrayList<Button>();
+
+void updateCommandUI(){
+  commandListUpdated = false;
+  cmdButtons.clear();
+  //Re-render all the buttons here
+  float x = width / 2 + fontSize * 6;
+  float xInc = fontSize * 9;
+  float y = fontSize * 7;
+  float yInc = fontSize * 4;
+  for(String command: commands){
+    CMDButton btn = new CMDButton(command, x, y);
+    cmdButtons.add(btn);
+    x += xInc;
+    if(x > width - xInc) {
+      x -= 4 * xInc;
+      y += yInc;
+    }
+  }
+}
 
 void loadUIControls(){
   float sliderHeight = height - fontSize * 10;
@@ -60,6 +80,18 @@ class Label{
     float tw = textWidth(name);
     line(x - tw / 2, y, x + tw / 2, y);
     text(name, x - tw / 2, y);
+  }
+}
+
+class CMDButton extends Button{
+  CMDButton(String name, float x, float y){
+    super(name, x, y, fontSize * 8, fontSize * 3, null);
+    final String label = name;
+    clickHandler = new ClickHandler(){
+      public void press(){
+        loadStrings(SERVER + "arm/command/exec/" + label);
+      }
+    };
   }
 }
 

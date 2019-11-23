@@ -37,6 +37,12 @@ void draw(){
   presetLabel.render();
   
   if(directToggle.value) sendDirect();
+  if(!commandListValid) requestCommandList();
+  if(commandListUpdated) updateCommandUI();
+  
+  for(Button btn : cmdButtons){
+    btn.render();
+  }
 }
 
 float toPrecision(float val, int precision){
