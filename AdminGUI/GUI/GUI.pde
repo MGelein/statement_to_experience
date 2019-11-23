@@ -35,6 +35,8 @@ void draw(){
   servoLabel.render();
   buttonLabel.render();
   presetLabel.render();
+  
+  if(directToggle.value) sendDirect();
 }
 
 float toPrecision(float val, int precision){
