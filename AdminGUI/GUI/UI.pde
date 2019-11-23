@@ -7,9 +7,12 @@ float fontSize;
 
 void loadUIControls(){
   float sliderHeight = height - fontSize * 10;
-  shoulderSlider = new Slider("Shoulder", fontSize * 5, fontSize * 7, 1000, 2000, sliderHeight);
-  elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 7, 1000, 2000, sliderHeight);
-  linActSlider = new Slider("Lin.Act", fontSize * 23, fontSize * 7, 1000, 2000, sliderHeight);
+  shoulderSlider = new Slider("Shoulder", fontSize * 5, fontSize * 7, 600, 2300, sliderHeight);
+  shoulderSlider.setValue(1500);
+  elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 7, 600, 2200, sliderHeight);
+  elbowSlider.setValue(1500);
+  linActSlider = new Slider("Lin.Act", fontSize * 23, fontSize * 7, 800, 2300, sliderHeight);
+  linActSlider.setValue(1200);
   
   float toggleSize = fontSize * 5;
   directToggle = new Toggle("Direct Comm.", fontSize * 32, fontSize * 7, toggleSize);
@@ -130,7 +133,7 @@ class Slider{
   }
   
   float getValue(){
-    return min + (max - min) * position;
+    return min + (max - min) * (1 - position);
   }
   
   void render(){
@@ -138,9 +141,7 @@ class Slider{
     if(!mousePressed) pressed = false;
     else if(mousePressed && isUnderMouse()) pressed = true;
     
-    if(pressed){
-      setValue((1 - constrain((mouseY - y) / trackLength, 0, 1)) * (max - min) + min);
-    }
+    if(pressed) position = constrain(mouseY - y, 0, trackLength) / trackLength;
     
     noFill();  
     strokeWeight(thickStroke);
