@@ -5,6 +5,31 @@ float thickStroke;
 float thinStroke = 2;
 float fontSize;
 ArrayList<Button> cmdButtons = new ArrayList<Button>();
+boolean saveDialogOpened = true;
+final String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+String saveCommandName = "";
+boolean showCursor = false;
+
+void renderSaveOverlay(){
+  fill(0, 120);
+  noStroke();
+  rect(0, 0, width, height);
+  
+  fill(fgColor);
+  String label = "What part to save?";
+  textSize(fontSize);
+  float tw = textWidth(label);
+  text(label, width / 2 - tw / 2, 200);
+  
+  String saveName = "SAVE NAME: " + saveCommandName;
+  tw = textWidth(saveName);
+  text(saveName + (showCursor ? "_" : ""), width / 2 - tw / 2, 300);
+  
+  saveLabel.render();  
+  saveButton.render();  
+  //Toggle the cursor on/off, for the blinking effect
+  if(frameCount % 30 == 0) showCursor = !showCursor;
+}
 
 void updateCommandUI(){
   commandListUpdated = false;
@@ -40,13 +65,21 @@ void loadUIControls(){
   
   float buttonHeight = fontSize * 5;
   float buttonWidth = fontSize * 5;
-  saveButton = new Button("Save As", fontSize * 32, fontSize * 17, buttonWidth, buttonHeight, new ClickHandler(){
-    public void press(){println("testing save button");}
+  saveAsButton = new Button("Save As", fontSize * 32, fontSize * 17, buttonWidth, buttonHeight, new ClickHandler(){
+    public void press(){
+      saveDialogOpened = true;
+    }
+  });
+  saveButton = new Button("Save", width / 2, height - 100, buttonWidth, buttonHeight, new ClickHandler(){
+    public void press(){
+      requestCommandSave();
+    }
   });
   
   servoLabel = new Label("Servo Controls", fontSize * 8, fontSize * 2.5f);
   buttonLabel = new Label("Robot Buttons", fontSize * 36, fontSize * 2.5f);
   presetLabel = new Label("Preset Editor", fontSize * 36, fontSize * 13);
+  saveLabel = new Label("Save Dialog", width / 2, 100);
 }
 
 void loadUISettings(){
@@ -89,6 +122,7 @@ class CMDButton extends Button{
     final String label = name;
     clickHandler = new ClickHandler(){
       public void press(){
+        if(saveDialogOpened) return;
         loadStrings(SERVER + "arm/command/exec/" + label);
       }
     };
@@ -168,6 +202,7 @@ class Slider{
     return min + (max - min) * (1 - position);
   }
   
+  
   void render(){
     textSize(fontSize);
     if(!mousePressed) pressed = false;
@@ -179,9 +214,10 @@ class Slider{
     strokeWeight(thickStroke);
     stroke(pressed ? fgColor : bgColor, pressed ? 120: 255);
     line(x, y, x, y + trackLength);
-    strokeWeight(thinStroke);
+    strokeWeight(focusSlider == this ? thickStroke : thinStroke);
     stroke(fgColor, 120);
     rect(x, y + (trackLength - fontSize * 2f) / 2, fontSize * 8, trackLength + fontSize * 5f);
+    strokeWeight(thinStroke);
     line(x, y, x, y + trackLength);
     
     stroke(fgColor);

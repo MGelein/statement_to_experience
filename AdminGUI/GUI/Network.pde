@@ -7,6 +7,15 @@ int lastShoulderVal = 0;
 int lastElbowVal = 0;
 int lastMagnetVal = 0;
 
+void requestCommandSave(){
+  saveDialogOpened = false;
+  thread("savePosition");
+}
+
+void savePosition(){
+  println("DUMMY FOR NETWORK QUERY");
+}
+
 void requestCommandList(){
   commandListValid = true;
   thread("getCommandList");
