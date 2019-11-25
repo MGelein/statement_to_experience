@@ -6,14 +6,48 @@ int lastLinActVal = 0;
 int lastShoulderVal = 0;
 int lastElbowVal = 0;
 int lastMagnetVal = 0;
+String commandToRemove = "";
 
-void requestCommandSave(){
+void requestDeleteCommand(String name){
+  commandToRemove = name;
+  thread("deleteCommand");
+}
+
+void deleteCommand(){
+  loadStrings(SERVER + "arm/command/delete/" + commandToRemove);
+  commandListValid = false;
+}
+
+void requestCommandSave(String type){
   saveDialogOpened = false;
-  thread("savePosition");
+  if(type.equals("POS")) thread("savePosition");
+  if(type.equals("LIN")) thread("savePosition");
+  if(type.equals("MAG")) thread("savePosition");
 }
 
 void savePosition(){
-  println("DUMMY FOR NETWORK QUERY");
+  int shoulder = (int) shoulderSlider.getValue();
+  int elbow = (int) elbowSlider.getValue();
+  String command = "P(" + shoulder + "_" + elbow + ")";
+  loadStrings(SERVER + "arm/command/save/" + saveCommandName + "/" + command);
+  commandListValid = false;
+  saveCommandName = "";
+}
+
+void saveLinAct(){
+  int linAct = (int) linActSlider.getValue();
+  String command = "L(" + linAct + ")";
+  loadStrings(SERVER + "arm/command/save/" + saveCommandName + "/" + command);
+  commandListValid = false;
+  saveCommandName = "";
+}
+
+void saveMagnet(){
+  int magnet = magnetToggle.value ? 1 : 0;
+  String command = "M(" + magnet + ")";
+  loadStrings(SERVER + "arm/command/save/" + saveCommandName + "/" + command);
+  commandListValid = false;
+  saveCommandName = "";
 }
 
 void requestCommandList(){
@@ -52,5 +86,4 @@ void networkSendAll(){
   loadStrings(SERVER + posCmd);
   loadStrings(SERVER + linCmd);
   loadStrings(SERVER + magCmd);
-  println("Sent @" + frameCount);
 }

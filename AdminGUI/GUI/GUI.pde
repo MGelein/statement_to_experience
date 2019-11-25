@@ -7,7 +7,9 @@ Toggle directToggle;
 Toggle magnetToggle;
 
 Button saveAsButton;
-Button saveButton;
+Button saveLinActButton;
+Button savePosButton;
+Button saveMagnetButton;
 
 Label servoLabel;
 Label buttonLabel;
@@ -31,9 +33,7 @@ void draw() {
   if (!commandListValid) requestCommandList();
   if (commandListUpdated) updateCommandUI();
 
-  for (Button btn : cmdButtons) {
-    btn.render();
-  }
+
 
   if (saveDialogOpened) {
     renderSaveOverlay();
@@ -50,6 +50,10 @@ void draw() {
     servoLabel.render();
     buttonLabel.render();
     presetLabel.render();
+
+    for (Button btn : cmdButtons) {
+      btn.render();
+    }
   }
 
   if (focusSlider != null) {
@@ -68,10 +72,11 @@ void keyPressed() {
   if (saveDialogOpened) {
     if (allowedChars.indexOf(key) != -1) {
       saveCommandName += key;
+      saveCommandName = saveCommandName.trim();
     } else if (keyCode == ENTER) {
       //close the save dialog and send the request
-    } else if (keyCode == BACKSPACE){
-      if(saveCommandName.length() < 1) return;
+    } else if (keyCode == BACKSPACE) {
+      if (saveCommandName.length() < 1) return;
       saveCommandName = saveCommandName.substring(0, saveCommandName.length() - 1);
     }
   } else {
