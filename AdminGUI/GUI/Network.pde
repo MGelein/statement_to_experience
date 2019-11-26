@@ -7,6 +7,7 @@ int lastShoulderVal = 0;
 int lastElbowVal = 0;
 int lastMagnetVal = 0;
 String commandToRemove = "";
+boolean firstDirect = false;
 
 void requestDeleteCommand(String name){
   commandToRemove = name;
@@ -78,9 +79,9 @@ void networkSendAll(){
   String posCmd = "arm/direct/P(" + shoulderVal + "_" + elbowVal + ")";
   String linCmd = "arm/direct/L(" + linActVal + ")";
   String magCmd = "arm/direct/M(" + magnetVal + ")";
-  if(shoulderVal != lastShoulderVal || lastElbowVal != elbowVal) loadStrings(SERVER + posCmd);
-  if(lastLinActVal != linActVal) loadStrings(SERVER + linCmd);
-  if(magnetVal != lastMagnetVal) loadStrings(SERVER + magCmd);
+  if(shoulderVal != lastShoulderVal || lastElbowVal != elbowVal || firstDirect) loadStrings(SERVER + posCmd);
+  if(lastLinActVal != linActVal || firstDirect) loadStrings(SERVER + linCmd);
+  if(magnetVal != lastMagnetVal || firstDirect) loadStrings(SERVER + magCmd);
   lastLinActVal = linActVal;
   lastShoulderVal = shoulderVal;
   lastElbowVal = elbowVal;
