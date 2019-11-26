@@ -21,8 +21,8 @@ void deleteCommand(){
 void requestCommandSave(String type){
   saveDialogOpened = false;
   if(type.equals("POS")) thread("savePosition");
-  if(type.equals("LIN")) thread("savePosition");
-  if(type.equals("MAG")) thread("savePosition");
+  if(type.equals("LIN")) thread("saveLinAct");
+  if(type.equals("MAG")) thread("saveMagnet");
 }
 
 void savePosition(){
@@ -65,9 +65,9 @@ void getCommandList(){
 }
 
 void sendDirect(){
-  if(frameCount % 20 == 0){
+  //if(frameCount % 2 == 0){
     thread("networkSendAll");
-  }
+  //}
 }
 
 void networkSendAll(){
@@ -75,15 +75,14 @@ void networkSendAll(){
   int shoulderVal = (int) shoulderSlider.getValue();
   int elbowVal = (int) elbowSlider.getValue();
   int magnetVal = magnetToggle.value ? 1 : 0;
-  if(lastLinActVal == linActVal && shoulderVal == lastShoulderVal && lastElbowVal == elbowVal && magnetVal == lastMagnetVal) return;
+  String posCmd = "arm/direct/P(" + shoulderVal + "_" + elbowVal + ")";
+  String linCmd = "arm/direct/L(" + linActVal + ")";
+  String magCmd = "arm/direct/M(" + magnetVal + ")";
+  if(shoulderVal != lastShoulderVal || lastElbowVal != elbowVal) loadStrings(SERVER + posCmd);
+  if(lastLinActVal != linActVal) loadStrings(SERVER + linCmd);
+  if(magnetVal != lastMagnetVal) loadStrings(SERVER + magCmd);
   lastLinActVal = linActVal;
   lastShoulderVal = shoulderVal;
   lastElbowVal = elbowVal;
   lastMagnetVal = magnetVal;
-  String posCmd = "arm/direct/P(" + shoulderVal + "_" + elbowVal + ")";
-  String linCmd = "arm/direct/L(" + linActVal + ")";
-  String magCmd = "arm/direct/M(" + magnetVal + ")";
-  loadStrings(SERVER + posCmd);
-  loadStrings(SERVER + linCmd);
-  loadStrings(SERVER + magCmd);
 }
