@@ -13,7 +13,7 @@ export class RobotCommandsService {
     commandQ: string[] = []
     receivedParts: string[] = []
 
-    portId: number = 0
+    portId: number = 2
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {

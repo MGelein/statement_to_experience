@@ -81,13 +81,13 @@ void loadUIControls() {
   );
   saveLinActButton = new Button("Save Magnet", width / 2 - 300, height - 100, buttonWidth * 2, buttonHeight, new ClickHandler() {
     public void press() {
-      requestCommandSave("LIN");
+      requestCommandSave("MAG");
     }
   }
   );
   saveMagnetButton = new Button("Save LinAct", width / 2 + 300, height - 100, buttonWidth * 2, buttonHeight, new ClickHandler() {
     public void press() {
-      requestCommandSave("MAG");
+      requestCommandSave("LIN");
     }
   }
   );
