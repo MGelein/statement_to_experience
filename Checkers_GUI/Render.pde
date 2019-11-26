@@ -91,7 +91,7 @@ void renderBoardState(BoardState b) {
     for (BoardCell cell : row) {
       //Draw background
       noStroke();
-      fill(cell.col == BoardColor.White ? 255 : 0);
+      fill(cell.col == BoardColor.White ? 0 : 255);
       rect(0, 0, CELL_SIZE, CELL_SIZE);
       //Draw piece if there is a piece
       if (cell.piece != null) {

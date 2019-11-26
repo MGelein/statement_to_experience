@@ -19,7 +19,7 @@ export class BoardStateController {
   }
 
   @Get('square-positions')
-  getquarePositions(): any {
+  getSquarePositions(): any {
     return this.storage.get('board/square-positions')
   }
 
