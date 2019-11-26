@@ -48,10 +48,18 @@ export class RobotCommandsService {
     }
 
     applyTurn(turn: Move[]) {
-        const source = turn[0]
-        const target = turn[turn.length - 1]
+        for(let move of turn){
+            this.createMoveCommand(move.fromRow, move.fromCol, move.toCol, move.toRow);  
+        }
+    }
 
-        this.createMoveCommand(source.fromRow, source.fromCol, target.toCol, target.toRow);
+    deletePiece(row: number, col:number){
+        const startPosition = row + "_" + col;
+        this.queueSavedCommand(startPosition);
+        this.lowerAndPickup();
+        this.queueSavedCommand("bin");
+        this.lowerAndDrop();
+        this.goHome();
     }
 
     createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number):void{

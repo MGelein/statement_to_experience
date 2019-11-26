@@ -56,7 +56,7 @@ void loadUIControls() {
   float sliderHeight = height - fontSize * 10;
   shoulderSlider = new Slider("Shoulder", fontSize * 5, fontSize * 7, 600, 2300, sliderHeight);
   shoulderSlider.setValue(1500);
-  elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 7, 600, 2200, sliderHeight);
+  elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 7, 1000, 2300, sliderHeight);
   elbowSlider.setValue(1500);
   linActSlider = new Slider("Lin.Act", fontSize * 23, fontSize * 7, 800, 2300, sliderHeight);
   linActSlider.setValue(1200);
