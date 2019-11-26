@@ -65,7 +65,7 @@ void getCommandList(){
 }
 
 void sendDirect(){
-  if(frameCount % 10 == 0){
+  if(frameCount % 20 == 0){
     thread("networkSendAll");
   }
 }
