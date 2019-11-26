@@ -1,21 +1,30 @@
 import cv2
 import numpy as np
+import requests
 
 from Camera import Camera
 from board_Recognition import board_Recognition
 
+server_host = 'http://localhost:3000/'
+data = {
+    "0": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    "1": [' ', ' ', 'b', ' ', ' ', ' ', ' ', ' '],
+    "2": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    "3": [' ', ' ', 'w', ' ', ' ', ' ', ' ', ' '],
+    "4": [' ', 'w', ' ', 'w', ' ', ' ', ' ', ' '],
+    "5": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    "6": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    "7": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+}
+  
+# sending post request and saving response as response object 
+r = requests.post(url = server_host + 'board-state/', data = data) 
 
-img = cv2.imread("../cv/img/1.jpg")
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# Source: https://github.com/rjgoodloe/ESE205-CVChess
-camera = Camera(0)
-rec = board_Recognition(camera)
-rec.initialize_Board()
+# # Source: https://github.com/rjgoodloe/ESE205-CVChess
+# camera = Camera(0)
+# rec = board_Recognition(camera)
+# board = rec.initialize_Board()
 
-# sm = cv2.resize(img, (500, 500))
-
-# cv2.imshow("linesDetected", sm)
-
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+# for square in board.squares:
+#     print(str(square.c1) + ', ' + str(square.c2) + ', ' + str(square.c3) + ', ' + str(square.c4))

@@ -14,13 +14,15 @@ import { VoiceService } from './voice/voice.service';
 import { GameStateService } from './game/game-state.service';
 import { RobotCommandsService } from './robot/robot-commands.service';
 import { ArmController } from './robot/arm.controller';
+import { BoardStateController } from './board/board-state.controller';
 
 @Module({
   imports: [],
   controllers: [
     AppController,
     BoardController,
-    ArmController
+    ArmController,
+    BoardStateController
   ],
   providers: [
     StorageService,

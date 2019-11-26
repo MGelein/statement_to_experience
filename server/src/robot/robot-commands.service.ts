@@ -12,11 +12,13 @@ export class RobotCommandsService {
     port: any = null
     commandQ: string[] = []
     receivedParts: string[] = []
+
+    portId: number = 0
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
-            const path = ports[2].path
+            const path = ports[this.portId].path
 
             this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
                 if (err) {

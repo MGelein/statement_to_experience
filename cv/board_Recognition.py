@@ -6,7 +6,7 @@ from Line import Line
 from Square import Square
 from Board import Board
 
-debug =  True
+debug =  False
 
 
 class board_Recognition:
@@ -27,7 +27,7 @@ class board_Recognition:
 		boardSize = 8
 
 		# retake picture until board is initialized properly
-		while len(corners) < ((boardSize + 1) * (boardSize + 1)):
+		while len(corners) != ((boardSize + 1) * (boardSize + 1)):
 
 			image = self.cam.takePicture()
 
@@ -45,8 +45,9 @@ class board_Recognition:
 
 			# Find corners
 			corners = self.findCorners(horizontal, vertical, colorEdges)
+			print(len(corners))
 
-		print(len(corners))
+		# print(len(corners))
 
 		# Find squares
 		squares = self.findSquares(corners, img)
@@ -69,7 +70,7 @@ class board_Recognition:
 
 		# Setting all pixels above the threshold value to white and those below to black
 		# Adaptive thresholding is used to combat differences of illumination in the picture
-		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 125, 25)
+		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 125, 1)
 		if debug:
 			# Show thresholded image
 			cv2.imshow("Adaptive Thresholding", adaptiveThresh)
@@ -258,8 +259,8 @@ class board_Recognition:
 				position = letters[r] + numbers[7-c]
 				newSquare = Square(colorEdges,c1,c2,c3,c4,position)
 				newSquare.draw(colorEdges,(0,0,255),2)
-				newSquare.drawROI(colorEdges,(255,0,0),2)
-				newSquare.classify(colorEdges)
+				# newSquare.drawROI(colorEdges,(255,0,0),2)
+				# newSquare.classify(colorEdges)
 				Squares.append(newSquare)
 
 

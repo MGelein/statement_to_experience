@@ -8,4 +8,10 @@ class Camera:
 	def takePicture(self):
 		ret,frame = self.cap.read() # return a single frame in variable `frame`
 
-		return frame
+		x1 = 80
+		x2 = 560
+		y1 = 0
+		y2 = 480
+		crop = frame[y1:y2, x1:x2]
+
+		return crop
