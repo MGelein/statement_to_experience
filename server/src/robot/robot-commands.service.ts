@@ -57,7 +57,7 @@ export class RobotCommandsService {
         const startPosition = row + "_" + col;
         this.queueSavedCommand(startPosition);
         this.lowerAndPickup();
-        this.queueSavedCommand("bin");
+        this.goHome();
         this.lowerAndDrop();
         this.goHome();
     }
