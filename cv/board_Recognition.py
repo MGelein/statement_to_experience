@@ -62,7 +62,8 @@ class board_Recognition:
 		Resizes and converts the photo to black and white for simpler analysis
 		'''
 		# resize image
-		img = imutils.resize(image, width=400, height = 400)
+		# img = imutils.resize(image, width=400, height = 400)
+		img = image
 		
 		# Convert to grayscale
 		gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
