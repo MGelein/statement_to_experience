@@ -53,11 +53,11 @@ export class MoveValidationService {
         if (distanceRows === 1) {
             // Is a move
 
-            if (source === 'b' && fromRow > toRow) {
+            if (source === 'b' && fromRow < toRow) {
                 return 'You cannot move backwards with a pawn'
             }
 
-            if (source === 'w' && fromRow < toRow) {
+            if (source === 'w' && fromRow > toRow) {
                 return 'You cannot move backwards with a pawn'
             }
         } else if (distanceRows === 2) {

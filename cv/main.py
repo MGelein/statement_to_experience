@@ -25,7 +25,7 @@ crop_y2 = 480
 
 video = cv2.VideoCapture(1)
 
-ix_to_piece = ['b', 'w', 'e']
+ix_to_piece = ['b', 'w', ' ']
 
 white_pos = [
     '0,1', '0,3', '0,5', '0,7',
@@ -94,28 +94,3 @@ while True:
     
 video.release()
 cv2.destroyAllWindows()
-
-
-
-
-# data = {
-#     "0": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-#     "1": [' ', ' ', 'b', ' ', ' ', ' ', ' ', ' '],
-#     "2": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-#     "3": [' ', ' ', 'w', ' ', ' ', ' ', ' ', ' '],
-#     "4": [' ', 'w', ' ', 'w', ' ', ' ', ' ', ' '],
-#     "5": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-#     "6": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-#     "7": [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-# }
-  
-# r = requests.post(url = server_host + 'board-state/', data = data) 
-
-
-# # Source: https://github.com/rjgoodloe/ESE205-CVChess
-# camera = Camera(0)
-# rec = board_Recognition(camera)
-# board = rec.initialize_Board()
-
-# for square in board.squares:
-#     print(str(square.c1) + ', ' + str(square.c2) + ', ' + str(square.c3) + ', ' + str(square.c4))
