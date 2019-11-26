@@ -16,7 +16,7 @@ export class RobotCommandsService {
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
-            const path = ports[0].path
+            const path = ports[2].path
 
             this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
                 if (err) {
