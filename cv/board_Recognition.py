@@ -6,7 +6,7 @@ from Line import Line
 from Square import Square
 from Board import Board
 
-debug =  False
+debug =  True
 
 
 class board_Recognition:
@@ -14,6 +14,7 @@ class board_Recognition:
 	This class handles the initialization of the board. It analyzes
 	the empty board finding its border, lines, corners, squares...
 	'''
+	
 
 	def __init__(self, camera):
 
@@ -23,8 +24,10 @@ class board_Recognition:
 
 		corners = []
 
+		boardSize = 8
+
 		# retake picture until board is initialized properly
-		while len(corners) < 49:
+		while len(corners) < ((boardSize + 1) * (boardSize + 1)):
 
 			image = self.cam.takePicture()
 
@@ -43,6 +46,8 @@ class board_Recognition:
 			# Find corners
 			corners = self.findCorners(horizontal, vertical, colorEdges)
 
+		print(len(corners))
+
 		# Find squares
 		squares = self.findSquares(corners, img)
 
@@ -60,11 +65,11 @@ class board_Recognition:
 		
 		# Convert to grayscale
 		gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-		return gray,img
+		# return gray,img
 
 		# Setting all pixels above the threshold value to white and those below to black
 		# Adaptive thresholding is used to combat differences of illumination in the picture
-		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 125, 30)
+		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 125, 25)
 		if debug:
 			# Show thresholded image
 			cv2.imshow("Adaptive Thresholding", adaptiveThresh)
@@ -108,7 +113,7 @@ class board_Recognition:
 		cv2.drawContours(imgContours, [largest], -1, (0,0,0), 1)
 		if debug:
 			# Show image with contours drawn
-			cv2.imshow("Chess Boarder",imgContours)
+			cv2.imshow("Contours",imgContours)
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
