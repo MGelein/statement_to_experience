@@ -29,20 +29,18 @@ while True:
     ret, frame = video.read()
     img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
 
-    # Mask out a single square
-    coords = [int(coord) for coord in squares['0,0']]
+    coords = [int(coord) for coord in squares['0,1']]
 
-    mask = np.ones(img.shape, dtype=np.uint8)
-    mask.fill(255)
+    x1 = coords[0]
+    y1 = coords[1]
+    x2 = coords[6]
+    y2 = coords[7]
 
-    corners = np.array([[(coords[0], coords[1]), (coords[2], coords[3]), (coords[6], coords[7]), (coords[4], coords[5])]], dtype=np.int32)
-    cv2.fillPoly(mask, corners, 0)
-    masked_image = cv2.bitwise_or(img, mask)
-
-    cv2.imshow("Square", masked_image)
+    square = img[y1:y2, x1:x2]
+    cv2.imshow("Square", square)
 
     # Inference
-    square_img_raw = cv2.cvtColor(masked_image, cv2.COLOR_BGR2RGB)
+    square_img_raw = cv2.cvtColor(square, cv2.COLOR_BGR2RGB)
     square_im_pil = Image.fromarray(square_img_raw)
     square_img = square_im_pil.resize((224, 224))
 
