@@ -14,6 +14,8 @@ export class RobotCommandsService {
     receivedParts: string[] = []
 
     portId: number = 2
+
+    waitingForCommand: boolean = false
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
@@ -43,7 +45,11 @@ export class RobotCommandsService {
 
     parseDataLine(line:string){
         line = line.trim().toUpperCase()
-        if(line === 'OK') this.sendNextCommand()
+        if(line === 'OK') {
+            this.waitingForCommand = false
+            this.sendNextCommand()
+            console.log(`Arduino: OK`)
+        }
         else console.log('Arduino: ' + line)
     }
 
@@ -120,7 +126,7 @@ export class RobotCommandsService {
     queueCommand(command: string){
         this.commandQ.push(command)
         //If this was the first command that was added we can immediately send it
-        if(this.commandQ.length == 1){
+        if(this.commandQ.length == 1 && !this.waitingForCommand){
             this.sendNextCommand();
         }
     }
@@ -140,8 +146,10 @@ export class RobotCommandsService {
 
     sendNextCommand(): boolean {
         if(this.commandQ.length < 1) return
+        this.waitingForCommand = true
         const command = this.commandQ.shift()
         console.log(`Server: ${command}`)
+
         return this.port.write(command + '\n', (err: any) => {
             if (err) {
                 console.warn('Error on writing to serial port: ', err.message)
@@ -149,7 +157,7 @@ export class RobotCommandsService {
             }
             
             return true
-        })       
+        })
     }
 
 }
