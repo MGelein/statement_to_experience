@@ -334,7 +334,9 @@ void logReceivedCommand() {
   } else if(commandMode == CMD_EASE){
     Serial.print("EASING ");
     Serial.println(easing ? "ON" : "OFF");
+    Serial.println("OK");
   } else if(commandMode == CMD_HOME){
     Serial.println("SET HOME");
+    Serial.println("OK");
   }
 }
