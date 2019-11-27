@@ -15,7 +15,7 @@ export class RobotCommandsService {
 
     isMoving: boolean = false
 
-    debugLogging: boolean = false
+    debugLogging: boolean = true
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
@@ -43,7 +43,7 @@ export class RobotCommandsService {
         this.receivedParts = [...lines]
     }
 
-    parseDataLine(line:string) {
+    parseDataLine(line: string) {
         line = line.trim().toUpperCase()
         if (line === 'OK') {
             if (this.debugLogging) console.log(`Arduino: OK`)
@@ -60,8 +60,21 @@ export class RobotCommandsService {
     }
 
     async applyTurn(turn: Move[]): Promise<boolean> {
+        // Pick up the piece
+        const startPosition: string = turn[0].fromRow + "_" + turn[0].fromCol
+        await this.queueSavedCommand(startPosition)
+        await this.lowerAndPickup(turn[0].fromRow, turn[0].fromCol)
+
+        // Move inbetween
+        let inbetweenPieces: any[] = []
         for (let move of turn) {
-            await this.createMoveCommand(move.fromRow, move.fromCol, move.toRow, move.toCol)
+            const startPosition: string = move.toRow + "_" + move.toCol
+            await this.queueSavedCommand(startPosition)
+
+            if (turn.indexOf(move) !== turn.length -1) {
+                await this.setLinearActuator(true)
+                await this.setLinearActuator(false)
+            }
 
             const distance = Math.abs(move.toRow - move.fromRow)
             // TODO: This only accounts for pawns, not for kings
@@ -69,8 +82,17 @@ export class RobotCommandsService {
                 const inbetweenRow = move.fromRow + ((move.toRow - move.fromRow) / 2)
                 const inbetweenCol = move.fromCol + ((move.toCol - move.fromCol) / 2)
                 
-                await this.deletePiece(inbetweenRow, inbetweenCol)
+                inbetweenPieces.push({ row: inbetweenRow, col: inbetweenCol })
             }
+        }
+
+        // Drop it
+        await this.lowerAndDrop()
+        await this.goHome()
+
+        // Remove the jumped pieces
+        for (const piece of inbetweenPieces) {
+            await this.deletePiece(piece.row, piece.col)
         }
 
         return Promise.resolve(true)
@@ -83,24 +105,27 @@ export class RobotCommandsService {
         await this.movePieceOffBoard()
 
         await this.lowerAndDrop()
-        await this.goHome()
-        
-        return Promise.resolve(true)
-    }
-
-    async createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number): Promise<boolean> {
-        const startPosition: string = fromRow + "_" + fromCol
-        await this.queueSavedCommand(startPosition)
-        await this.lowerAndPickup(fromRow, fromCol)
         if (settings.robot.goHomeAfterEveryMove) await this.goHome()
-
-        const endPosition: string = toRow + "_" + toCol
-        await this.queueSavedCommand(endPosition)
-        await this.lowerAndDrop()
-        await this.goHome()
         
         return Promise.resolve(true)
     }
+
+    // async createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number, withoutDropping: boolean = false): Promise<boolean> {
+    //     const startPosition: string = fromRow + "_" + fromCol
+    //     await this.queueSavedCommand(startPosition)
+    //     await this.lowerAndPickup(fromRow, fromCol)
+    //     if (settings.robot.goHomeAfterEveryMove) await this.goHome()
+
+    //     const endPosition: string = toRow + "_" + toCol
+    //     await this.queueSavedCommand(endPosition)
+
+    //     if (!withoutDropping) {
+    //         await this.lowerAndDrop()
+    //         await this.goHome()
+    //     }
+        
+    //     return Promise.resolve(true)
+    // }
 
     async lowerAndPickup(row: number, col: number): Promise<boolean> {
         await this.setLinearActuator(true)

@@ -16,13 +16,13 @@ crop_x2 = 560
 crop_y1 = 0
 crop_y2 = 480
 
-video = cv2.VideoCapture(1)
+video = cv2.VideoCapture(0)
 
-start = 0
+start = 109
 i = start
 
 while True:
-    if i >= 50:
+    if i >= start + 50:
         break
 
     ret, frame = video.read()
@@ -39,13 +39,14 @@ while True:
     square = img[y1:y2, x1:x2]
 
     print('Saving ' + str(i) + '...')
-    cv2.imwrite('img/e/' + str(i) + '.png', square)
+    cv2.imwrite('img/b/' + str(i) + '.png', square)
+    cv2.imshow('square', square)
 
     i += 1
 
-    # key=cv2.waitKey(1)
-    # if key == ord('q'):
-    #         break
+    key=cv2.waitKey(1)
+    if key == ord('q'):
+            break
     
 video.release()
 cv2.destroyAllWindows()

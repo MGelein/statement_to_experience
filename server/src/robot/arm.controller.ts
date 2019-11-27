@@ -33,7 +33,7 @@ export class ArmController {
   @Get('command/list')
   @Header('Content-Type', 'text/plain')
   async list(): Promise<string> {
-    return this.robotCommandService.getSavedCommands().then((keys: string[]) => keys.join('\n'))
+    return this.robotCommandService.getSavedCommands().then((keys: string[]) => keys.sort().join('\n'))
   }
 
 }
