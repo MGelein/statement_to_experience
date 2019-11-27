@@ -12,14 +12,11 @@ export class RobotCommandsService {
     port: any = null
     commandQ: string[] = []
     receivedParts: string[] = []
-
-    portId: number = 2
-
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
-            const path = ports[this.portId].path
+            const path = ports[ports.length].path
 
             this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
                 if (err) {
@@ -162,10 +159,13 @@ export class RobotCommandsService {
         })
     }
 
-    sendNextCommand(): boolean {
-        if(this.commandQ.length < 1) return
-        const command = this.commandQ[0]
+    sendDirectCommand(command: string){
         console.log(`Server: ${command}`)
+
+        if(this.port == null || this.port == undefined) {
+            console.log("No valid Serial")
+            return
+        } 
 
         return this.port.write(command + '\n', (err: any) => {
             if (err) {
@@ -175,6 +175,12 @@ export class RobotCommandsService {
             
             return true
         })
+    }
+
+    sendNextCommand(): boolean {
+        if(this.commandQ.length < 1) return
+        const command = this.commandQ[0]
+        this.sendDirectCommand(command)
     }
 
 }

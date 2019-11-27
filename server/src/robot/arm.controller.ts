@@ -7,7 +7,7 @@ export class ArmController {
 
   @Get('direct/:command')
   direct(@Param() params): string {
-    this.robotCommandService.queueCommand(params.command)
+    this.robotCommandService.sendDirectCommand(params.command)
     return 'OK'
   }
 
