@@ -7,6 +7,10 @@ import { settings } from '../settings'
 import { MoveValidationService } from '../game/move-validation.service'
 import { AIService } from '../ai/ai.service'
 
+const arraysEqual = (a1: any[], a2: any[]): boolean => {
+  return JSON.stringify(a1) == JSON.stringify(a2)
+}
+
 @Controller('board-state')
 export class BoardStateController {
 
@@ -17,6 +21,9 @@ export class BoardStateController {
     private readonly aiService: AIService) {}
 
   isFirst: boolean = true
+
+  previousBoard: string[][] | null = null
+  sameBoardInARowCount: number = 0
 
   @Post()
   update(@Body() state: any): string {
@@ -30,7 +37,27 @@ export class BoardStateController {
       return 'OK'
     }
 
-    if (oldBoard !== newBoard) {
+    const sameBoardThreshold: number = 3
+
+    // If there is a change to the currently stored board state
+    if (!arraysEqual(oldBoard, newBoard)) {
+      if (arraysEqual(newBoard, this.previousBoard) && this.sameBoardInARowCount < (sameBoardThreshold - 1)) {
+        // console.log('Seen more than once, but not yet 3 times')
+        // If this board state has been seen before, but the threshold hasnt been reached yet
+        this.previousBoard = newBoard
+        this.sameBoardInARowCount += 1
+        return 'OK'
+      } else if (!arraysEqual(newBoard, this.previousBoard)) {
+        // console.log('Not seen yet')
+        // If this board state has not been seen before
+        this.previousBoard = newBoard
+        this.sameBoardInARowCount = 0
+        return 'OK'
+      }
+
+      this.previousBoard = null
+      this.sameBoardInARowCount = 0
+
       let fromRow = -1
       let fromCol = -1
       let toRow = -1
