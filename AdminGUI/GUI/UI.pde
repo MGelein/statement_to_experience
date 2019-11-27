@@ -139,20 +139,14 @@ class CMDButton extends Button {
     final String label = name;
     clickHandler = new ClickHandler() {
       public void press() {
-        if (countdown > 0) {
+        if (Key.isDown(SHIFT)) {
           requestDeleteCommand(label);
         } else {
           if (saveDialogOpened) return;
           loadStrings(SERVER + "arm/command/exec/" + label);
-          countdown = 60;
         }
       }
     };
-  }
-  
-  void render(){
-    super.render();
-    if(countdown > 0) countdown --;
   }
 }
 
