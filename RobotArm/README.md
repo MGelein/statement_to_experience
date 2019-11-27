@@ -1,6 +1,6 @@
 # Arduino Arm Control
 The Arduino will accept the following commands over Serial connection with 115200 baud rate:
-- `H`, no arguments. Saves the current position of the servos as HOME in EEPROM. Next time it boots, it will immediately try to be at that position.
+- `H()`, no arguments. Saves the current position of the servos as HOME in EEPROM. Next time it boots, it will immediately try to be at that position.
 - `A(INT)`, sets the maximum speed that we can move per update in LINEAR mode.
 - `M(INT)`, enables the magnet pin on any number higher than 0.
 - `L(INT)`, sets the provided number as the targetnumber for the linear actuator, this moves the servo.
