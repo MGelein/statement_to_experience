@@ -125,7 +125,7 @@ export class RobotCommandsService {
     queueCommand(command: string){
         this.commandQ.push(command)
         //If this was the first command that was added we can immediately send it
-        if(this.commandQ.length == 1 && !this.waitingForCommand){
+        if(this.commandQ.length == 1){
             this.sendNextCommand();
         }
     }
