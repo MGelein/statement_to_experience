@@ -19,6 +19,7 @@ const int MAX_ELBOW = 2200;
 const int MIN_ELBOW = 900;
 const int MAX_LINACT = 1500;
 const int MIN_LINACT = 800;
+const int EASE_FACTOR = 10;//increase to ease slower, decrease to ease faster
 
 //The pins for each of the externals
 const int MAGNET_PIN = 12;
@@ -27,7 +28,7 @@ const int ELBOW_PIN = 6;
 const int LINACT_PIN = 9;
 
 //The variables used for the acceleration
-int baseAcc = `2;
+int baseAcc = 2;
 const int ELBOW_MULT = 2;
 const int LINACT_MULT = 4;
 int elbowAcc = baseAcc * ELBOW_MULT;
@@ -42,6 +43,10 @@ int trimLinAct = 0;
 int targetShoulder = 1500;
 int targetElbow = 1500;
 int targetLinAct = 1500;
+//Halfwaypoint is the midpoint between starting and ending position, this is where easing strategies change
+int halfwayShoulder = 1500;
+int halfwayElbow = 1500;
+int halfwayLinAct = 1500;
 //Change is the total change in this move, this is calculated when the move is parsed
 int changeShoulder = 0;
 int changeElbow = 0;
@@ -93,8 +98,11 @@ void setup() {
 
   //Setup the first move
   targetShoulder = 1200;
+  halfwayShoulder = (msShoulder + targetShoulder) / 2;
   targetElbow = 1200;
+  halfwayElbow = (msElbow + targetElbow) / 2;
   targetLinAct = 800;
+  halfwayLinAct = (msLinAct + targetLinAct) / 2;
   firstMove = true;
 
   //Set up serial connection
@@ -119,13 +127,15 @@ void loop() {
     diffElbow = targetElbow - msElbow;
     diffLinAct = targetLinAct - msLinAct;
 
-    if(easing){
-      
-    }else{ 
+    if (easing) {
+      msShoulder += getEaseMovement(msShoulder, diffShoulder, halfwayShoulder, changeShoulder);
+      msElbow += getEaseMovement(msElbow, diffElbow, halfwayElbow, changeElbow);
+      msLinAct += getEaseMovement(msLinAct, diffLinAct, halfwayLinAct, changeLinAct);
+    } else {
       //Now move towards the target for each of the servos
       msShoulder += getLinMovement(diffShoulder, baseAcc);
-      msElbow += getLinMovment(diffElbow, elbowAcc);
-      msLinAct += getLinMovement(diffLinAct, linActAcc);
+      msElbow += getLinMovement(diffElbow, elbowAcc);
+      msLinAct += getLinMovement(diffLinAct, linactAcc);
     }
 
     //Write the new position to the servos
@@ -147,16 +157,25 @@ void loop() {
   delay(10);
 }
 
-int getLinMovement(int diff, int acc){
-   if(diff > acc) return acc;
-   else if(diff < -acc) return -acc;
-   else return diff;
+int getEaseMovement(int ms, int diff, int halfwaypoint, int change) {
+  if((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)){
+    int spd = diff / EASE_FACTOR;
+    return spd == 0 ? diff : spd;
+  }else{
+    return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
+  }
+}
+
+int getLinMovement(int diff, int acc) {
+  if (diff > acc) return acc;
+  else if (diff < -acc) return -acc;
+  else return diff;
 }
 
 /**
- * This is called if we are at the target position. The first time this function is called
- * we print confirmation
- */
+   This is called if we are at the target position. The first time this function is called
+   we print confirmation
+*/
 void endMove() {
   if (!moveDone) {
     moveDone = true;
@@ -165,8 +184,11 @@ void endMove() {
     if (firstMove) {
       firstMove = false;
       targetShoulder = 1500;
+      halfwayShoulder = (msShoulder + targetShoulder) / 2;
       targetElbow = 1500;
-      targetLinAct = 1500;
+      halfwayElbow = (msElbow + targetElbow) / 2;
+      targetLinAct = 800;
+      halfwayLinAct = (msLinAct + targetLinAct) / 2;
     }
   }
 }
@@ -204,7 +226,7 @@ void parseSerial() {
       commandMode = CMD_POS;
     } else if (c == 'L' || c == 'l') {
       commandMode = CMD_LIN;
-    } else if(c == 'E' || c == 'e'){
+    } else if (c == 'E' || c == 'e') {
       commandMode = CMD_EASE;
     }
     //If we just found the start of a command, ignore the next char (whether it is a opening bracket or a space)
@@ -225,17 +247,21 @@ void parseSerial() {
     if (commandMode == CMD_POS) {
       if (numsRead == 1) {
         targetShoulder = num;
-        changeShoulder = targetShoulder - msShoulder;
+        changeShoulder = (targetShoulder - msShoulder) / 2;
         targetShoulder = constrain(targetShoulder, MIN_SHOULDER, MAX_SHOULDER);
+        halfwayShoulder = (msShoulder + targetShoulder) / 2;
       } else if (numsRead == 2) {
         targetElbow = num;
-        changeElbow = targetElbow - msElbow;
+        changeElbow = (targetElbow - msElbow) / 2;
         targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
+        halfwayElbow = (msElbow + targetElbow) / 2;
       }
     } else if (commandMode == CMD_LIN) {
       if (numsRead == 1) {
         targetLinAct = num;
+        changeLinAct = (targetLinAct - msLinAct) / 2;
         targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
+        halfwayLinAct = (msLinAct + targetLinAct) / 2;
       }
     } else if (commandMode == CMD_MAGNET) {
       if (numsRead == 1) {
@@ -257,8 +283,8 @@ void parseSerial() {
         elbowAcc = num * ELBOW_MULT;
         linactAcc = num * LINACT_MULT;
       }
-    } else if(commandMode == CMD_EASE){
-      if(numsRead == 1){
+    } else if (commandMode == CMD_EASE) {
+      if (numsRead == 1) {
         easing = num > 0 ? true : false;
       }
     }
