@@ -9,6 +9,16 @@ export type Piece = Player | ' ' | 'B' | 'W'
 
 export type Board = Piece[][]
 
+export interface BoardState{
+  board: Board;
+  removed: GridCoord[]
+}
+
+export interface GridCoord{
+  gridRow: number;
+  gridCol: number;
+}
+
 export interface Move {
   fromRow: number;
   fromCol: number;
@@ -60,7 +70,7 @@ export class BoardService {
       return validationError
     }
 
-    this.board = this.applyMove(this.board, fromRow, fromCol, toRow, toCol)
+    this.board = this.applyMove(this.board, fromRow, fromCol, toRow, toCol).board
     this.lastUpdated = new Date()
 
     return 'OK'
@@ -70,8 +80,12 @@ export class BoardService {
    * Move one piece and return a new board (used directly by the AI package)
    * We assume the move has already been validated
    */
-  applyMove(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): Board {
+  applyMove(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): BoardState {
     let newBoard = JSON.parse(JSON.stringify(board))
+    const boardState: BoardState = {
+      board: newBoard,
+      removed: []
+    };
     const source = board[fromRow][fromCol]
 
     if (toRow === 0 && source === 'w') {
@@ -91,20 +105,34 @@ export class BoardService {
 
     // Remove all pieces inbetween
     for (let steps = 1; steps < distance; steps++) {
-      newBoard[fromRow + rowdir * steps][fromCol + coldir * steps] = ' '
+      let row = fromRow + rowdir * steps
+      let col = fromCol + coldir * steps
+      if(newBoard[col][row] !== ' '){
+        newBoard[row][col] = ' '
+        boardState.removed.push({gridRow: row, gridCol: col})
+      }
     }
 
-    return newBoard
+    boardState.board = newBoard;
+    return boardState
   }
 
-  applyTurn(board: Board, turn: Turn) {
+  applyTurn(board: Board, turn: Turn): BoardState {
     let newBoard = JSON.parse(JSON.stringify(board))
+    const boardState: BoardState = {
+      board: newBoard,
+      removed: []
+    }
 
     turn.map((move: Move) => {
-      newBoard = this.applyMove(newBoard, move.fromRow, move.fromCol, move.toRow, move.toCol)
+      const newBoardState: BoardState = this.applyMove(boardState.board, move.fromRow, move.fromCol, move.toRow, move.toCol)
+      boardState.board = newBoardState.board
+      for(let coord of newBoardState.removed){
+        boardState.removed.push(coord)
+      }
     })
 
-    return newBoard
+    return boardState
   }
 
 }

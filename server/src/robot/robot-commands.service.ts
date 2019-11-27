@@ -1,7 +1,7 @@
 import { settings } from "../settings"
 import { Injectable } from '@nestjs/common'
 import * as SerialPort from 'serialport'
-import { Move } from '../board/board.service'
+import { Move, GridCoord } from '../board/board.service'
 import { StorageService } from '../storage.service'
 
 const storagePrefix = '/arm/commands/'
@@ -59,14 +59,14 @@ export class RobotCommandsService {
         else if (!line.startsWith('FPS ') && this.debugLogging) console.log('Arduino: ' + line)
     }
 
-    async applyTurn(turn: Move[]): Promise<boolean> {
+    async applyTurn(turn: Move[], removedPieces: GridCoord[]): Promise<boolean> {
         // Pick up the piece
         const startPosition: string = turn[0].fromRow + "_" + turn[0].fromCol
         await this.queueSavedCommand(startPosition)
         await this.lowerAndPickup(turn[0].fromRow, turn[0].fromCol)
 
         // Move inbetween
-        let inbetweenPieces: any[] = []
+        //let inbetweenPieces: any[] = []
         for (let move of turn) {
             const startPosition: string = move.toRow + "_" + move.toCol
             await this.queueSavedCommand(startPosition)
@@ -76,14 +76,14 @@ export class RobotCommandsService {
                 await this.setLinearActuator(false)
             }
 
-            const distance = Math.abs(move.toRow - move.fromRow)
+            //const distance = Math.abs(move.toRow - move.fromRow)
             // TODO: This only accounts for pawns, not for kings
-            if (distance === 2) {
-                const inbetweenRow = move.fromRow + ((move.toRow - move.fromRow) / 2)
-                const inbetweenCol = move.fromCol + ((move.toCol - move.fromCol) / 2)
+            // if (distance === 2) {
+            //     const inbetweenRow = move.fromRow + ((move.toRow - move.fromRow) / 2)
+            //     const inbetweenCol = move.fromCol + ((move.toCol - move.fromCol) / 2)
                 
-                inbetweenPieces.push({ row: inbetweenRow, col: inbetweenCol })
-            }
+            //     inbetweenPieces.push({ row: inbetweenRow, col: inbetweenCol })
+            // }
         }
 
         // Drop it
@@ -91,8 +91,8 @@ export class RobotCommandsService {
         await this.goHome()
 
         // Remove the jumped pieces
-        for (const piece of inbetweenPieces) {
-            await this.deletePiece(piece.row, piece.col)
+        for (const piece of removedPieces) {
+            await this.deletePiece(piece.gridRow, piece.gridCol)
         }
 
         return Promise.resolve(true)
