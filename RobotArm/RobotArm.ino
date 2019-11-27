@@ -71,6 +71,7 @@ const byte CMD_ACC = 2;
 const byte CMD_TRIM = 3;
 const byte CMD_POS = 4;
 const byte CMD_LIN = 5;
+const byte CMD_EASE = 6;
 byte commandMode = CMD_NONE;
 byte numsRead = 0;
 bool firstMove = false;
@@ -203,6 +204,8 @@ void parseSerial() {
       commandMode = CMD_POS;
     } else if (c == 'L' || c == 'l') {
       commandMode = CMD_LIN;
+    } else if(c == 'E' || c == 'e'){
+      commandMode = CMD_EASE;
     }
     //If we just found the start of a command, ignore the next char (whether it is a opening bracket or a space)
     if (commandMode != CMD_NONE) Serial.read();
@@ -254,6 +257,10 @@ void parseSerial() {
         elbowAcc = num * ELBOW_MULT;
         linactAcc = num * LINACT_MULT;
       }
+    } else if(commandMode == CMD_EASE){
+      if(numsRead == 1){
+        easing = num > 0 ? true : false;
+      }
     }
   }
 }
@@ -266,10 +273,12 @@ void logReceivedCommand() {
     Serial.print("POSITION S(");
     Serial.print(String(targetShoulder));
     Serial.print(") E(");
-    Serial.println(String(targetElbow));
+    Serial.print(String(targetElbow));
+    Serial.println(")");
   } else if (commandMode == CMD_LIN) {
     Serial.print("LINACT L(");
-    Serial.println(String(targetLinAct));
+    Serial.print(String(targetLinAct));
+    Serial.println(")");
   } else if (commandMode == CMD_MAGNET) {
     Serial.print("MAGNET M(");
     Serial.println(magnetState > 0 ? "HIGH)" : "LOW)");
