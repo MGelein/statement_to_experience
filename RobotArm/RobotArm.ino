@@ -20,7 +20,7 @@ const int MAX_ELBOW = 2200;
 const int MIN_ELBOW = 900;
 const int MAX_LINACT = 1500;
 const int MIN_LINACT = 800;
-const int EASE_FACTOR = 10;//increase to ease slower, decrease to ease faster
+const float EASE_FACTOR = .02f;
 const int HOME_SHOULDER_ADDR = 0;
 const int HOME_ELBOW_ADDR = 16;
 const int HOME_LINACT_ADDR = 32;
@@ -104,6 +104,9 @@ void setup() {
   EEPROM.get(HOME_SHOULDER_ADDR, msShoulder);
   EEPROM.get(HOME_ELBOW_ADDR, msElbow);
   EEPROM.get(HOME_LINACT_ADDR, msLinAct);
+  if(msShoulder == -1) msShoulder = 1500;
+  if(msElbow == -1) msElbow = 1500;
+  if(msLinAct == -1) msLinAct = 800;
 
   //Setup the first move
   targetShoulder = msShoulder;
@@ -113,6 +116,8 @@ void setup() {
   targetLinAct = msLinAct;
   halfwayLinAct = (msLinAct + targetLinAct) / 2;
   firstMove = true;
+
+  updateServos();
 
   //Set up serial connection
   Serial.begin(115200);
@@ -147,10 +152,7 @@ void loop() {
       msLinAct += getLinMovement(diffLinAct, linactAcc);
     }
 
-    //Write the new position to the servos
-    shoulder.writeMicroseconds(msShoulder + trimShoulder);
-    elbow.writeMicroseconds(msElbow + trimElbow);
-    linAct.writeMicroseconds(msLinAct + trimLinAct);
+    updateServos();
   }
 
   frameCount ++;
@@ -163,16 +165,33 @@ void loop() {
   if (Serial.available() > 0) parseSerial();
 
   //Add a tiny bit of delay to allow for serial to buffer and stuff
-  delay(10);
+  delay(5);
+}
+
+void updateServos(){
+    constrain(msShoulder, MIN_SHOULDER, MAX_SHOULDER);
+    constrain(msElbow, MIN_ELBOW, MAX_ELBOW);
+    constrain(msLinAct, MIN_LINACT, MAX_LINACT);
+
+    //Write the new position to the servos
+    shoulder.writeMicroseconds(msShoulder + trimShoulder);
+    elbow.writeMicroseconds(msElbow + trimElbow);
+    linAct.writeMicroseconds(msLinAct + trimLinAct);
 }
 
 int getEaseMovement(int ms, int diff, int halfwaypoint, int change) {
-  if ((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)) {
-    int spd = diff / EASE_FACTOR;
-    return spd == 0 ? diff : spd;
-  } else {
-    return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
-  }
+  int spd = (int) (diff * EASE_FACTOR);
+  Serial.print(spd);
+  Serial.print('\t');
+  Serial.println(diff);
+  return spd == 0 ? (diff > 0 ? 1 : -1) : spd;
+//  if ((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)) {
+//    int spd = diff / EASE_FACTOR;
+//    return spd == 0 ? diff : -spd;
+//  } else {
+//    return diff > 0 ? baseAcc : -baseAcc;
+//    //return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
+//  }
 }
 
 int getLinMovement(int diff, int acc) {
