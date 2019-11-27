@@ -10,6 +10,7 @@
    A(VALUE) //set acceleration
 */
 #include <Servo.h>
+#include <EEPROM.h>
 
 bool easing = false;
 
@@ -20,6 +21,9 @@ const int MIN_ELBOW = 900;
 const int MAX_LINACT = 1500;
 const int MIN_LINACT = 800;
 const int EASE_FACTOR = 10;//increase to ease slower, decrease to ease faster
+const int HOME_SHOULDER_ADDR = 0;
+const int HOME_ELBOW_ADDR = 16;
+const int HOME_LINACT_ADDR = 32;
 
 //The pins for each of the externals
 const int MAGNET_PIN = 12;
@@ -77,6 +81,7 @@ const byte CMD_TRIM = 3;
 const byte CMD_POS = 4;
 const byte CMD_LIN = 5;
 const byte CMD_EASE = 6;
+conts byte CMD_HOME = 7;
 byte commandMode = CMD_NONE;
 byte numsRead = 0;
 bool firstMove = false;
@@ -95,13 +100,17 @@ void setup() {
   shoulder.attach(SHOULDER_PIN);
   elbow.attach(ELBOW_PIN);
   linAct.attach(LINACT_PIN);
+  //Load home settings from EEPROM
+  EEPROM.get(HOME_SHOULDER_ADDR, msShoulder);
+  EEPROM.get(HOME_ELBOW_ADDR, msElbow);
+  EEPROM.get(HOME_LINACT_ADDR, msLinAct);
 
   //Setup the first move
-  targetShoulder = 1200;
+  targetShoulder = msShoulder;
   halfwayShoulder = (msShoulder + targetShoulder) / 2;
-  targetElbow = 1200;
+  targetElbow = msElbow;
   halfwayElbow = (msElbow + targetElbow) / 2;
-  targetLinAct = 800;
+  targetLinAct = msLinAct;
   halfwayLinAct = (msLinAct + targetLinAct) / 2;
   firstMove = true;
 
@@ -158,10 +167,10 @@ void loop() {
 }
 
 int getEaseMovement(int ms, int diff, int halfwaypoint, int change) {
-  if((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)){
+  if ((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)) {
     int spd = diff / EASE_FACTOR;
     return spd == 0 ? diff : spd;
-  }else{
+  } else {
     return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
   }
 }
@@ -180,16 +189,6 @@ void endMove() {
   if (!moveDone) {
     moveDone = true;
     Serial.println("OK");
-    //First move to calibrate it while booting
-    if (firstMove) {
-      firstMove = false;
-      targetShoulder = 1500;
-      halfwayShoulder = (msShoulder + targetShoulder) / 2;
-      targetElbow = 1500;
-      halfwayElbow = (msElbow + targetElbow) / 2;
-      targetLinAct = 800;
-      halfwayLinAct = (msLinAct + targetLinAct) / 2;
-    }
   }
 }
 
@@ -228,6 +227,8 @@ void parseSerial() {
       commandMode = CMD_LIN;
     } else if (c == 'E' || c == 'e') {
       commandMode = CMD_EASE;
+    } else if (c == 'H' || c == 'h') {
+      commandMode = CMD_HOME;
     }
     //If we just found the start of a command, ignore the next char (whether it is a opening bracket or a space)
     if (commandMode != CMD_NONE) Serial.read();
@@ -287,8 +288,16 @@ void parseSerial() {
       if (numsRead == 1) {
         easing = num > 0 ? true : false;
       }
+    } else if(commandMode == CMD_HOME){
+      saveHome();
     }
   }
+}
+
+void saveHome(){
+  EEPROM.put(HOME_SHOULDER_ADDR, targetShoulder);
+  EEPROM.put(HOME_ELBOW_ADDR, targetElbow);
+  EEPROM.put(HOME_LINACT_ADDR, targetLinAct);
 }
 
 /**
@@ -322,5 +331,10 @@ void logReceivedCommand() {
     Serial.print(String(trimLinAct));
     Serial.println(")");
     Serial.println("OK");
+  } else if(commandMode == CMD_EASE){
+    Serial.print("EASING ");
+    Serial.println(easing ? "ON" : "OFF");
+  } else if(commandMode == CMD_HOME){
+    Serial.println("SET HOME");
   }
 }
