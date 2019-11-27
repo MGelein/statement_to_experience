@@ -123,14 +123,18 @@ export class RobotCommandsService {
         return this.storage.get(storagePrefix + position).then(async (command: string) => {
             if (!command) return false
             else {
-                const previousShoulderValue = Number(command.substr(0, 6).substr(2))
+                const previousShoulderValue = Number(command.substr(0, 6).split('_')[0].substr(2))
                 const previousElbowValue = Number(command.substr(command.length - 5).substr(0, 4))
 
-                const commandLeft = `P(${previousShoulderValue}_${previousElbowValue + 20})`
-                const commandRight = `P(${previousShoulderValue}_${previousElbowValue - 40})`
+                const commandFirst = `P(${previousShoulderValue}_${previousElbowValue + 20})`
+                const commandSecond = `P(${previousShoulderValue}_${previousElbowValue - 40})`
+                // const commandThird = `P(${previousShoulderValue + 20}_${previousElbowValue})`
+                // const commandFourth = `P(${previousShoulderValue - 40}_${previousElbowValue})`
 
-                await this.queueCommand(commandLeft)
-                await this.queueCommand(commandRight)
+                await this.queueCommand(commandFirst)
+                await this.queueCommand(commandSecond)
+                // await this.queueCommand(commandThird)
+                // await this.queueCommand(commandFourth)
 
                 return true
             } 

@@ -91,7 +91,7 @@ while True:
 
         try:
             r = requests.post(url = server_host + 'board-state/', data = post_data)
-            print(r.text)
+            # print(r.text)
         except requests.exceptions.ConnectionError:
             print('Failed to send board state to the server.')
 
@@ -99,7 +99,7 @@ while True:
         if key == ord('q'):
             break
     else:
-        print('No frame received...')
+        # print('No frame received...')
         cap.release()
         cap.open(camera_id)
     
