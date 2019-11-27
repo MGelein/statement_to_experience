@@ -23,7 +23,9 @@ crop_x2 = 560
 crop_y1 = 0
 crop_y2 = 480
 
-video = cv2.VideoCapture(1)
+camera_id = 0
+
+cap = cv2.VideoCapture(camera_id)
 
 ix_to_piece = ['b', 'w', ' ']
 
@@ -39,58 +41,67 @@ white_pos = [
 ]
 
 while True:
-    ret, frame = video.read()
-    img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
+    ret, frame = cap.read()
+    if ret:
+        img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
 
-    # Inference
-    i = 0
-    for pos in white_pos:
-        coords = [int(coord) for coord in squares[pos]]
+        # Inference
+        i = 0
+        for pos in white_pos:
+            coords = [int(coord) for coord in squares[pos]]
 
-        x1 = coords[0]
-        y1 = coords[1]
-        x2 = coords[6]
-        y2 = coords[7]
+            x1 = coords[0]
+            y1 = coords[1]
+            x2 = coords[6]
+            y2 = coords[7]
 
-        square_cv = img[y1:y2, x1:x2]
-    
-        square_img_raw = cv2.cvtColor(square_cv, cv2.COLOR_BGR2RGB)
-        square_im_pil = Image.fromarray(square_img_raw)
-        square_img = square_im_pil.resize((224, 224))
+            square_cv = img[y1:y2, x1:x2]
+        
+            square_img_raw = cv2.cvtColor(square_cv, cv2.COLOR_BGR2RGB)
+            square_im_pil = Image.fromarray(square_img_raw)
+            square_img = square_im_pil.resize((224, 224))
 
-        image_array = np.asarray(square_img)
+            image_array = np.asarray(square_img)
 
-        normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
+            normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
 
-        data[i] = normalized_image_array
-        i += 1
+            data[i] = normalized_image_array
+            i += 1
 
-    output = model.predict(data)
-    predictions = [ix_to_piece[np.argmax(pred)] for pred in output]
+        output = model.predict(data)
+        predictions = [ix_to_piece[np.argmax(pred)] for pred in output]
 
-    board_state = np.full((8, 8), ' ')
-    i = 0
-    for pos in white_pos:
-        row, col = pos.split(',')
-        board_state[int(row)][int(col)] = predictions[i]
-        i += 1
+        board_state = np.full((8, 8), ' ')
+        i = 0
+        for pos in white_pos:
+            row, col = pos.split(',')
+            board_state[int(row)][int(col)] = predictions[i]
+            i += 1
 
-    post_data = {
-        "0": board_state[0],
-        "1": board_state[1],
-        "2": board_state[2],
-        "3": board_state[3],
-        "4": board_state[4],
-        "5": board_state[5],
-        "6": board_state[6],
-        "7": board_state[7],
-    }
+        post_data = {
+            "0": board_state[0],
+            "1": board_state[1],
+            "2": board_state[2],
+            "3": board_state[3],
+            "4": board_state[4],
+            "5": board_state[5],
+            "6": board_state[6],
+            "7": board_state[7],
+        }
 
-    r = requests.post(url = server_host + 'board-state/', data = post_data) 
+        try:
+            r = requests.post(url = server_host + 'board-state/', data = post_data)
+            print(r.text)
+        except requests.exceptions.ConnectionError:
+            print('Failed to send board state to the server.')
 
-    key=cv2.waitKey(1)
-    if key == ord('q'):
+        key = cv2.waitKey(1)
+        if key == ord('q'):
             break
+    else:
+        print('No frame received...')
+        cap.release()
+        cap.open(camera_id)
     
 video.release()
 cv2.destroyAllWindows()

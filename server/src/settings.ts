@@ -1,12 +1,12 @@
 export const settings = {
     ai: {
-        strength: 0.0,
+        strength: 1.0,
         minimaxDepth: 4,
         alphaBetaPruning: true,
         minEvaluationTimeInSeconds: 1.5
     },
     voice: {
-        enabled: true,
+        enabled: false,
         minTimeBetweenMessagesInSeconds: 10,
         intervalInSeconds: 15,
         idleTalkEnabled: true,

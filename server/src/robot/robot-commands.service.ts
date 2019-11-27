@@ -10,13 +10,17 @@ const storagePrefix = '/arm/commands/'
 export class RobotCommandsService {
 
     port: any = null
-    commandQ: string[] = []
+    commandQueue: string[] = []
     receivedParts: string[] = []
+
+    isMoving: boolean = false
+
+    debugLogging: boolean = false
       
     constructor(private readonly storage: StorageService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
-            const path = ports[ports.length].path
+            const path = ports[ports.length-1].path
 
             this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
                 if (err) {
@@ -30,7 +34,7 @@ export class RobotCommandsService {
         })
     }
 
-    checkReceivedData(){
+    checkReceivedData() {
         const data = this.receivedParts.join('').replace('\r', '')
         const lines = data.split("\n")
         while(lines.length > 1){
@@ -39,27 +43,45 @@ export class RobotCommandsService {
         this.receivedParts = [...lines]
     }
 
-    parseDataLine(line:string){
+    parseDataLine(line:string) {
         line = line.trim().toUpperCase()
-        if(line === 'OK') {
-            console.log(`Arduino: OK`)
-            this.commandQ.shift()
-            setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
+        if (line === 'OK') {
+            if (this.debugLogging) console.log(`Arduino: OK`)
+            this.commandQueue.shift()
+
+            if (this.commandQueue.length === 0) {
+                this.isMoving = false
+            } else {
+                setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
+            }
+            
         }
-        else if (!line.startsWith('FPS ')) console.log('Arduino: ' + line)
+        else if (!line.startsWith('FPS ') && this.debugLogging) console.log('Arduino: ' + line)
     }
 
-    applyTurn(turn: Move[]) {
-        for(let move of turn){
-            this.createMoveCommand(move.fromRow, move.fromCol, move.toCol, move.toRow)  
+    async applyTurn(turn: Move[]): Promise<boolean> {
+        for (let move of turn) {
+            await this.createMoveCommand(move.fromRow, move.fromCol, move.toRow, move.toCol)
+
+            const distance = Math.abs(move.toRow - move.fromRow)
+            // TODO: This only accounts for pawns, not for kings
+            if (distance === 2) {
+                const inbetweenRow = move.fromRow + ((move.toRow - move.fromRow) / 2)
+                const inbetweenCol = move.fromCol + ((move.toCol - move.fromCol) / 2)
+                
+                await this.deletePiece(inbetweenRow, inbetweenCol)
+            }
         }
+
+        return Promise.resolve(true)
     }
 
     async deletePiece(row: number, col: number): Promise<boolean> {
         const startPosition = row + "_" + col
         await this.queueSavedCommand(startPosition)
-        await this.lowerAndPickup()
-        await this.goHome()
+        await this.lowerAndPickup(row, col)
+        await this.movePieceOffBoard()
+
         await this.lowerAndDrop()
         await this.goHome()
         
@@ -69,7 +91,7 @@ export class RobotCommandsService {
     async createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number): Promise<boolean> {
         const startPosition: string = fromRow + "_" + fromCol
         await this.queueSavedCommand(startPosition)
-        await this.lowerAndPickup()
+        await this.lowerAndPickup(fromRow, fromCol)
         if (settings.robot.goHomeAfterEveryMove) await this.goHome()
 
         const endPosition: string = toRow + "_" + toCol
@@ -80,12 +102,39 @@ export class RobotCommandsService {
         return Promise.resolve(true)
     }
 
-    async lowerAndPickup(): Promise<boolean> {
+    async lowerAndPickup(row: number, col: number): Promise<boolean> {
         await this.setLinearActuator(true)
         await this.setMagnet(true)
+        await this.moveAround(row, col)
         await this.setLinearActuator(false)
 
         return Promise.resolve(true)
+    }
+
+    async movePieceOffBoard(): Promise<boolean> {
+        await this.queueSavedCommand('dropWhitePawn')
+
+        return Promise.resolve(true)
+    }
+
+    async moveAround(row: number, col: number): Promise<boolean> {
+        const position = row + "_" + col
+
+        return this.storage.get(storagePrefix + position).then(async (command: string) => {
+            if (!command) return false
+            else {
+                const previousShoulderValue = Number(command.substr(0, 6).substr(2))
+                const previousElbowValue = Number(command.substr(command.length - 5).substr(0, 4))
+
+                const commandLeft = `P(${previousShoulderValue}_${previousElbowValue + 20})`
+                const commandRight = `P(${previousShoulderValue}_${previousElbowValue - 40})`
+
+                await this.queueCommand(commandLeft)
+                await this.queueCommand(commandRight)
+
+                return true
+            } 
+        })
     }
 
     async lowerAndDrop(): Promise<boolean> {
@@ -125,25 +174,24 @@ export class RobotCommandsService {
     }
 
     async queueSavedCommand(name: string): Promise<boolean> {
-        // console.log(`Planning to queue ${storagePrefix + name}`)
-        return this.storage.get(storagePrefix + name).then((command: string) => {
-            // console.log(`Command = ${command}`)
+        return this.storage.get(storagePrefix + name).then(async (command: string) => {
             if (!command) return false
             else {
-                console.log(`Queue: ${name}=${command}`)
-                this.queueCommand(command)
+                await this.queueCommand(command)
                 return true
             } 
         })
     }
 
-    queueCommand(command: string){
-        this.commandQ.push(command)
+    async queueCommand(command: string): Promise<boolean> {
+        this.commandQueue.push(command)
 
         // If this was the first command that was added we can immediately send it
-        if (this.commandQ.length == 1){
+        if (this.commandQueue.length == 1){
             this.sendNextCommand()
         }
+
+        return Promise.resolve(true)
     }
 
     getSavedCommands(): Promise<string[]> {
@@ -160,7 +208,8 @@ export class RobotCommandsService {
     }
 
     sendDirectCommand(command: string){
-        console.log(`Server: ${command}`)
+        if (this.debugLogging) console.log(`Server: ${command}`)
+        this.isMoving = true
 
         if(this.port == null || this.port == undefined) {
             console.log("No valid Serial")
@@ -178,8 +227,8 @@ export class RobotCommandsService {
     }
 
     sendNextCommand(): boolean {
-        if(this.commandQ.length < 1) return
-        const command = this.commandQ[0]
+        if(this.commandQueue.length < 1) return
+        const command = this.commandQueue[0]
         this.sendDirectCommand(command)
     }
 
