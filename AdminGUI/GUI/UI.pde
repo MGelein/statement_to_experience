@@ -9,6 +9,7 @@ boolean saveDialogOpened = false;
 final String allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
 String saveCommandName = "";
 boolean showCursor = false;
+final String protectedCommands = "home|raiseLinAct|enableMagnet|disableMagnet|lowerLinAct";
 
 void renderSaveOverlay() {
   fill(0, 120);
@@ -139,7 +140,7 @@ class CMDButton extends Button {
     final String label = name;
     clickHandler = new ClickHandler() {
       public void press() {
-        if (Key.isDown(SHIFT)) {
+        if (Key.isDownOnce(SHIFT) && protectedCommands.indexOf(label) == -1) {
           requestDeleteCommand(label);
         } else {
           if (saveDialogOpened) return;
