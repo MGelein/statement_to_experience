@@ -11,11 +11,13 @@
 */
 #include <Servo.h>
 
+bool easing = false;
+
 const int MAX_SHOULDER = 2300;
 const int MIN_SHOULDER = 600;
 const int MAX_ELBOW = 2200;
-const int MIN_ELBOW = 600;
-const int MAX_LINACT = 2300;
+const int MIN_ELBOW = 900;
+const int MAX_LINACT = 1500;
 const int MIN_LINACT = 800;
 
 //The pins for each of the externals
@@ -25,7 +27,7 @@ const int ELBOW_PIN = 6;
 const int LINACT_PIN = 9;
 
 //The variables used for the acceleration
-int baseAcc = 1;
+int baseAcc = `2;
 const int ELBOW_MULT = 2;
 const int LINACT_MULT = 4;
 int elbowAcc = baseAcc * ELBOW_MULT;
@@ -73,7 +75,7 @@ byte commandMode = CMD_NONE;
 byte numsRead = 0;
 bool firstMove = false;
 
-const int FPS_INTERVAL = 5000;
+const int FPS_INTERVAL = 1000;
 int accumulator = 0;
 unsigned long lastFrame = 0;
 unsigned long now = 0;
@@ -116,18 +118,14 @@ void loop() {
     diffElbow = targetElbow - msElbow;
     diffLinAct = targetLinAct - msLinAct;
 
-    //Now move towards the target for each of the servos
-    if (diffShoulder > baseAcc) msShoulder += baseAcc;
-    else if (diffShoulder < -baseAcc) msShoulder -= baseAcc;
-    else msShoulder += diffShoulder;
-
-    if (diffElbow > elbowAcc) msElbow += elbowAcc;
-    else if (diffElbow < -elbowAcc) msElbow -= elbowAcc;
-    else msElbow += diffElbow;
-
-    if (diffLinAct > linactAcc) msLinAct += linactAcc;
-    else if (diffLinAct < - linactAcc) msLinAct -= linactAcc;
-    else msLinAct += diffLinAct;
+    if(easing){
+      
+    }else{ 
+      //Now move towards the target for each of the servos
+      msShoulder += getLinMovement(diffShoulder, baseAcc);
+      msElbow += getLinMovment(diffElbow, elbowAcc);
+      msLinAct += getLinMovement(diffLinAct, linActAcc);
+    }
 
     //Write the new position to the servos
     shoulder.writeMicroseconds(msShoulder + trimShoulder);
@@ -145,7 +143,13 @@ void loop() {
   if (Serial.available() > 0) parseSerial();
 
   //Add a tiny bit of delay to allow for serial to buffer and stuff
-  delay(5);
+  delay(10);
+}
+
+int getLinMovement(int diff, int acc){
+   if(diff > acc) return acc;
+   else if(diff < -acc) return -acc;
+   else return diff;
 }
 
 /**
