@@ -82,13 +82,13 @@ export class BoardStateController {
       let toCol = -1
       for (let row = 0; row < settings.board.rowCount; row++) {
         for (let col = 0; col < settings.board.colCount; col++) {
-          if (oldBoard[row][col] === player) {
+          if (oldBoard[row][col].toLowerCase() === player) {
             if (newBoard[row][col] === ' ') {
               fromRow = row
               fromCol = col
             }
           } else if (oldBoard[row][col] === ' ') {
-            if (newBoard[row][col] === player) {
+            if (newBoard[row][col].toLowerCase() === player) {
               toRow = row
               toCol = col
             }

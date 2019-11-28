@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common'
 
-import { BoardService, Move } from '../board/board.service'
+import { BoardService } from '../board/board.service'
 import { MinimaxService } from './minimax.service'
 import { settings } from '../settings'
-import { VoiceService } from '../voice/voice.service'
-import { MoveGenerationService } from '../game/move-generation.service'
-import { GameStateService, PlayerMove } from '../game/game-state.service'
+import { GameStateService } from '../game/game-state.service'
 import { BoardEvaluationService } from '../ai/board-evaluation.service'
-import { MoveValidationService } from '../game/move-validation.service'
 import { RobotCommandsService } from '../robot/robot-commands.service'
 
 @Injectable()
