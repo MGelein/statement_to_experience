@@ -104,8 +104,8 @@ void setup() {
   EEPROM.get(HOME_SHOULDER_ADDR, msShoulder);
   EEPROM.get(HOME_ELBOW_ADDR, msElbow);
   EEPROM.get(HOME_LINACT_ADDR, msLinAct);
-  if(msShoulder == -1) msShoulder = 1500;
-  if(msElbow == -1) msElbow = 1500;
+  if(msShoulder == -1) msShoulder = 807;
+  if(msElbow == -1) msElbow = 1424;
   if(msLinAct == -1) msLinAct = 800;
 
   //Setup the first move
