@@ -24,12 +24,12 @@ export class AIService {
         
         if (turn && turn.length > 0) {
             console.log(turn)
-            this.robotCommandsService.applyTurn(turn)
-            
             const boardState:BoardState = this.boardService.applyTurn(this.boardService.get(), turn)
-            this.boardService.update(boardState.board)
             console.log(boardState.removed)
-
+            
+            this.robotCommandsService.applyTurn(turn, boardState.removed)
+            
+            this.boardService.update(boardState.board)
             if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
                 console.log('Game has ended')
                 this.gameStateService.end()
