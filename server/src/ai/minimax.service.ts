@@ -50,7 +50,7 @@ export class MinimaxService {
         possibleTurns.map((turn: Turn) => {
             const newBoard = this.boardService.applyTurn(board, turn)
 
-            const score = this.evaluateRecursively(newBoard.board, depth - 1, player, false, alpha, beta, alphaBetaPruning)
+            const score = this.evaluateRecursively(newBoard, depth - 1, player, false, alpha, beta, alphaBetaPruning)
 
             if (score > maxScore) {
                 maxTurn = turn
@@ -105,7 +105,7 @@ export class MinimaxService {
             let maxScore = -Number.MAX_VALUE
             possibleTurns.map((turn: Turn) => {
                 const newBoard = this.boardService.applyTurn(board, turn)
-                const score = this.evaluateRecursively(newBoard.board, depth - 1, player, false, alpha, beta, alphaBetaPruning)
+                const score = this.evaluateRecursively(newBoard, depth - 1, player, false, alpha, beta, alphaBetaPruning)
 
                 if (score > maxScore) {
                     maxScore = score
@@ -127,7 +127,7 @@ export class MinimaxService {
             let minScore = Number.MAX_VALUE
             possibleTurns.map((turn: Turn) => {
                 const newBoard = this.boardService.applyTurn(board, turn)
-                const score = this.evaluateRecursively(newBoard.board, depth - 1, player, true, alpha, beta, alphaBetaPruning)
+                const score = this.evaluateRecursively(newBoard, depth - 1, player, true, alpha, beta, alphaBetaPruning)
 
                 if (score < minScore) {
                     minScore = score
