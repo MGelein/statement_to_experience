@@ -74,10 +74,10 @@ export class BoardService {
     let newBoard = JSON.parse(JSON.stringify(board))
     const source = board[fromRow][fromCol]
 
-    if (toRow === 0 && source === 'w') {
-      newBoard[toRow][toCol] = 'W' // set the new cell to be a king
-    } else if (toRow === settings.board.rowCount - 1 && source === 'b') {
+    if (toRow === 0 && source === 'b') {
       newBoard[toRow][toCol] = 'B' // set the new cell to be a king
+    } else if (toRow === settings.board.rowCount - 1 && source === 'w') {
+      newBoard[toRow][toCol] = 'W' // set the new cell to be a king
     } else {
       newBoard[toRow][toCol] = source // set the new cell to be the same piece as the old cell
     }

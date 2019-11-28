@@ -1,7 +1,7 @@
 import { settings } from "../settings"
 import { Injectable } from '@nestjs/common'
 import * as SerialPort from 'serialport'
-import { Move } from '../board/board.service'
+import { Move, BoardService } from '../board/board.service'
 import { StorageService } from '../storage.service'
 
 const storagePrefix = '/arm/commands/'
@@ -17,7 +17,7 @@ export class RobotCommandsService {
 
     debugLogging: boolean = false
       
-    constructor(private readonly storage: StorageService) {
+    constructor(private readonly storage: StorageService, private readonly boardService: BoardService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
             const path = ports[ports.length-1].path
@@ -60,6 +60,8 @@ export class RobotCommandsService {
     }
 
     async applyTurn(turn: Move[]): Promise<boolean> {
+        let board = this.boardService.get()
+
         // Pick up the piece
         const startPosition: string = turn[0].fromRow + "_" + turn[0].fromCol
         await this.queueSavedCommand(startPosition)
@@ -76,14 +78,19 @@ export class RobotCommandsService {
                 await this.setLinearActuator(false)
             }
 
-            const distance = Math.abs(move.toRow - move.fromRow)
-            // TODO: This only accounts for pawns, not for kings
-            if (distance === 2) {
-                const inbetweenRow = move.fromRow + ((move.toRow - move.fromRow) / 2)
-                const inbetweenCol = move.fromCol + ((move.toCol - move.fromCol) / 2)
-                
-                inbetweenPieces.push({ row: inbetweenRow, col: inbetweenCol })
+            const distance = Math.abs(move.fromRow - move.toRow)
+
+            const rowdir = move.toRow > move.fromRow ? 1 : -1
+            const coldir = move.toCol > move.fromCol ? 1 : -1
+
+            // Remove all pieces inbetween
+            for (let steps = 1; steps < distance; steps++) {
+                if (board[move.fromRow + rowdir * steps][move.fromCol + coldir * steps] !== ' ') {
+                    inbetweenPieces.push({ row: move.fromRow + rowdir * steps, col: move.fromCol + coldir * steps })
+                }
             }
+
+            // board = board.applyMove(board, move.fromRow, move.fromCol, move.toRow, move.toCol)
         }
 
         // Drop it

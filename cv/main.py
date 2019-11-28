@@ -43,6 +43,15 @@ white_pos = [
 while True:
     ret, frame = cap.read()
     if ret:
+        if frame.shape[0] != 480 or frame.shape[1] != 640:
+            print(frame.shape)
+
+            cap.release()
+            cap.open(camera_id)
+            
+            continue
+
+        skip_frame = False
         img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
 
         # Inference
@@ -68,7 +77,16 @@ while True:
                 data[i] = normalized_image_array
                 i += 1
             except:
+                print('Failed to recognize a square.')
+                skip_frame = True
+
+                cv2.imshow('Image', img)
+                cv2.imshow('Pre-crop', frame)
+                
                 break
+
+        if skip_frame:
+            continue
 
         output = model.predict(data)
         predictions = [ix_to_piece[np.argmax(pred)] for pred in output]

@@ -8,6 +8,7 @@ import { MoveValidationService } from '../game/move-validation.service'
 import { AIService } from '../ai/ai.service'
 import { RobotCommandsService } from '../robot/robot-commands.service'
 import { VoiceService } from '../voice/voice.service'
+import { MoveGenerationService } from '../game/move-generation.service'
 
 const arraysEqual = (a1: any[], a2: any[]): boolean => {
   return JSON.stringify(a1) == JSON.stringify(a2)
@@ -21,14 +22,17 @@ export class BoardStateController {
     private readonly robotCommandsService: RobotCommandsService,
     private readonly storage: StorageService,
     private readonly voiceService: VoiceService,
+    private readonly moveGenerationService: MoveGenerationService,
     private readonly moveValidationService: MoveValidationService,
     private readonly aiService: AIService) {}
 
   isFirst: boolean = true
 
   lastCameraView: string[][] = []
-  previousBoard: string[][] | null = null
+  previousBoard: Piece[][] | null = null
   sameBoardInARowCount: number = 0
+
+  sameBoardThreshold: number = 6
 
   @Post()
   update(@Body() state: any): string {
@@ -42,17 +46,9 @@ export class BoardStateController {
       return 'OK'
     }
 
-    if (this.isFirst) {
-      this.isFirst = false
-      this.boardService.update(newBoard)
-      return 'OK'
-    }
-
-    const sameBoardThreshold: number = 3
-
     // If there is a change to the currently stored board state
     if (!arraysEqual(oldBoard, newBoard)) {
-      if (arraysEqual(newBoard, this.previousBoard) && this.sameBoardInARowCount < (sameBoardThreshold - 1)) {
+      if (arraysEqual(newBoard, this.previousBoard) && this.sameBoardInARowCount < (this.sameBoardThreshold - 1)) {
         // If this board state has been seen before, but the threshold hasnt been reached yet
         this.previousBoard = newBoard
         this.sameBoardInARowCount += 1
@@ -69,6 +65,14 @@ export class BoardStateController {
       }
 
       // console.log('3... Executing...')
+
+      if (this.isFirst) {
+        this.isFirst = false
+        console.log('Board has been initialised from the camera view.')
+        this.sameBoardThreshold = 3
+        this.boardService.update(newBoard)
+        return 'OK'
+      }
 
       let fromRow = -1
       let fromCol = -1
@@ -109,10 +113,22 @@ export class BoardStateController {
   }
 
   private move(oldBoard: Board, move: Move) {
-    // const player = oldBoard[Number(move.fromRow)][Number(move.fromCol)] as Player
     const isValid = this.moveValidationService.isValid(oldBoard, move.fromRow, move.fromCol, move.toRow, move.toCol)
 
     if (isValid === 'OK') {
+      const lastMoveWasAJump = Math.abs(move.toRow - move.fromRow) > 1
+
+      // Check if it was a move, but if there were jumps possible, then block the move
+      if (!lastMoveWasAJump) {
+        const player = oldBoard[Number(move.fromRow)][Number(move.fromCol)].toLowerCase() as Player
+        const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(oldBoard, player)
+
+        if (jumpsFromPreviousPosition.length !== 0) {
+          this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
+          return
+        }
+      }
+
       console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is valid.`)
       this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
 
