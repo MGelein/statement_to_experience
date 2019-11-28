@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { BoardService, Move, BoardState } from '../board/board.service'
+import { BoardService, Move } from '../board/board.service'
 import { MinimaxService } from './minimax.service'
 import { settings } from '../settings'
 import { VoiceService } from '../voice/voice.service'
@@ -26,9 +26,7 @@ export class AIService {
             console.log(turn)
             this.robotCommandsService.applyTurn(turn)
             
-            const boardState:BoardState = this.boardService.applyTurn(this.boardService.get(), turn)
-            this.boardService.update(boardState.board)
-            console.log(boardState.removed)
+            this.boardService.update(this.boardService.applyTurn(this.boardService.get(), turn))
 
             if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
                 console.log('Game has ended')

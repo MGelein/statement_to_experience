@@ -55,7 +55,6 @@ boolean sendMove(PVector from, PVector to) {
   if (source.piece == null) return false;
   toX = (int) (to.x / CELL_SIZE);
   toY = (int) (to.y / CELL_SIZE);
-  println(fromX, fromY, toX, toY);
   if (toX < 0 || toX >= BOARD_SIZE || toY < 0 || toY >= BOARD_SIZE) return false;
   BoardCell target = displayedBoardState.board[toX][toY];
   if (target.col == BoardColor.White) return false;
