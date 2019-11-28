@@ -6,7 +6,7 @@ export const settings = {
         minEvaluationTimeInSeconds: 1.5
     },
     voice: {
-        enabled: false,
+        enabled: true,
         minTimeBetweenMessagesInSeconds: 10,
         intervalInSeconds: 15,
         idleTalkEnabled: true,

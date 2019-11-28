@@ -45,9 +45,7 @@ while True:
     if ret:
         if frame.shape[0] != 480 or frame.shape[1] != 640:
             print(frame.shape)
-
-            cap.release()
-            cap.open(camera_id)
+            cap = cv2.VideoCapture(camera_id)
             
             continue
 

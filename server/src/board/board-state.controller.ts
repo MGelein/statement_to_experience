@@ -9,6 +9,7 @@ import { AIService } from '../ai/ai.service'
 import { RobotCommandsService } from '../robot/robot-commands.service'
 import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
+import { GameStateService } from '../game/game-state.service'
 
 const arraysEqual = (a1: any[], a2: any[]): boolean => {
   return JSON.stringify(a1) == JSON.stringify(a2)
@@ -22,6 +23,7 @@ export class BoardStateController {
     private readonly robotCommandsService: RobotCommandsService,
     private readonly storage: StorageService,
     private readonly voiceService: VoiceService,
+    private readonly gameStateService: GameStateService,
     private readonly moveGenerationService: MoveGenerationService,
     private readonly moveValidationService: MoveValidationService,
     private readonly aiService: AIService) {}
@@ -124,13 +126,16 @@ export class BoardStateController {
         const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(oldBoard, player)
 
         if (jumpsFromPreviousPosition.length !== 0) {
-          this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
+          // this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
           return
         }
       }
 
       console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is valid.`)
       this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
+      
+      const player = oldBoard[Number(move.fromRow)][Number(move.fromCol)] as Player
+      this.gameStateService.addMove(player, move)
 
       this.aiService.play()
     } else {

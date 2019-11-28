@@ -18,7 +18,7 @@ crop_y2 = 480
 
 video = cv2.VideoCapture(0)
 
-start = 150
+start = 0
 i = start
 
 while True:
@@ -29,7 +29,7 @@ while True:
     img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
 
     # Mask out a single square
-    coords = [int(coord) for coord in squares['0,1']]
+    coords = [int(coord) for coord in squares['3,4']]
 
     x1 = coords[0]
     y1 = coords[1]
