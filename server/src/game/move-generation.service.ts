@@ -79,7 +79,7 @@ export class MoveGenerationService {
                         const newTurn: Turn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * steps, toCol: col + coldir * steps }]
                         const newBoard = this.boardService.applyMove(board, row, col, row + rowdir * steps, col + coldir * steps)
 
-                        const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard.board, row + rowdir * steps, col + coldir * steps, newTurn)
+                        const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard, row + rowdir * steps, col + coldir * steps, newTurn)
                         turns = [...turns, ...withMultiJumps]
                     }
                 }
