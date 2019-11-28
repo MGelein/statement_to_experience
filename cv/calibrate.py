@@ -8,7 +8,7 @@ from board_Recognition import board_Recognition
 server_host = 'http://localhost:3000/'
 
 # Source: https://github.com/rjgoodloe/ESE205-CVChess
-camera = Camera(1)
+camera = Camera(0)
 rec = board_Recognition(camera)
 board = rec.initialize_Board()
 

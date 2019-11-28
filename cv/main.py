@@ -56,17 +56,19 @@ while True:
             y2 = coords[7]
 
             square_cv = img[y1:y2, x1:x2]
-        
-            square_img_raw = cv2.cvtColor(square_cv, cv2.COLOR_BGR2RGB)
-            square_im_pil = Image.fromarray(square_img_raw)
-            square_img = square_im_pil.resize((224, 224))
+            try:
+                square_img_raw = cv2.cvtColor(square_cv, cv2.COLOR_BGR2RGB)
+                square_im_pil = Image.fromarray(square_img_raw)
+                square_img = square_im_pil.resize((224, 224))
 
-            image_array = np.asarray(square_img)
+                image_array = np.asarray(square_img)
 
-            normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
+                normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
 
-            data[i] = normalized_image_array
-            i += 1
+                data[i] = normalized_image_array
+                i += 1
+            except:
+                break
 
         output = model.predict(data)
         predictions = [ix_to_piece[np.argmax(pred)] for pred in output]

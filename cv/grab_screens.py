@@ -18,7 +18,7 @@ crop_y2 = 480
 
 video = cv2.VideoCapture(0)
 
-start = 109
+start = 150
 i = start
 
 while True:

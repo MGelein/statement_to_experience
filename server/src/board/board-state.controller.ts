@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body } from '@nestjs/common'
+import { Controller, Get, Header, Post, Body } from '@nestjs/common'
 
 import { StorageService } from '../storage.service'
-import { Move, Board, BoardService, Player } from './board.service'
+import { Move, Board, BoardService, Player, Piece } from './board.service'
 
 import { settings } from '../settings'
 import { MoveValidationService } from '../game/move-validation.service'
@@ -26,6 +26,7 @@ export class BoardStateController {
 
   isFirst: boolean = true
 
+  lastCameraView: string[][] = []
   previousBoard: string[][] | null = null
   sameBoardInARowCount: number = 0
 
@@ -34,6 +35,8 @@ export class BoardStateController {
     const player: Player = 'w'
     const oldBoard = this.boardService.get()
     const newBoard = Object.keys(state).reduce((newState: string[], key: string) => [...newState, state[key]], [])
+
+    this.lastCameraView = newBoard
 
     if (this.robotCommandsService.isMoving) {
       return 'OK'
@@ -120,7 +123,11 @@ export class BoardStateController {
     }
   }
 
-  
+  @Get('camera-view/csv')
+  @Header('Content-Type', 'text/plain')
+  csv(): string {
+    return this.lastCameraView.map((row: Piece[]) => Object.keys(row).map((key: string) => row[key]).join('')).join('\n')
+  }
 
   @Get('square-positions')
   getSquarePositions(): any {
