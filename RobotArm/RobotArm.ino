@@ -14,6 +14,7 @@
 
 bool easing = false;
 
+const int COMMAND_TIMEOUT = 100;
 const int MAX_SHOULDER = 2300;
 const int MIN_SHOULDER = 600;
 const int MAX_ELBOW = 2200;
@@ -91,6 +92,7 @@ int accumulator = 0;
 unsigned long lastFrame = 0;
 unsigned long now = 0;
 unsigned long frameCount = 0;
+unsigned long startTimeCommand = 0;
 
 /**
    Runs once when the power is turned on
@@ -104,9 +106,9 @@ void setup() {
   EEPROM.get(HOME_SHOULDER_ADDR, msShoulder);
   EEPROM.get(HOME_ELBOW_ADDR, msElbow);
   EEPROM.get(HOME_LINACT_ADDR, msLinAct);
-  if(msShoulder == -1) msShoulder = 1500;
-  if(msElbow == -1) msElbow = 1500;
-  if(msLinAct == -1) msLinAct = 800;
+  if (msShoulder == -1) msShoulder = 1500;
+  if (msElbow == -1) msElbow = 1500;
+  if (msLinAct == -1) msLinAct = 800;
 
   //Setup the first move
   targetShoulder = msShoulder;
@@ -161,6 +163,11 @@ void loop() {
   lastFrame = now;
   if (accumulator > FPS_INTERVAL) logFPS();
 
+  //Check if COMMAND_TIMEOUT has passed
+  if(commandMode != CMD_NONE && now - startTimeCommand > COMMAND_TIMEOUT){
+    endCommand();
+  }
+
   //Check if any bytes can be read from the serial monitor
   if (Serial.available() > 0) parseSerial();
 
@@ -168,15 +175,15 @@ void loop() {
   delay(5);
 }
 
-void updateServos(){
-    constrain(msShoulder, MIN_SHOULDER, MAX_SHOULDER);
-    constrain(msElbow, MIN_ELBOW, MAX_ELBOW);
-    constrain(msLinAct, MIN_LINACT, MAX_LINACT);
+void updateServos() {
+  constrain(msShoulder, MIN_SHOULDER, MAX_SHOULDER);
+  constrain(msElbow, MIN_ELBOW, MAX_ELBOW);
+  constrain(msLinAct, MIN_LINACT, MAX_LINACT);
 
-    //Write the new position to the servos
-    shoulder.writeMicroseconds(msShoulder + trimShoulder);
-    elbow.writeMicroseconds(msElbow + trimElbow);
-    linAct.writeMicroseconds(msLinAct + trimLinAct);
+  //Write the new position to the servos
+  shoulder.writeMicroseconds(msShoulder + trimShoulder);
+  elbow.writeMicroseconds(msElbow + trimElbow);
+  linAct.writeMicroseconds(msLinAct + trimLinAct);
 }
 
 int getEaseMovement(int ms, int diff, int halfwaypoint, int change) {
@@ -185,13 +192,13 @@ int getEaseMovement(int ms, int diff, int halfwaypoint, int change) {
   Serial.print('\t');
   Serial.println(diff);
   return spd == 0 ? (diff > 0 ? 1 : -1) : spd;
-//  if ((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)) {
-//    int spd = diff / EASE_FACTOR;
-//    return spd == 0 ? diff : -spd;
-//  } else {
-//    return diff > 0 ? baseAcc : -baseAcc;
-//    //return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
-//  }
+  //  if ((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)) {
+  //    int spd = diff / EASE_FACTOR;
+  //    return spd == 0 ? diff : -spd;
+  //  } else {
+  //    return diff > 0 ? baseAcc : -baseAcc;
+  //    //return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
+  //  }
 }
 
 int getLinMovement(int diff, int acc) {
@@ -250,14 +257,14 @@ void parseSerial() {
       commandMode = CMD_HOME;
     }
     //If we just found the start of a command, ignore the next char (whether it is a opening bracket or a space)
-    if (commandMode != CMD_NONE) Serial.read();
+    if (commandMode != CMD_NONE) {
+      Serial.read();
+      startTimeCommand = millis();
+    }
   } else {
     //We are already in a command mode, first check if we need to close this command
     if (Serial.peek() == ')' || Serial.peek() == ';') {
-      logReceivedCommand();
-      commandMode = CMD_NONE;
-      numsRead = 0;
-      Serial.read();
+      endCommandMode();
       return;
     }
 
@@ -307,13 +314,20 @@ void parseSerial() {
       if (numsRead == 1) {
         easing = num > 0 ? true : false;
       }
-    } else if(commandMode == CMD_HOME){
+    } else if (commandMode == CMD_HOME) {
       saveHome();
     }
   }
 }
 
-void saveHome(){
+void endCommandMode() {
+  logReceivedCommand();
+  commandMode = CMD_NONE;
+  numsRead = 0;
+  Serial.read();
+}
+
+void saveHome() {
   EEPROM.put(HOME_SHOULDER_ADDR, targetShoulder);
   EEPROM.put(HOME_ELBOW_ADDR, targetElbow);
   EEPROM.put(HOME_LINACT_ADDR, targetLinAct);
@@ -350,11 +364,11 @@ void logReceivedCommand() {
     Serial.print(String(trimLinAct));
     Serial.println(")");
     Serial.println("OK");
-  } else if(commandMode == CMD_EASE){
+  } else if (commandMode == CMD_EASE) {
     Serial.print("EASING ");
     Serial.println(easing ? "ON" : "OFF");
     Serial.println("OK");
-  } else if(commandMode == CMD_HOME){
+  } else if (commandMode == CMD_HOME) {
     Serial.println("SET HOME");
     Serial.println("OK");
   }
