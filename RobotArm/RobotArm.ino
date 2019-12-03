@@ -32,6 +32,14 @@ const int SHOULDER_PIN = 3;
 const int ELBOW_PIN = 6;
 const int LINACT_PIN = 9;
 
+//All the pins for the status LED's
+const int STATUS_MAGNET_PIN = A0;
+const int STATUS_MOVE_PIN = A1;
+const int STATUS_RANDOM_PIN = A2;
+const int STATUS_LINACT_PIN = A3;
+const int STATUS_SERIAL_PIN = A4;
+const int STATUS_OK_PIN = A5;
+
 //The variables used for the acceleration
 int baseAcc = 2;
 const int ELBOW_MULT = 2;
@@ -86,6 +94,7 @@ const byte CMD_HOME = 7;
 byte commandMode = CMD_NONE;
 byte numsRead = 0;
 bool firstMove = false;
+bool randomLedStatus = false;
 
 const int FPS_INTERVAL = 1000;
 int accumulator = 0;
@@ -107,9 +116,9 @@ void setup() {
   EEPROM.get(HOME_ELBOW_ADDR, msElbow);
   EEPROM.get(HOME_LINACT_ADDR, msLinAct);
 
-  if(msShoulder == -1) msShoulder = 807;
-  if(msElbow == -1) msElbow = 1424;
-  if(msLinAct == -1) msLinAct = 800;
+  if (msShoulder == -1) msShoulder = 807;
+  if (msElbow == -1) msElbow = 1424;
+  if (msLinAct == -1) msLinAct = 800;
 
   //Setup the first move
   targetShoulder = msShoulder;
@@ -126,12 +135,28 @@ void setup() {
   Serial.begin(115200);
   //Set up the pins in the correct pin mode
   pinMode(MAGNET_PIN, OUTPUT);
+  pinMode(STATUS_MAGNET_PIN, OUTPUT);
+  pinMode(STATUS_MOVE_PIN, OUTPUT);
+  pinMode(STATUS_RANDOM_PIN, OUTPUT);
+  pinMode(STATUS_LINACT_PIN, OUTPUT);
+  pinMode(STATUS_SERIAL_PIN, OUTPUT);
+  pinMode(STATUS_OK_PIN, OUTPUT);
 }
 
 /**
    Runs as often as possible
 */
 void loop() {
+  //Write the status leds
+  digitalWrite(STATUS_MOVE_PIN, msShoulder == targetShoulder && msElbow == targetElbow ? LOW : HIGH);
+  digitalWrite(STATUS_LINACT_PIN, msLinAct == targetLinAct ? LOW : HIGH);
+
+  //Check the random blinky light
+  if(random(100) == 1){
+    randomLedStatus = !randomLedStatus;
+    digitalWrite(STATUS_RANDOM_PIN, randomLedStatus ? HIGH : LOW);
+  }
+  
   //Check if we're done moving
   if (targetShoulder == msShoulder && targetElbow == msElbow && targetLinAct == msLinAct) {
     endMove();
@@ -154,7 +179,6 @@ void loop() {
       msElbow += getLinMovement(diffElbow, elbowAcc);
       msLinAct += getLinMovement(diffLinAct, linactAcc);
     }
-
     updateServos();
   }
 
@@ -165,8 +189,8 @@ void loop() {
   if (accumulator > FPS_INTERVAL) logFPS();
 
   //Check if COMMAND_TIMEOUT has passed
-  if(commandMode != CMD_NONE && now - startTimeCommand > COMMAND_TIMEOUT){
-    endCommand();
+  if (commandMode != CMD_NONE && now - startTimeCommand > COMMAND_TIMEOUT) {
+    endCommandMode();
   }
 
   //Check if any bytes can be read from the serial monitor
@@ -189,17 +213,7 @@ void updateServos() {
 
 int getEaseMovement(int ms, int diff, int halfwaypoint, int change) {
   int spd = (int) (diff * EASE_FACTOR);
-  Serial.print(spd);
-  Serial.print('\t');
-  Serial.println(diff);
   return spd == 0 ? (diff > 0 ? 1 : -1) : spd;
-  //  if ((diff > 0 && ms > halfwaypoint) || (diff < 0 && ms < halfwaypoint)) {
-  //    int spd = diff / EASE_FACTOR;
-  //    return spd == 0 ? diff : -spd;
-  //  } else {
-  //    return diff > 0 ? baseAcc : -baseAcc;
-  //    //return map(halfwaypoint - ms, change, 0, baseAcc, change / EASE_FACTOR);
-  //  }
 }
 
 int getLinMovement(int diff, int acc) {
@@ -225,7 +239,7 @@ void endMove() {
 void logFPS() {
   accumulator -= FPS_INTERVAL;
   Serial.print("FPS ");
-  Serial.print(String(frameCount / 5));
+  Serial.print(String(frameCount / (FPS_INTERVAL / 1000)));
   Serial.print("\t\t");
   Serial.print(msShoulder);
   Serial.print("\t");
@@ -261,6 +275,8 @@ void parseSerial() {
     if (commandMode != CMD_NONE) {
       Serial.read();
       startTimeCommand = millis();
+      digitalWrite(STATUS_SERIAL_PIN, HIGH);
+      digitalWrite(STATUS_OK_PIN, LOW);
     }
   } else {
     //We are already in a command mode, first check if we need to close this command
@@ -295,6 +311,7 @@ void parseSerial() {
       if (numsRead == 1) {
         //Write the magnet to the correct state immediately
         digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
+        digitalWrite(STATUS_MAGNET_PIN, num > 0 ? HIGH : LOW);
         magnetState = num;
       }
     } else if (commandMode == CMD_TRIM) {
@@ -326,6 +343,7 @@ void endCommandMode() {
   commandMode = CMD_NONE;
   numsRead = 0;
   Serial.read();
+  digitalWrite(STATUS_SERIAL_PIN, LOW);
 }
 
 void saveHome() {
@@ -351,11 +369,11 @@ void logReceivedCommand() {
   } else if (commandMode == CMD_MAGNET) {
     Serial.print("MAGNET M(");
     Serial.println(magnetState > 0 ? "HIGH)" : "LOW)");
-    Serial.println("OK");
+    sayOk();
   } else if (commandMode == CMD_ACC) {
     Serial.print("ACCELERATION ");
     Serial.println(String(baseAcc));
-    Serial.println("OK");
+    sayOk();
   } else if (commandMode == CMD_TRIM) {
     Serial.print("TRIM S(");
     Serial.print(String(trimShoulder));
@@ -364,13 +382,18 @@ void logReceivedCommand() {
     Serial.print(") L(");
     Serial.print(String(trimLinAct));
     Serial.println(")");
-    Serial.println("OK");
+    sayOk();
   } else if (commandMode == CMD_EASE) {
     Serial.print("EASING ");
     Serial.println(easing ? "ON" : "OFF");
-    Serial.println("OK");
+    sayOk();
   } else if (commandMode == CMD_HOME) {
     Serial.println("SET HOME");
-    Serial.println("OK");
+    sayOk();
   }
+}
+
+void sayOk() {
+  Serial.println("OK");
+  digitalWrite(STATUS_OK_PIN, HIGH);
 }
