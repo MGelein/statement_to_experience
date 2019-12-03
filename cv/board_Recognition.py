@@ -6,7 +6,7 @@ from Line import Line
 from Square import Square
 from Board import Board
 
-debug =  False
+debug = True
 
 
 class board_Recognition:

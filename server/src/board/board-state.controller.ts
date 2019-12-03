@@ -45,7 +45,7 @@ export class BoardStateController {
     this.lastCameraView = newBoard
 
     if (this.robotCommandsService.isMoving) {
-      return 'OK'
+      return 'Robot arm is moving'
     }
 
     // If there is a change to the currently stored board state
@@ -56,14 +56,14 @@ export class BoardStateController {
         this.sameBoardInARowCount += 1
         // console.log(`${this.sameBoardInARowCount + 1}...`)
               
-        return 'OK'
+        return String(this.sameBoardInARowCount - 1)
       } else if (!arraysEqual(newBoard, this.previousBoard)) {
         // If this board state has not been seen before
         this.previousBoard = newBoard
         this.sameBoardInARowCount = 0
         // console.log('1...')
 
-        return 'OK'
+        return '1'
       }
 
       // console.log('3... Executing...')
@@ -73,7 +73,8 @@ export class BoardStateController {
         console.log('Board has been initialised from the camera view.')
         this.sameBoardThreshold = 3
         this.boardService.update(newBoard)
-        return 'OK'
+
+        return 'Board has been initialised from the camera view'
       }
 
       let fromRow = -1
@@ -106,6 +107,8 @@ export class BoardStateController {
 
         this.move(oldBoard, move)
       }
+
+      return String(this.sameBoardInARowCount)
     }
     //  else {
     //   console.log('--')

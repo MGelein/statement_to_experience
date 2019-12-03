@@ -3,6 +3,7 @@ import numpy as np
 import requests
 import tensorflow.keras
 from PIL import Image
+import time
 
 from Camera import Camera
 from board_Recognition import board_Recognition
@@ -18,10 +19,10 @@ server_host = 'http://localhost:3000/'
 r = requests.get(url = server_host + 'board-state/square-positions/')
 squares = r.json()
 
-crop_x1 = 80
-crop_x2 = 560
+crop_x1 = 0
+crop_x2 = 1920
 crop_y1 = 0
-crop_y2 = 480
+crop_y2 = 1080
 
 camera_id = 0
 
@@ -43,7 +44,7 @@ white_pos = [
 while True:
     ret, frame = cap.read()
     if ret:
-        if frame.shape[0] != 480 or frame.shape[1] != 640:
+        if frame.shape[0] != 1080 or frame.shape[1] != 1920:
             print(frame.shape)
             cap = cv2.VideoCapture(camera_id)
             
@@ -109,7 +110,28 @@ while True:
 
         try:
             r = requests.post(url = server_host + 'board-state/', data = post_data)
-            # print(r.text)
+            print(r.text)
+
+            if r.text.isdigit() and int(r.text) == 2:
+                for pos in white_pos:
+                    row, col = pos.split(',')
+                    piece = board_state[int(row)][int(col)]
+
+                    if piece != ' ':
+                        coords = [int(coord) for coord in squares[pos]]
+
+                        x1 = coords[0]
+                        y1 = coords[1]
+                        x2 = coords[6]
+                        y2 = coords[7]
+
+                        square_cv = img[y1:y2, x1:x2]
+
+                        filename = str(int(time.time())) + '-' + pos + '.jpg'
+                        cv2.imwrite('img/' + piece + '/' + filename, square_cv)
+
+
+
         except requests.exceptions.ConnectionError:
             print('Failed to send board state to the server.')
 
