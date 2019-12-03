@@ -17,8 +17,10 @@ crop_y1 = 0
 crop_y2 = 480
 
 video = cv2.VideoCapture(0)
+# video.set(CV_CAP_PROP_FRAME_WIDTH, 640)
+# video.set(CV_CAP_PROP_FRAME_HEIGHT, 360)
 
-start = 0
+start = 150
 i = start
 
 while True:
@@ -39,7 +41,7 @@ while True:
     square = img[y1:y2, x1:x2]
 
     print('Saving ' + str(i) + '...')
-    cv2.imwrite('img/b/' + str(i) + '.png', square)
+    cv2.imwrite('img/w/' + str(i) + '.png', square)
     cv2.imshow('square', square)
 
     i += 1
