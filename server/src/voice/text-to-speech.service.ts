@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 const say = require('say')
 
-import { settings } from '../settings'
+import { StorageService } from '../storage.service'
 
 @Injectable()
 export class TextToSpeechService {
@@ -12,19 +12,21 @@ export class TextToSpeechService {
     queuedMessage: string | null = null
     queuedPriority: number = 0.0
 
-    constructor() {
+    constructor(private readonly storage: StorageService) {
         setTimeout(() => this.processQueue(), 3000)
     }
 
     say(text: string, overwrite: boolean = false, priority: number = 1.0): void {
-        if (settings.voice.enabled) {
-            if (priority >= this.queuedPriority) {
-                this.queuedMessage = text
-                this.queuedPriority = priority
+        this.storage.get('config/voice').then((voiceEnabled: number) => {
+            if (voiceEnabled == 1) {
+                if (priority >= this.queuedPriority) {
+                    this.queuedMessage = text
+                    this.queuedPriority = priority
+                }
+            } else {
+                console.log(`TTS: ${text}`)
             }
-        } else {
-            console.log(`TTS: ${text}`)
-        }
+        })
     }
 
     processQueue() {

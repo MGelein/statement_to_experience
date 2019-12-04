@@ -87,7 +87,7 @@ export class MinimaxService {
             }
 
             return maxTurn
-        }
+        })
     }
 
     evaluateRecursively(board: Board, depth: number, player: Player, maximizing: boolean, alpha: number, beta: number, alphaBetaPruning: boolean): number {

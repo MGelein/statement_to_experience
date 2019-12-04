@@ -8,9 +8,6 @@ export class BoardController {
   constructor(private readonly boardService: BoardService,
     private readonly gameStateService: GameStateService) {}
 
-  simulationInterval: any = null
-  simulationDelayMs: number = 1000
-
   debugLogging: boolean = false
 
   lastAIMoveAt: number = 0
@@ -25,7 +22,6 @@ export class BoardController {
   restart(): string {
     this.gameStateService.restart()
     this.boardService.restart()
-    clearInterval(this.simulationInterval)
     console.log('Command: Restart the game.')
 
     return 'OK'

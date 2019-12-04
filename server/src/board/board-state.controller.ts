@@ -36,6 +36,8 @@ export class BoardStateController {
 
   sameBoardThreshold: number = 6
 
+  lastAIMoveAt: number = 0
+
   @Post()
   update(@Body() state: any): string {
     const player: Player = 'w'
@@ -129,7 +131,7 @@ export class BoardStateController {
         const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(oldBoard, player)
 
         if (jumpsFromPreviousPosition.length !== 0) {
-          // this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
+          this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
           return
         }
       }
@@ -140,7 +142,14 @@ export class BoardStateController {
       const player = oldBoard[Number(move.fromRow)][Number(move.fromCol)] as Player
       this.gameStateService.addMove(player, move)
 
+      const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
+      if (this.lastAIMoveAt !== 0 && moveDuration > settings.voice.slowMoveTimeInSeconds) {
+        this.voiceService.triggerSlowMove(moveDuration)
+      }
+        
       this.aiService.play()
+
+      this.lastAIMoveAt = new Date().getTime()
     } else {
       console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is invalid, because: ${isValid}`)
       this.voiceService.triggerInvalidMove(isValid)

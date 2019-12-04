@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { BoardService } from '../board/board.service'
+import { BoardService, Turn } from '../board/board.service'
 import { MinimaxService } from './minimax.service'
 import { settings } from '../settings'
 import { GameStateService } from '../game/game-state.service'
@@ -17,24 +17,23 @@ export class AIService {
         private readonly robotCommandsService: RobotCommandsService) {}
 
     async play(): Promise<boolean> {
-        const turn = this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true)
-        
-        if (turn && turn.length > 0) {
-            console.log(turn)
-            this.robotCommandsService.applyTurn(turn)
-            
-            this.boardService.update(this.boardService.applyTurn(this.boardService.get(), turn))
+        return this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true).then((turn: Turn) => {
+            if (turn && turn.length > 0) {
+                this.robotCommandsService.applyTurn(turn)
+                
+                this.boardService.update(this.boardService.applyTurn(this.boardService.get(), turn))
 
-            if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
+                if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
+                    console.log('Game has ended')
+                    this.gameStateService.end()
+                }
+
+                return Promise.resolve(true)
+            } else {
                 console.log('Game has ended')
                 this.gameStateService.end()
             }
-
-            return Promise.resolve(true)
-        } else {
-            console.log('Game has ended')
-            this.gameStateService.end()
-        }
+        })
       }
 
 }
