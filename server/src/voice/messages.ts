@@ -1,4 +1,7 @@
 export const messages = {
+    gameSetupReady: () => [
+        `Alright, the board is set up, who wants to play against me?`
+    ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
         `This game is called checkers. I am an AI. You are a human. Victory for me is inevitable`,

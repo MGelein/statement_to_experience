@@ -10,12 +10,6 @@ const randomChance = (chance: number = 0.25): boolean => {
     return Math.random() < chance
 }
 
-/**
- * TODO: store a list of priorities per trigger
- * Store a list of queued messages
- * Every x (e.g. 0.5 seconds) check for new messages
- */
-
 @Injectable()
 export class VoiceService {
 
@@ -29,8 +23,8 @@ export class VoiceService {
     inGameInterval: any = null
     idleInterval: any = null
 
-    // TODO: we should count # of moves since every trigger last occurred, and then enforce a minimum move distance for some triggers
-    // E.g. the slow move trigger should only occur every 3 human moves at the most
+    triggerGameSetupReady() {
+        this.pick(messages.gameSetupReady(), 1.6)    }
 
     triggerGameStart() {
         this.pick(messages.gameStart(), 1.8)

@@ -34,6 +34,6 @@ export class AIService {
                 this.gameStateService.end()
             }
         })
-      }
+    }
 
 }
