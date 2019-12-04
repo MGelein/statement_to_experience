@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Post, Body } from '@nestjs/common'
+import { Controller, Get, Param } from '@nestjs/common'
+const loudness = require('loudness')
 
 import { StorageService } from './storage.service'
 
@@ -9,14 +10,24 @@ export class ConfigController {
 
     @Get(':key')
     get(@Param() params): Promise<string> {
-        return this.storage.get('config/' + params.key)
+        if (params.key === 'volume') {
+            return loudness.getVolume().then((volume: number) => {
+                return volume.toString()
+            })
+        } else {
+            return this.storage.get('config/' + params.key)
+        }
     }
 
     @Get(':key/:value')
     set(@Param() params): string {
-        console.log(`Config: Set ${params.key} to ${params.value}`)
-        this.storage.set('config/' + params.key, params.value)
-        return 'OK'
+        if (params.key === 'volume') {
+            loudness.setVolume(Number(params.value))
+        } else {
+            console.log(`Config: Set ${params.key} to ${params.value}`)
+            this.storage.set('config/' + params.key, params.value)
+            return 'OK'
+        }
     }
 
 }

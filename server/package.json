@@ -19,6 +19,7 @@
     "@nestjs/platform-socket.io": "6.0.4",
     "@nestjs/platform-ws": "6.0.4",
     "@nestjs/websockets": "6.0.4",
+    "loudness": "^0.3.0",
     "node-persist": "^3.0.4",
     "reflect-metadata": "0.1.13",
     "rimraf": "2.6.3",

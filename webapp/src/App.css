@@ -21,6 +21,11 @@
   color: white;
 }
 
+h1 {
+  border-bottom: 6px solid #3dff3d;
+  padding-bottom: 12px;
+}
+
 .App-link {
   color: #09d3ac;
 }
@@ -54,12 +59,15 @@ button {
   font-size: 14px;
   text-transform: uppercase;
   font-weight: bold;
-  margin-top: 12px;
+  margin-top: 36px;
   transition: 100ms linear border-color;
   background: none;
   cursor: pointer;
 }
 
 button:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  color: #3dff3d;
+  border-color: #3dff3d;
+  border-width: 2px;
+  padding: 11px 31px;
 }
