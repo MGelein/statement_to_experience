@@ -95,12 +95,14 @@ export class RobotCommandsService {
 
         // Drop it
         await this.lowerAndDrop()
-        await this.goHome()
+        // await this.goHome()
 
         // Remove the jumped pieces
         for (const piece of inbetweenPieces) {
             await this.deletePiece(piece.row, piece.col)
         }
+
+        if (!settings.robot.goHomeAfterEveryMove) await this.goHome()
 
         return Promise.resolve(true)
     }

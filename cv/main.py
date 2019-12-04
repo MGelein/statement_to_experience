@@ -28,6 +28,12 @@ camera_id = 0
 
 cap = cv2.VideoCapture(camera_id)
 
+fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
+cap.set(cv2.CAP_PROP_FOURCC, fourcc)
+
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+
 ix_to_piece = ['b', 'w', ' ']
 
 white_pos = [
@@ -44,24 +50,26 @@ white_pos = [
 while True:
     ret, frame = cap.read()
     if ret:
-        if frame.shape[0] != 1080 or frame.shape[1] != 1920:
+        if frame.shape[0] != 2160 or frame.shape[1] != 3840:
             print(frame.shape)
             cap = cv2.VideoCapture(camera_id)
             
             continue
 
         skip_frame = False
-        img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
+        img = frame
+        # img = cv2.resize(frame, (3840, 2160))
 
         # Inference
         i = 0
         for pos in white_pos:
             coords = [int(coord) for coord in squares[pos]]
 
-            x1 = coords[0]
-            y1 = coords[1]
-            x2 = coords[6]
-            y2 = coords[7]
+            # Times 2 because the calibration is run on 1920x1080
+            x1 = coords[0]*2
+            y1 = coords[1]*2
+            x2 = coords[6]*2
+            y2 = coords[7]*2
 
             square_cv = img[y1:y2, x1:x2]
             try:
@@ -110,9 +118,9 @@ while True:
 
         try:
             r = requests.post(url = server_host + 'board-state/', data = post_data)
-            print(r.text)
 
-            if r.text.isdigit() and int(r.text) == 2:
+            # Save the square images as the training dataset
+            if r.text.isdigit() and int(r.text) == 2:                
                 for pos in white_pos:
                     row, col = pos.split(',')
                     piece = board_state[int(row)][int(col)]
@@ -120,10 +128,10 @@ while True:
                     if piece != ' ':
                         coords = [int(coord) for coord in squares[pos]]
 
-                        x1 = coords[0]
-                        y1 = coords[1]
-                        x2 = coords[6]
-                        y2 = coords[7]
+                        x1 = coords[0]*2
+                        y1 = coords[1]*2
+                        x2 = coords[6]*2
+                        y2 = coords[7]*2
 
                         square_cv = img[y1:y2, x1:x2]
 
@@ -139,7 +147,7 @@ while True:
         if key == ord('q'):
             break
     else:
-        # print('No frame received...')
+        print('No frame received...')
         cap.release()
         cap.open(camera_id)
     

@@ -4,7 +4,7 @@ import { Player, Board, BoardService, Turn } from '../board/board.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { BoardEvaluationService } from './board-evaluation.service'
 import { VoiceService } from '../voice/voice.service'
-import { settings } from '../settings'
+import { StorageService } from '../storage.service'
 
 @Injectable()
 export class MinimaxService {
@@ -16,6 +16,7 @@ export class MinimaxService {
 
     constructor(
         private readonly boardService: BoardService, 
+        private readonly storage: StorageService,
         private readonly voiceService: VoiceService,
         private readonly moveGenerationService: MoveGenerationService,
         private readonly boardEvaluationService: BoardEvaluationService) {}
@@ -30,61 +31,63 @@ export class MinimaxService {
         return possibleTurns[Math.floor(Math.random() * possibleTurns.length)]
     }
 
-    runMinimax(board: Board, depth: number, player: Player, alphaBetaPruning: boolean = true): Turn {
+    runMinimax(board: Board, depth: number, player: Player, alphaBetaPruning: boolean = true): Promise<Turn> {
         const start = new Date()
 
-        if (Math.random() > settings.ai.strength) {
-            return this.runRandom(board, player)
-        }
-
-        const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, player)        
-        if (possibleTurns.length === 0) {
-            return []
-        }
-
-        let alpha = -Number.MAX_VALUE
-        let beta = Number.MAX_VALUE
-
-        let maxTurn: Turn = possibleTurns[0]
-        let maxScore = -Number.MAX_VALUE
-        possibleTurns.map((turn: Turn) => {
-            const newBoard = this.boardService.applyTurn(board, turn)
-
-            const score = this.evaluateRecursively(newBoard, depth - 1, player, false, alpha, beta, alphaBetaPruning)
-
-            if (score > maxScore) {
-                maxTurn = turn
-                maxScore = score
+        return this.storage.get('config/strength').then((strength: number) => {
+            if (Math.random() > strength) {
+                return this.runRandom(board, player)
             }
 
-            if (alphaBetaPruning) {
-                if (score > alpha) {
-                    alpha = score
-                }
-
-                if (alpha >= beta) {
-                    return maxTurn
-                }
+            const possibleTurns = this.moveGenerationService.getAllPossibleTurns(board, player)        
+            if (possibleTurns.length === 0) {
+                return []
             }
-        })
 
-        const end = new Date()
-        const duration = Math.round(((end.getTime() - start.getTime()) / 1000) * 100) / 100
+            let alpha = -Number.MAX_VALUE
+            let beta = Number.MAX_VALUE
 
-        const winChance = this.winningLeaveCount / this.totalLeaveCount
-        const winChanceDiff = Math.abs(winChance - this.lastWinChance)
-        const winChanceSign = this.lastWinChance > winChance ? '-' : '+'
-        console.log(`AI: win-chance=${Math.round(winChance * 100)}% (${winChanceSign}${Math.round(winChanceDiff * 100)}%), advantage=${maxScore}, eval-time=${duration}s (depth=${depth})`)
+            let maxTurn: Turn = possibleTurns[0]
+            let maxScore = -Number.MAX_VALUE
+            possibleTurns.map((turn: Turn) => {
+                const newBoard = this.boardService.applyTurn(board, turn)
 
-        this.winningLeaveCount = 0
-        this.totalLeaveCount = 0
-        this.lastWinChance = winChance
+                const score = this.evaluateRecursively(newBoard, depth - 1, player, false, alpha, beta, alphaBetaPruning)
 
-        if (maxScore === Number.MAX_VALUE) {
-            this.voiceService.triggerAICanWin()
+                if (score > maxScore) {
+                    maxTurn = turn
+                    maxScore = score
+                }
+
+                if (alphaBetaPruning) {
+                    if (score > alpha) {
+                        alpha = score
+                    }
+
+                    if (alpha >= beta) {
+                        return maxTurn
+                    }
+                }
+            })
+
+            const end = new Date()
+            const duration = Math.round(((end.getTime() - start.getTime()) / 1000) * 100) / 100
+
+            const winChance = this.winningLeaveCount / this.totalLeaveCount
+            const winChanceDiff = Math.abs(winChance - this.lastWinChance)
+            const winChanceSign = this.lastWinChance > winChance ? '-' : '+'
+            console.log(`AI: win-chance=${Math.round(winChance * 100)}% (${winChanceSign}${Math.round(winChanceDiff * 100)}%), eval-time=${duration}s (strength=${strength}, depth=${depth})`)
+
+            this.winningLeaveCount = 0
+            this.totalLeaveCount = 0
+            this.lastWinChance = winChance
+
+            if (maxScore === Number.MAX_VALUE) {
+                this.voiceService.triggerAICanWin()
+            }
+
+            return maxTurn
         }
-
-        return maxTurn
     }
 
     evaluateRecursively(board: Board, depth: number, player: Player, maximizing: boolean, alpha: number, beta: number, alphaBetaPruning: boolean): number {

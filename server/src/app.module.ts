@@ -16,6 +16,7 @@ import { RobotCommandsService } from './robot/robot-commands.service';
 import { ArmController } from './robot/arm.controller';
 import { BoardStateController } from './board/board-state.controller';
 import { AIService } from './ai/ai.service';
+import { ConfigController } from './config.controller';
 
 @Module({
   imports: [],
@@ -23,7 +24,8 @@ import { AIService } from './ai/ai.service';
     AppController,
     BoardController,
     ArmController,
-    BoardStateController
+    BoardStateController,
+    ConfigController
   ],
   providers: [
     StorageService,

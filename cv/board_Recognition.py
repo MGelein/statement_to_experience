@@ -74,7 +74,7 @@ class board_Recognition:
 		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 125, 1)
 		if debug:
 			# Show thresholded image
-			cv2.imshow("Adaptive Thresholding", adaptiveThresh)
+			cv2.imshow("Adaptive Thresholding", cv2.resize(adaptiveThresh, (640, 480)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -115,7 +115,7 @@ class board_Recognition:
 		cv2.drawContours(imgContours, [largest], -1, (0,0,0), 1)
 		if debug:
 			# Show image with contours drawn
-			cv2.imshow("Contours",imgContours)
+			cv2.imshow("Contours", cv2.resize(imgContours, (640, 480)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -136,7 +136,7 @@ class board_Recognition:
 
 		if debug:
 			# Show image with mask drawn
-			cv2.imshow("mask",extracted)
+			cv2.imshow("mask", cv2.resize(extracted, (640, 480)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 		return extracted
@@ -150,7 +150,7 @@ class board_Recognition:
 		edges = cv2.Canny(image, 100, 200, None, 3)
 		if debug:
 			#Show image with edges drawn
-			cv2.imshow("Canny", edges)
+			cv2.imshow("Canny", cv2.resize(edges, (640, 480)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -174,7 +174,7 @@ class board_Recognition:
 
 		if  debug:
 			# Show image with lines drawn
-			cv2.imshow("Lines",colorEdges)
+			cv2.imshow("Lines", cv2.resize(colorEdges, (640, 480)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -220,7 +220,7 @@ class board_Recognition:
 
 		if debug:
 			#Show image with corners circled
-			cv2.imshow("Corners",colorEdges)
+			cv2.imshow("Corners", cv2.resize(colorEdges, (640, 480)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -267,7 +267,7 @@ class board_Recognition:
 
 
 		#Show image with squares and ROI drawn and position labelled
-		cv2.imshow("Squares", colorEdges)
+		cv2.imshow("Squares", cv2.resize(colorEdges, (640, 480)))
 		cv2.waitKey(0)
 		cv2.destroyAllWindows()
 
