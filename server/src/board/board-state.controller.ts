@@ -15,6 +15,25 @@ const arraysEqual = (a1: any[], a2: any[]): boolean => {
   return JSON.stringify(a1) == JSON.stringify(a2)
 }
 
+const countDifferentPieces = (a1: any[], a2: any[]): number => {
+  let count = 0
+  for (let row = 0; row < Math.min(a1.length, a2.length); row++) {
+    for (let col = 0; col < Math.min(a1[row].length, a2[row].length); col++) {
+      if (a1[row][col] !== a2[row][col]) {
+        count += 1
+      }
+    }
+  }
+
+  return count
+}
+
+const printProgress = (progress: number, prefix: string = '') =>{
+  (process.stdout as any).clearLine();
+  (process.stdout as any).cursorTo(0);
+  (process.stdout as any).write(prefix + progress + '%');
+}
+
 @Controller('board-state')
 export class BoardStateController {
 
@@ -38,6 +57,8 @@ export class BoardStateController {
 
   lastAIMoveAt: number = 0
 
+  waitingForFirstMove: boolean = false
+
   @Post()
   update(@Body() state: any): string {
     const player: Player = 'w'
@@ -50,35 +71,39 @@ export class BoardStateController {
       return 'Robot arm is moving'
     }
 
+    if (!this.waitingForFirstMove && !this.gameStateService.state.startedAt) {
+      const diff = countDifferentPieces(newBoard, settings.board.initialBoard)
+
+      if (diff > 0) {
+        printProgress(Math.round(((24 - diff)/24) * 100), 'Waiting for board set up, currently at ')
+        return 'Waiting for the board to be set up correctly'
+      } else {
+        console.log('Board configured correctly, waiting for the first move...')
+        this.waitingForFirstMove = true
+
+        this.boardService.update(newBoard)
+      
+        return 'Board configured correctly, waiting for the first move'
+      }
+    }
+
     // If there is a change to the currently stored board state
     if (!arraysEqual(oldBoard, newBoard)) {
       if (arraysEqual(newBoard, this.previousBoard) && this.sameBoardInARowCount < (this.sameBoardThreshold - 1)) {
         // If this board state has been seen before, but the threshold hasnt been reached yet
         this.previousBoard = newBoard
         this.sameBoardInARowCount += 1
-        // console.log(`${this.sameBoardInARowCount + 1}...`)
               
         return String(this.sameBoardInARowCount - 1)
       } else if (!arraysEqual(newBoard, this.previousBoard)) {
         // If this board state has not been seen before
         this.previousBoard = newBoard
         this.sameBoardInARowCount = 0
-        // console.log('1...')
 
         return '1'
       }
 
-      // console.log('3... Executing...')
-
-      if (this.isFirst) {
-        this.isFirst = false
-        console.log('Board has been initialised from the camera view.')
-        this.sameBoardThreshold = 3
-        this.boardService.update(newBoard)
-
-        return 'Board has been initialised from the camera view'
-      }
-
+      // Detect the move
       let fromRow = -1
       let fromCol = -1
       let toRow = -1
@@ -112,9 +137,6 @@ export class BoardStateController {
 
       return String(this.sameBoardInARowCount)
     }
-    //  else {
-    //   console.log('--')
-    // }
 
     return 'OK'
   }
@@ -146,6 +168,8 @@ export class BoardStateController {
       if (this.lastAIMoveAt !== 0 && moveDuration > settings.voice.slowMoveTimeInSeconds) {
         this.voiceService.triggerSlowMove(moveDuration)
       }
+
+      this.waitingForFirstMove = false
         
       this.aiService.play()
 

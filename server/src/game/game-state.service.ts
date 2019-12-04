@@ -21,16 +21,18 @@ export class GameStateService {
 
     state: GameState = {
         moves: [],
-        endedAt: new Date(),
+        startedAt: null,
+        endedAt: null,
         winner: null
     }
 
     constructor(private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService) {}
 
     addMove(player: Player, move: Move) {
-        if (this.state.endedAt) {
+        if (!this.state.startedAt) {
             this.state = {
                 startedAt: new Date(),
+                endedAt: null,
                 moves: [{ player: player, move: move}]
             }
 
@@ -41,9 +43,13 @@ export class GameStateService {
     }
 
     restart() {
-        this.state.moves = []
-        this.state.endedAt = new Date()
-        this.state.winner = null
+        this.state = {
+            moves: [],
+            startedAt: null,
+            endedAt: null,
+            winner: null
+        }
+        
         this.voiceService.triggerGameEnd(this.state.winner)
     }
 
