@@ -1,3 +1,7 @@
+* {
+  outline: none;
+}
+
 .App {
   text-align: center;
 }
@@ -39,4 +43,23 @@
 
 .value {
   flex: 1;
+}
+
+button {
+  color: #CCC;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-top: 12px;
+  transition: 100ms linear border-color;
+  background: none;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: rgba(255, 255, 255, 0.2);
 }

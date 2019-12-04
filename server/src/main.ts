@@ -8,9 +8,11 @@ async function bootstrap() {
   // Set the initial board state
   app.get('BoardService').restart()
 
-  await app.listen(3000, () => {
-    console.log(`Server listening on localhost:3000`)
-    console.log(`Launched on ${new Date()}`)
+  require('dns').lookup(require('os').hostname(), async (err: any, internalIP: string, fam: any) => {
+    await app.listen(3000, () => {
+      console.log(`Server listening on ${internalIP}:3000`)
+      console.log(`Launched on ${new Date()}`)
+    })
   })
 }
 

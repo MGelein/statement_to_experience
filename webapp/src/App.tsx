@@ -3,30 +3,36 @@ import './App.css'
 
 import { useInterval } from './utils'
 
+const internalIP = '132.229.130.80'
+const host = `http://${internalIP}:3000/`
+
 const App: React.FC = () => {
 
   const [strength, setStrength] = useState(0.0)
   const [voiceEnabled, setVoiceEnabled] = useState(true)
 
   useInterval(async () => {
-    const response = await fetch('http://localhost:3000/config/strength')
+    const response = await fetch(host + 'config/strength')
     const newStrength = await response.text()
     setStrength(Number(newStrength))
 
-    const responseVoice = await fetch('http://localhost:3000/config/voice')
+    const responseVoice = await fetch(host + 'config/voice')
     const newVoiceEnabled = await responseVoice.text()
-    setVoiceEnabled(newVoiceEnabled == '1')
+    setVoiceEnabled(newVoiceEnabled === '1')
   }, 1000)
 
   const changeStrength = (event: any) => {
-    fetch('http://localhost:3000/config/strength/' + event.target.value / 100)
+    fetch(host + 'config/strength/' + event.target.value / 100)
     setStrength(event.target.value / 100)
   }
   
   const changeVoiceEnabled = (event: any) => {
-    console.log(event.target.checked)
-    fetch('http://localhost:3000/config/voice/' + (event.target.checked ? '1' : '0'))
+    fetch(host + 'config/voice/' + (event.target.checked ? '1' : '0'))
     setVoiceEnabled(event.target.checked)
+  }
+
+  const restart = () => {
+    fetch(host + 'board/restart')
   }
 
   return (
@@ -43,6 +49,8 @@ const App: React.FC = () => {
           <div className="key">Voice enabled</div>
           <div className="value"><input type="checkbox" name="voice" checked={voiceEnabled} onChange={changeVoiceEnabled} /></div>
         </div>
+
+        <button onClick={restart}>Restart</button>
       </header>
     </div>
   )
