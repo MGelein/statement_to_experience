@@ -62,12 +62,28 @@ void loadUIControls() {
   linActSlider = new Slider("Lin.Act", fontSize * 23, fontSize * 7, 800, 2300, sliderHeight);
   linActSlider.setValue(1200);
 
+  shoulderTrimSlider = new Slider("S.Trim", fontSize * 31, fontSize * 27, -100, 100, sliderHeight / 2);
+  shoulderTrimSlider.setValue(0);
+  elbowTrimSlider = new Slider("E.Trim", fontSize * 36.5, fontSize * 27, -100, 100, sliderHeight / 2);
+  elbowTrimSlider.setValue(0);
+  linActTrimSlider = new Slider("L.Trim", fontSize * 42, fontSize * 27, -100, 100, sliderHeight / 2);
+  linActTrimSlider.setValue(0);
+  shoulderTrimSlider.unitWidth = elbowTrimSlider.unitWidth = linActTrimSlider.unitWidth = 4;
+
   float toggleSize = fontSize * 5;
   directToggle = new Toggle("Direct Comm.", fontSize * 32, fontSize * 7, toggleSize);
   magnetToggle = new Toggle("Elec.Magnet", fontSize * 40, fontSize * 7, toggleSize);
 
   float buttonHeight = fontSize * 5;
   float buttonWidth = fontSize * 5;
+
+  saveTrimButton = new Button("Save Trim", fontSize * 40, fontSize * 17, buttonWidth, buttonHeight, new ClickHandler() {
+    public void press() {
+      thread("saveTrimValues");
+    }
+  }
+  );
+
   saveAsButton = new Button("Save As", fontSize * 32, fontSize * 17, buttonWidth, buttonHeight, new ClickHandler() {
     public void press() {
       saveDialogOpened = true;
@@ -138,6 +154,17 @@ class CMDButton extends Button {
   CMDButton(String name, float x, float y) {
     super(name, x, y, fontSize * 8, fontSize * 3, null);
     final String label = name;
+    //Special case for the trim buttons, please show on the labels
+    if (label.equals("trim")) {
+      String commandString = nameToCommand.get(label.trim());
+      commandString = commandString.substring(2, commandString.length() - 1);
+      String[] parts = commandString.split("_");
+      shoulderTrimSlider.setValue(parseInt(parts[0]));
+      elbowTrimSlider.setValue(parseInt(parts[1]));
+      linActTrimSlider.setValue(parseInt(parts[2]));
+    }
+
+
     clickHandler = new ClickHandler() {
       public void press() {
         if (Key.isDownOnce(SHIFT) && protectedCommands.indexOf(label) == -1) {
@@ -145,6 +172,17 @@ class CMDButton extends Button {
         } else {
           if (saveDialogOpened) return;
           loadStrings(SERVER + "arm/command/exec/" + label);
+          String commandString = nameToCommand.get(label);
+          String commandType = commandString.substring(0, 1);
+          String commandContent = commandString.substring(2, commandString.length() - 1);
+          if (commandType.startsWith("P")) {
+            String[] parts = commandContent.split("_");
+            shoulderSlider.setValue(parseInt(parts[0]));
+            elbowSlider.setValue(parseInt(parts[1]));
+          } else if (commandType.startsWith("M")) {
+          } else if (commandType.startsWith("L")) {
+            linActSlider.setValue(parseInt(commandContent));
+          };
         }
       }
     };
@@ -192,6 +230,7 @@ class Button {
 }
 
 class Slider {
+  int unitWidth = 8;
   String name;
   float x, y;
   float min, max;
@@ -211,7 +250,7 @@ class Slider {
 
   boolean isUnderMouse() {
     float hh = fontSize * 0.75f;
-    float hw = fontSize * 2f;
+    float hw = fontSize * (unitWidth / 4);
     float ps = trackLength * position;
     return mouseX > x - hw && mouseX < x + hw && mouseY > y  - hh + ps && mouseY < y + hh + ps;
   }
@@ -238,15 +277,15 @@ class Slider {
     line(x, y, x, y + trackLength);
     strokeWeight(focusSlider == this ? thickStroke : thinStroke);
     stroke(fgColor, 120);
-    rect(x, y + (trackLength - fontSize * 2f) / 2, fontSize * 8, trackLength + fontSize * 5f);
+    rect(x, y + (trackLength - fontSize * 2f) / 2, fontSize * unitWidth, trackLength + fontSize * 5f);
     strokeWeight(thinStroke);
     line(x, y, x, y + trackLength);
 
     stroke(fgColor);
     fill(bgColor);
-    rect(x, y - fontSize * 2.5f, fontSize * 8, fontSize * 2f);
+    rect(x, y - fontSize * 2.5f, fontSize * unitWidth, fontSize * 2f);
     strokeWeight(thinStroke * (pressed ? 2 : 1));
-    rect(x, y + trackLength * position, fontSize * 6, fontSize * 2f);
+    rect(x, y + trackLength * position, fontSize * (unitWidth * 0.75f), fontSize * 2f);
     fill(fgColor);
 
     String label = toPrecision(getValue(), 1) + "";

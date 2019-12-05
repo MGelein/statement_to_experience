@@ -3,6 +3,10 @@ Slider elbowSlider;
 Slider linActSlider;
 Slider focusSlider;
 
+Slider shoulderTrimSlider;
+Slider elbowTrimSlider;
+Slider linActTrimSlider;
+
 Toggle directToggle;
 Toggle magnetToggle;
 
@@ -10,6 +14,7 @@ Button saveAsButton;
 Button saveLinActButton;
 Button savePosButton;
 Button saveMagnetButton;
+Button saveTrimButton;
 
 Label servoLabel;
 Label buttonLabel;
@@ -33,14 +38,17 @@ void draw() {
   if (!commandListValid) requestCommandList();
   if (commandListUpdated) updateCommandUI();
 
-
-
   if (saveDialogOpened) {
     renderSaveOverlay();
   } else {
     shoulderSlider.render();
     elbowSlider.render();
     linActSlider.render();
+    
+    shoulderTrimSlider.render();
+    elbowTrimSlider.render();
+    linActTrimSlider.render();
+    saveTrimButton.render();
 
     directToggle.render();
     magnetToggle.render();
