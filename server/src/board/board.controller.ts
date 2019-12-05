@@ -35,6 +35,11 @@ export class BoardController {
     }).join('\n')
   }
 
+  @Get('win-rate')
+  winRates(): string {
+    return this.gameStateService.state.winRates.join(',')
+  }
+
   @Get('csv')
   @Header('Content-Type', 'text/plain')
   csv(): string {

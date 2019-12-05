@@ -5,6 +5,7 @@ import { MoveGenerationService } from '../game/move-generation.service'
 import { BoardEvaluationService } from './board-evaluation.service'
 import { VoiceService } from '../voice/voice.service'
 import { StorageService } from '../storage.service'
+import { GameStateService } from '../game/game-state.service'
 
 @Injectable()
 export class MinimaxService {
@@ -18,6 +19,7 @@ export class MinimaxService {
         private readonly boardService: BoardService, 
         private readonly storage: StorageService,
         private readonly voiceService: VoiceService,
+        private readonly gameStateService: GameStateService,
         private readonly moveGenerationService: MoveGenerationService,
         private readonly boardEvaluationService: BoardEvaluationService) {}
 
@@ -77,6 +79,8 @@ export class MinimaxService {
             const winChanceDiff = Math.abs(winChance - this.lastWinChance)
             const winChanceSign = this.lastWinChance > winChance ? '-' : '+'
             console.log(`AI: win-chance=${Math.round(winChance * 100)}% (${winChanceSign}${Math.round(winChanceDiff * 100)}%), eval-time=${duration}s (strength=${strength}, depth=${depth})`)
+
+            this.gameStateService.addWinRate(Math.round(winChance * 100))
 
             this.winningLeaveCount = 0
             this.totalLeaveCount = 0

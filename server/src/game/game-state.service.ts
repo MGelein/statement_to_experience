@@ -13,6 +13,7 @@ interface GameState {
     startedAt?: Date;
     endedAt?: Date;
     moves: PlayerMove[];
+    winRates: number[]
     winner?: Winner;
 }
 
@@ -21,6 +22,7 @@ export class GameStateService {
 
     state: GameState = {
         moves: [],
+        winRates: [0.64, 0.81, 0.31, 0.28, 0.21],
         startedAt: null,
         endedAt: null,
         winner: null
@@ -32,6 +34,7 @@ export class GameStateService {
         if (!this.state.startedAt) {
             this.state = {
                 startedAt: new Date(),
+                winRates: [],
                 endedAt: null,
                 moves: [{ player: player, move: move}]
             }
@@ -42,9 +45,16 @@ export class GameStateService {
         }
     }
 
+    addWinRate(winRate: number) {
+        let newState = this.state
+        newState.winRates = [...this.state.winRates, winRate]
+        this.state = newState
+    }
+
     restart() {
         this.state = {
             moves: [],
+            winRates: [],
             startedAt: null,
             endedAt: null,
             winner: null

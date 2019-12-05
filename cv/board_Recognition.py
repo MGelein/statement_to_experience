@@ -29,16 +29,16 @@ class board_Recognition:
 		# retake picture until board is initialized properly
 		while len(corners) != ((boardSize + 1) * (boardSize + 1)):
 
-			image = self.cam.takePicture()
+			img = self.cam.takePicture()
 
 			# Binarize the photo
-			adaptiveThresh,img = self.clean_Image(image)
+			# adaptiveThresh,img = self.clean_Image(image)
 
 			# Black out all pixels outside the border of the chessboard
-			mask = self.initialize_mask(adaptiveThresh,img)
+			# mask = self.initialize_mask(adaptiveThresh,img)
 
 			# Find edges
-			edges,colorEdges = self.findEdges(mask)
+			edges,colorEdges = self.findEdges(img)
 
 			# Find lines
 			horizontal, vertical = self.findLines(edges,colorEdges)
@@ -71,10 +71,10 @@ class board_Recognition:
 
 		# Setting all pixels above the threshold value to white and those below to black
 		# Adaptive thresholding is used to combat differences of illumination in the picture
-		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 125, 1)
+		adaptiveThresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 251, -10)
 		if debug:
 			# Show thresholded image
-			cv2.imshow("Adaptive Thresholding", cv2.resize(adaptiveThresh, (640, 480)))
+			cv2.imshow("Adaptive Thresholding", cv2.resize(adaptiveThresh, (640, 360)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -115,7 +115,7 @@ class board_Recognition:
 		cv2.drawContours(imgContours, [largest], -1, (0,0,0), 1)
 		if debug:
 			# Show image with contours drawn
-			cv2.imshow("Contours", cv2.resize(imgContours, (640, 480)))
+			cv2.imshow("Contours", cv2.resize(imgContours, (640, 360)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -136,7 +136,7 @@ class board_Recognition:
 
 		if debug:
 			# Show image with mask drawn
-			cv2.imshow("mask", cv2.resize(extracted, (640, 480)))
+			cv2.imshow("mask", cv2.resize(extracted, (640, 360)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 		return extracted
@@ -150,7 +150,7 @@ class board_Recognition:
 		edges = cv2.Canny(image, 100, 200, None, 3)
 		if debug:
 			#Show image with edges drawn
-			cv2.imshow("Canny", cv2.resize(edges, (640, 480)))
+			cv2.imshow("Canny", cv2.resize(edges, (640, 360)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -174,7 +174,7 @@ class board_Recognition:
 
 		if  debug:
 			# Show image with lines drawn
-			cv2.imshow("Lines", cv2.resize(colorEdges, (640, 480)))
+			cv2.imshow("Lines", cv2.resize(colorEdges, (640, 360)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -220,7 +220,7 @@ class board_Recognition:
 
 		if debug:
 			#Show image with corners circled
-			cv2.imshow("Corners", cv2.resize(colorEdges, (640, 480)))
+			cv2.imshow("Corners", cv2.resize(colorEdges, (640, 360)))
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
 
@@ -267,7 +267,7 @@ class board_Recognition:
 
 
 		#Show image with squares and ROI drawn and position labelled
-		cv2.imshow("Squares", cv2.resize(colorEdges, (640, 480)))
+		cv2.imshow("Squares", cv2.resize(colorEdges, (640, 360)))
 		cv2.waitKey(0)
 		cv2.destroyAllWindows()
 

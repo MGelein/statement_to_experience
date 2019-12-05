@@ -21,6 +21,11 @@
   color: white;
 }
 
+.chart-wrapper {
+  display: block;
+  width: 300px;
+}
+
 h1 {
   border-bottom: 6px solid #3dff3d;
   padding-bottom: 12px;
@@ -32,7 +37,7 @@ h1 {
 
 .setting {
   display: flex;
-  width: 300px;
+  width: 400px;
 }
 
 .key {
@@ -42,12 +47,17 @@ h1 {
   text-transform: uppercase;
   text-align: left;
   margin-right: 8px;
-  height: 20px;
+  height: 30px;
   padding: 10px 0;
 }
 
 .value {
   flex: 1;
+}
+
+.chart-wrapper {
+  max-width: 130px;
+  margin-left: 30px;
 }
 
 button {

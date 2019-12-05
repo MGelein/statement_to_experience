@@ -1,15 +1,30 @@
 import React, { useState } from 'react'
 import './App.css'
 
+import { Chart } from './Chart'
+
 import { useInterval } from './utils'
 
 const internalIP = '132.229.130.80'
 const host = `http://${internalIP}:3000/`
 
+const randomArray = (total = 10) => {
+  let data = []
+  for (let element = 0; element < total; element++) {
+    const y = Math.floor(Math.random() * 50) + 50
+    const obj = {
+      x: element,
+      y
+    }
+    data.push(obj)
+  }
+  return data
+}
+
 const App: React.FC = () => {
 
   const [strength, setStrength] = useState(0.0)
-  const [voiceEnabled, setVoiceEnabled] = useState(true)
+  // const [voiceEnabled, setVoiceEnabled] = useState(true)
   const [volume, setVolume] = useState(0)
 
   useInterval(async () => {
@@ -17,9 +32,9 @@ const App: React.FC = () => {
     const newStrength = await response.text()
     setStrength(Number(newStrength))
 
-    const responseVoice = await fetch(host + 'config/voice')
-    const newVoiceEnabled = await responseVoice.text()
-    setVoiceEnabled(newVoiceEnabled === '1')
+    // const responseVoice = await fetch(host + 'config/voice')
+    // const newVoiceEnabled = await responseVoice.text()
+    // setVoiceEnabled(newVoiceEnabled === '1')
 
     const responseVolume = await fetch(host + 'config/volume')
     const newVolume = await responseVolume.text()
@@ -31,10 +46,10 @@ const App: React.FC = () => {
     setStrength(event.target.value / 100)
   }
   
-  const changeVoiceEnabled = (event: any) => {
-    fetch(host + 'config/voice/' + (event.target.checked ? '1' : '0'))
-    setVoiceEnabled(event.target.checked)
-  }
+  // const changeVoiceEnabled = (event: any) => {
+  //   fetch(host + 'config/voice/' + (event.target.checked ? '1' : '0'))
+  //   setVoiceEnabled(event.target.checked)
+  // }
 
   const changeVolume = (event: any) => {
     fetch(host + 'config/volume/' + event.target.value)
@@ -51,14 +66,23 @@ const App: React.FC = () => {
         <h1>Shallow Green</h1>
 
         <div className="setting">
+          <div className="key">Win rate: &nbsp; 81% (+3)</div>
+          <div className="value">
+            <div className="chart-wrapper">
+              <Chart data={randomArray()} color='#3dff3d' svgHeight={100} svgWidth={300} />
+            </div>
+          </div>
+        </div>
+
+        <div className="setting">
           <div className="key">Strength</div>
           <div className="value"><input type="range" min="0" max="100" value={strength * 100} onChange={changeStrength} /></div>
         </div>
 
-        <div className="setting">
+        {/* <div className="setting">
           <div className="key">Voice enabled</div>
           <div className="value"><input type="checkbox" name="voice" checked={voiceEnabled} onChange={changeVoiceEnabled} /></div>
-        </div>
+        </div> */}
 
         <div className="setting">
           <div className="key">Volume</div>
