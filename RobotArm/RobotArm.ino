@@ -42,7 +42,7 @@ const int STATUS_OK_PIN = A5;
 
 //The variables used for the acceleration
 int baseAcc = 2;
-const int ELBOW_MULT = 2;
+const int ELBOW_MULT = 1;
 const int LINACT_MULT = 4;
 int elbowAcc = baseAcc * ELBOW_MULT;
 int linactAcc = baseAcc * LINACT_MULT;
@@ -96,7 +96,7 @@ byte numsRead = 0;
 bool firstMove = false;
 bool randomLedStatus = false;
 
-const int FPS_INTERVAL = 1000;
+const int FPS_INTERVAL = 10000;
 int accumulator = 0;
 unsigned long lastFrame = 0;
 unsigned long now = 0;
@@ -229,7 +229,7 @@ int getLinMovement(int diff, int acc) {
 void endMove() {
   if (!moveDone) {
     moveDone = true;
-    Serial.println("OK");
+    sayOk();
   }
 }
 
