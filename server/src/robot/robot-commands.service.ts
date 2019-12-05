@@ -25,6 +25,8 @@ export class RobotCommandsService {
             this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
                 if (err) {
                   console.warn('Error: ', err.message)
+                }else{
+                    this.sendSavedTrim();
                 }
               })
             this.port.on("readable", () =>{
@@ -105,6 +107,11 @@ export class RobotCommandsService {
         if (!settings.robot.goHomeAfterEveryMove) await this.goHome()
 
         return Promise.resolve(true)
+    }
+
+    async sendSavedTrim(): Promise<boolean> {
+        await this.queueSavedCommand("trim");
+        return Promise.resolve(true);
     }
 
     async deletePiece(row: number, col: number): Promise<boolean> {
