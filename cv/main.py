@@ -19,18 +19,15 @@ server_host = 'http://localhost:3000/'
 r = requests.get(url = server_host + 'board-state/square-positions/')
 squares = r.json()
 
-crop_x1 = 0
-crop_x2 = 1920
-crop_y1 = 0
-crop_y2 = 1080
+crop_x1 = int(180 * 6)
+crop_x2 = int(445 * 6)
+crop_y1 = int(17 * 6)
+crop_y2 = int(275 * 6)
 
-camera_id = 0
-
+camera_id = 1
 cap = cv2.VideoCapture(camera_id)
-
 fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
 cap.set(cv2.CAP_PROP_FOURCC, fourcc)
-
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
 
@@ -57,7 +54,7 @@ while True:
             continue
 
         skip_frame = False
-        img = frame
+        img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
         # img = cv2.resize(frame, (3840, 2160))
 
         # Inference

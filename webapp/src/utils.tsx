@@ -19,3 +19,11 @@ export const useInterval = (callback: any, delay: number) => {
     }
   }, [delay])
 }
+
+export const debounce = (fn: any, delay: number) => {
+  let timeoutId: number;
+  return function(...args: any) {
+    clearInterval(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(args), delay); // this, 
+  };
+};

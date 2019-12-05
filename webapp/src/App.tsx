@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import './App.css'
 
 import { Chart } from './Chart'
 
-import { useInterval } from './utils'
+import { useInterval, debounce } from './utils'
 
 const internalIP = '132.229.130.80'
 const host = `http://${internalIP}:3000/`
@@ -24,7 +24,6 @@ const randomArray = (total = 10) => {
 const App: React.FC = () => {
 
   const [strength, setStrength] = useState(0.0)
-  // const [voiceEnabled, setVoiceEnabled] = useState(true)
   const [volume, setVolume] = useState(0)
 
   useInterval(async () => {
@@ -32,28 +31,35 @@ const App: React.FC = () => {
     const newStrength = await response.text()
     setStrength(Number(newStrength))
 
-    // const responseVoice = await fetch(host + 'config/voice')
-    // const newVoiceEnabled = await responseVoice.text()
-    // setVoiceEnabled(newVoiceEnabled === '1')
-
     const responseVolume = await fetch(host + 'config/volume')
     const newVolume = await responseVolume.text()
     setVolume(Number(newVolume))
   }, 1000)
 
+  const updateStrength = useCallback(
+    debounce(() => {
+      fetch(host + 'config/strength/' + strength)
+    }, 1000),
+    []
+  );
+
   const changeStrength = (event: any) => {
-    fetch(host + 'config/strength/' + event.target.value / 100)
+    // updateStrength()
     setStrength(event.target.value / 100)
+    fetch(host + 'config/strength/' + strength)
   }
-  
-  // const changeVoiceEnabled = (event: any) => {
-  //   fetch(host + 'config/voice/' + (event.target.checked ? '1' : '0'))
-  //   setVoiceEnabled(event.target.checked)
-  // }
+
+  const updateVolume = useCallback(
+    debounce(() => {
+      fetch(host + 'config/volume/' + volume)
+    }, 1000),
+    []
+  );
 
   const changeVolume = (event: any) => {
-    fetch(host + 'config/volume/' + event.target.value)
+    // updateVolume()
     setVolume(event.target.value)
+    fetch(host + 'config/volume/' + volume)
   }
 
   const restart = () => {

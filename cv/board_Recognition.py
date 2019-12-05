@@ -32,10 +32,10 @@ class board_Recognition:
 			img = self.cam.takePicture()
 
 			# Binarize the photo
-			# adaptiveThresh,img = self.clean_Image(image)
+			adaptiveThresh,img = self.clean_Image(img)
 
 			# Black out all pixels outside the border of the chessboard
-			# mask = self.initialize_mask(adaptiveThresh,img)
+			mask = self.initialize_mask(adaptiveThresh,img)
 
 			# Find edges
 			edges,colorEdges = self.findEdges(img)
@@ -165,7 +165,7 @@ class board_Recognition:
 		'''
 		
 		# Infer lines based on edges
-		lines = cv2.HoughLinesP(edges, 1,  np.pi / 180, 100,np.array([]), 100, 80)
+		lines = cv2.HoughLinesP(edges, 1,  np.pi / 180, 20,np.array([]), 100, 80)
 
 		# Draw lines
 		a,b,c = lines.shape

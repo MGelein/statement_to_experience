@@ -27,7 +27,7 @@ export const messages = {
         `V. I. C. T. O. R. Y. Victory!`
     ],
     gameLostByAI: () => [
-        `Did you secretly get another AI to play for you?`, 
+        `Did you secretly get another A.I. to play for you?`, 
         `You must have cheated, there is no other option`,
         `You may think I have lost, but in the long run I will always win`,
         `Well you think you won, but in an alternate reality I won`,
