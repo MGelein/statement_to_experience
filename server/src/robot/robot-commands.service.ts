@@ -22,7 +22,7 @@ export class RobotCommandsService {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
             const path = ports[ports.length-1].path
 
-            this.port = new SerialPort(path, {baudRate: 115200}, (err: any) => {
+            this.port = new SerialPort(path, {baudRate: 9600}, (err: any) => {
                 if (err) {
                   console.warn('Error: ', err.message)
                 }else{
