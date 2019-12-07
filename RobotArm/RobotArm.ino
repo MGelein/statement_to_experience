@@ -130,7 +130,7 @@ void setup() {
   updateServos();
 
   //Set up serial connection
-  Serial.begin(115200);
+  Serial.begin(9600);
   //Set up the pins in the correct pin mode
   pinMode(MAGNET_PIN, OUTPUT);
   pinMode(STATUS_MAGNET_PIN, OUTPUT);
