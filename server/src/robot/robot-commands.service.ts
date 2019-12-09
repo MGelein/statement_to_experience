@@ -55,8 +55,8 @@ export class RobotCommandsService {
                 setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
             }
             
-        }
-        else if (!line.startsWith('FPS ') && this.debugLogging) console.log('Arduino: ' + line)
+        } // !line.startsWith('FPS ') && 
+        else if (this.debugLogging) console.log('Arduino: ' + line)
     }
 
     async applyTurn(turn: Move[]): Promise<boolean> {

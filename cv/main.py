@@ -19,7 +19,7 @@ server_host = 'http://localhost:3000/'
 r = requests.get(url = server_host + 'board-state/square-positions/')
 squares = r.json()
 
-crop_x1 = int(180 * 6)
+crop_x1 = int(190 * 6)
 crop_x2 = int(445 * 6)
 crop_y1 = int(17 * 6)
 crop_y2 = int(275 * 6)
