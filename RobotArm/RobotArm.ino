@@ -42,7 +42,7 @@ const int STATUS_OK_PIN = A5;
 
 //The variables used for the acceleration
 int baseAcc = 2;
-const int ELBOW_MULT = 2;
+const int ELBOW_MULT = 1;
 const int LINACT_MULT = 4;
 int elbowAcc = baseAcc * ELBOW_MULT;
 int linactAcc = baseAcc * LINACT_MULT;
@@ -89,14 +89,12 @@ const byte CMD_ACC = 2;
 const byte CMD_TRIM = 3;
 const byte CMD_POS = 4;
 const byte CMD_LIN = 5;
-const byte CMD_EASE = 6;
-const byte CMD_HOME = 7;
 byte commandMode = CMD_NONE;
 byte numsRead = 0;
 bool firstMove = false;
 bool randomLedStatus = false;
 
-const int FPS_INTERVAL = 1000;
+const int FPS_INTERVAL = 10000;
 int accumulator = 0;
 unsigned long lastFrame = 0;
 unsigned long now = 0;
@@ -132,7 +130,7 @@ void setup() {
   updateServos();
 
   //Set up serial connection
-  Serial.begin(115200);
+  Serial.begin(9600);
   //Set up the pins in the correct pin mode
   pinMode(MAGNET_PIN, OUTPUT);
   pinMode(STATUS_MAGNET_PIN, OUTPUT);
@@ -152,11 +150,11 @@ void loop() {
   digitalWrite(STATUS_LINACT_PIN, msLinAct == targetLinAct ? LOW : HIGH);
 
   //Check the random blinky light
-  if(random(100) == 1){
+  if (random(100) == 1) {
     randomLedStatus = !randomLedStatus;
     digitalWrite(STATUS_RANDOM_PIN, randomLedStatus ? HIGH : LOW);
   }
-  
+
   //Check if we're done moving
   if (targetShoulder == msShoulder && targetElbow == msElbow && targetLinAct == msLinAct) {
     endMove();
@@ -188,13 +186,10 @@ void loop() {
   lastFrame = now;
   if (accumulator > FPS_INTERVAL) logFPS();
 
-  //Check if COMMAND_TIMEOUT has passed
-  if (commandMode != CMD_NONE && now - startTimeCommand > COMMAND_TIMEOUT) {
-    endCommandMode();
-  }
-
   //Check if any bytes can be read from the serial monitor
-  if (Serial.available() > 0) parseSerial();
+  if (Serial.available() > 0) {
+    parseSerial(Serial.readStringUntil('\n'));
+  }
 
   //Add a tiny bit of delay to allow for serial to buffer and stuff
   delay(5);
@@ -229,7 +224,7 @@ int getLinMovement(int diff, int acc) {
 void endMove() {
   if (!moveDone) {
     moveDone = true;
-    Serial.println("OK");
+    sayOk();
   }
 }
 
@@ -252,97 +247,80 @@ void logFPS() {
 /**
    Parse the serial input, try to find the command format
 */
-void parseSerial() {
-  //If no command mode has been set yet
-  if (commandMode == CMD_NONE) {
-    char c = Serial.read();
-    if (c == 'M' || c == 'm') {
-      commandMode = CMD_MAGNET;
-    } else if (c == 'T' || c == 't') {
-      commandMode = CMD_TRIM;
-    } else if (c == 'A' || c == 'a') {
-      commandMode = CMD_ACC;
-    } else if (c == 'P' || c == 'p') {
-      commandMode = CMD_POS;
-    } else if (c == 'L' || c == 'l') {
-      commandMode = CMD_LIN;
-    } else if (c == 'E' || c == 'e') {
-      commandMode = CMD_EASE;
-    } else if (c == 'H' || c == 'h') {
-      commandMode = CMD_HOME;
-    }
-    //If we just found the start of a command, ignore the next char (whether it is a opening bracket or a space)
-    if (commandMode != CMD_NONE) {
-      Serial.read();
-      startTimeCommand = millis();
-      digitalWrite(STATUS_SERIAL_PIN, HIGH);
-      digitalWrite(STATUS_OK_PIN, LOW);
-    }
-  } else {
-    //We are already in a command mode, first check if we need to close this command
-    if (Serial.peek() == ')' || Serial.peek() == ';') {
-      endCommandMode();
-      return;
-    }
+void parseSerial(String line) {
+  if (line.length() < 4) return;
+  line.toUpperCase();
+  char c = line.charAt(0);
+  int braceStart = line.indexOf('(');
+  int braceEnd = line.indexOf(')');
+  String content = line.substring(braceStart + 1, braceEnd);
 
-    //If we make it to here, we can at least parse the num
-    int num = Serial.parseInt();
-    numsRead ++;
-    if (commandMode == CMD_POS) {
-      if (numsRead == 1) {
-        targetShoulder = num;
-        changeShoulder = (targetShoulder - msShoulder) / 2;
-        targetShoulder = constrain(targetShoulder, MIN_SHOULDER, MAX_SHOULDER);
-        halfwayShoulder = (msShoulder + targetShoulder) / 2;
-      } else if (numsRead == 2) {
-        targetElbow = num;
-        changeElbow = (targetElbow - msElbow) / 2;
-        targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
-        halfwayElbow = (msElbow + targetElbow) / 2;
-      }
-    } else if (commandMode == CMD_LIN) {
-      if (numsRead == 1) {
-        targetLinAct = num;
-        changeLinAct = (targetLinAct - msLinAct) / 2;
-        targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
-        halfwayLinAct = (msLinAct + targetLinAct) / 2;
-      }
-    } else if (commandMode == CMD_MAGNET) {
-      if (numsRead == 1) {
-        //Write the magnet to the correct state immediately
-        digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
-        digitalWrite(STATUS_MAGNET_PIN, num > 0 ? HIGH : LOW);
-        magnetState = num;
-      }
-    } else if (commandMode == CMD_TRIM) {
-      if (numsRead == 1) {
-        trimShoulder = num;
-      } else if (numsRead == 2) {
-        trimElbow = num;
-      } else if (numsRead == 3) {
-        trimLinAct = num;
-      }
-    } else if (commandMode == CMD_ACC) {
-      if (numsRead == 1) {
-        baseAcc = num;
-        elbowAcc = num * ELBOW_MULT;
-        linactAcc = num * LINACT_MULT;
-      }
-    } else if (commandMode == CMD_EASE) {
-      if (numsRead == 1) {
-        easing = num > 0 ? true : false;
-      }
-    } else if (commandMode == CMD_HOME) {
-      saveHome();
-    }
+  digitalWrite(STATUS_SERIAL_PIN, HIGH);
+  digitalWrite(STATUS_OK_PIN, LOW);
+
+  if (c == 'M' || c == 'm') {
+    commandMode = CMD_MAGNET;
+  } else if (c == 'T' || c == 't') {
+    commandMode = CMD_TRIM;
+  } else if (c == 'A' || c == 'a') {
+    commandMode = CMD_ACC;
+  } else if (c == 'P' || c == 'p') {
+    commandMode = CMD_POS;
+  } else if (c == 'L' || c == 'l') {
+    commandMode = CMD_LIN;
   }
+
+  int num, num2, num3;
+  //Now that we have set commandmode, let's parse the rest of the command
+  if (commandMode == CMD_POS) {
+    int splitIndex = content.indexOf('_');
+    num = content.substring(0, splitIndex).toInt();
+    num2 = content.substring(splitIndex + 1).toInt();
+    targetShoulder = num;
+    changeShoulder = (targetShoulder - msShoulder) / 2;
+    targetShoulder = constrain(targetShoulder, MIN_SHOULDER, MAX_SHOULDER);
+    halfwayShoulder = (msShoulder + targetShoulder) / 2;
+    targetElbow = num2;
+    changeElbow = (targetElbow - msElbow) / 2;
+    targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
+    halfwayElbow = (msElbow + targetElbow) / 2;
+  } else if (commandMode == CMD_LIN) {
+    num = content.toInt();
+    targetLinAct = num;
+    changeLinAct = (targetLinAct - msLinAct) / 2;
+    targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
+    halfwayLinAct = (msLinAct + targetLinAct) / 2;
+  } else if (commandMode == CMD_MAGNET) {
+    num = content.toInt();
+    //Write the magnet to the correct state immediately
+    digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
+    digitalWrite(STATUS_MAGNET_PIN, num > 0 ? HIGH : LOW);
+    magnetState = num;
+  } else if (commandMode == CMD_TRIM) {
+    int iUnderscore1 = content.indexOf('_');
+    int iUnderscore2 = content.lastIndexOf('_');
+    Serial.println(content.substring(0, iUnderscore1));
+    Serial.println(content.substring(iUnderscore1 + 1, iUnderscore2));
+    Serial.println(content.substring(iUnderscore2 + 1));
+    
+    num = content.substring(0, iUnderscore1).toInt();
+    num2 = content.substring(iUnderscore1 + 1, iUnderscore2).toInt();
+    num3 = content.substring(iUnderscore2 + 1).toInt();
+    trimShoulder = num;
+    trimElbow = num2;
+    trimLinAct = num3;
+  } else if (commandMode == CMD_ACC) {
+    num = content.toInt();
+    baseAcc = num;
+    elbowAcc = baseAcc * ELBOW_MULT;
+    linactAcc = baseAcc * LINACT_MULT;
+  }
+  endCommandMode();
 }
 
 void endCommandMode() {
   logReceivedCommand();
   commandMode = CMD_NONE;
-  numsRead = 0;
-  Serial.read();
   digitalWrite(STATUS_SERIAL_PIN, LOW);
 }
 
@@ -382,13 +360,6 @@ void logReceivedCommand() {
     Serial.print(") L(");
     Serial.print(String(trimLinAct));
     Serial.println(")");
-    sayOk();
-  } else if (commandMode == CMD_EASE) {
-    Serial.print("EASING ");
-    Serial.println(easing ? "ON" : "OFF");
-    sayOk();
-  } else if (commandMode == CMD_HOME) {
-    Serial.println("SET HOME");
     sayOk();
   }
 }

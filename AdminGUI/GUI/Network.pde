@@ -8,6 +8,14 @@ int lastElbowVal = 0;
 int lastMagnetVal = 0;
 String commandToRemove = "";
 boolean firstDirect = false;
+HashMap<String, String> nameToCommand = new HashMap<String, String>();
+
+void saveTrimValues(){
+  int shoulderT = (int) shoulderTrimSlider.getValue();
+  int elbowT = (int) elbowTrimSlider.getValue();
+  int linActT = (int) linActTrimSlider.getValue();
+  loadStrings(SERVER + "arm/command/save/trim/T(" + shoulderT + "_" + elbowT + "_" + linActT + ")");
+}
 
 void requestDeleteCommand(String name){
   commandToRemove = name;
@@ -58,9 +66,12 @@ void requestCommandList(){
 
 void getCommandList(){
   commands.clear();
+  nameToCommand.clear();
   String[] lines = loadStrings(SERVER + "arm/command/list/");
   for(String line : lines){
-    commands.append(line.split("\t")[0]);
+    String[] parts = line.split("\t");
+    commands.append(parts[0]);
+    nameToCommand.put(parts[0].trim(), parts[parts.length == 2 ? 1 : 2].trim());
   }
   commandListUpdated = true;
 }
