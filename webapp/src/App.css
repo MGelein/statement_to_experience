@@ -38,6 +38,7 @@ h1 {
 .setting {
   display: flex;
   width: 400px;
+  max-width: 80%;
 }
 
 .key {

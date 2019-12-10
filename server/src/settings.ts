@@ -53,7 +53,7 @@ export const settings = {
         ],
     },
     robot: {
-        goHomeAfterEveryMove: false,
+        goHomeAfterEveryMove: true,
         timeoutAfterEveryCommandMs: 200
     }
 }

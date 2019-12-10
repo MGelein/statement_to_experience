@@ -8,6 +8,14 @@ import time
 from Camera import Camera
 from board_Recognition import board_Recognition
 
+def boot_camera(camera_id = 1):
+    global cap
+    cap = cv2.VideoCapture(camera_id)
+    fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
+    cap.set(cv2.CAP_PROP_FOURCC, fourcc)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+
 # Initialize Keras
 np.set_printoptions(suppress=True)
 model = tensorflow.keras.models.load_model('data/keras_model.h5')
@@ -19,10 +27,12 @@ server_host = 'http://localhost:3000/'
 r = requests.get(url = server_host + 'board-state/square-positions/')
 squares = r.json()
 
-crop_x1 = int(180 * 6)
-crop_x2 = int(445 * 6)
-crop_y1 = int(17 * 6)
-crop_y2 = int(275 * 6)
+scaling_factor = 1 # 2 if 4k, 1 if 1080p
+
+crop_x1 = int(170 * 3 * scaling_factor)
+crop_x2 = int(430 * 3* scaling_factor)
+crop_y1 = int(7 * 3* scaling_factor)
+crop_y2 = int(265 * 3* scaling_factor)
 
 camera_id = 1
 cap = cv2.VideoCapture(camera_id)
@@ -30,6 +40,8 @@ fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
 cap.set(cv2.CAP_PROP_FOURCC, fourcc)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+
+boot_camera()
 
 ix_to_piece = ['b', 'w', ' ']
 
@@ -47,15 +59,14 @@ white_pos = [
 while True:
     ret, frame = cap.read()
     if ret:
-        if frame.shape[0] != 2160 or frame.shape[1] != 3840:
+        if frame.shape[0] != 1080 * scaling_factor or frame.shape[1] != 1920 * scaling_factor:
             print(frame.shape)
-            cap = cv2.VideoCapture(camera_id)
+            boot_camera()
             
             continue
 
         skip_frame = False
         img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
-        # img = cv2.resize(frame, (3840, 2160))
 
         # Inference
         i = 0
@@ -63,10 +74,10 @@ while True:
             coords = [int(coord) for coord in squares[pos]]
 
             # Times 2 because the calibration is run on 1920x1080
-            x1 = coords[0]*2
-            y1 = coords[1]*2
-            x2 = coords[6]*2
-            y2 = coords[7]*2
+            x1 = coords[0] * scaling_factor
+            y1 = coords[1] * scaling_factor
+            x2 = coords[6] * scaling_factor
+            y2 = coords[7] * scaling_factor
 
             square_cv = img[y1:y2, x1:x2]
             try:
@@ -145,8 +156,8 @@ while True:
             break
     else:
         print('No frame received...')
-        cap.release()
-        cap.open(camera_id)
+        
+        boot_camera()
     
 video.release()
 cv2.destroyAllWindows()
