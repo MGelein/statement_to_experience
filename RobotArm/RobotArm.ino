@@ -19,7 +19,7 @@ const int MAX_SHOULDER = 2300;
 const int MIN_SHOULDER = 600;
 const int MAX_ELBOW = 2200;
 const int MIN_ELBOW = 900;
-const int MAX_LINACT = 1500;
+const int MAX_LINACT = 2400;
 const int MIN_LINACT = 800;
 const float EASE_FACTOR = .02f;
 const int HOME_SHOULDER_ADDR = 0;
@@ -114,9 +114,9 @@ void setup() {
   EEPROM.get(HOME_ELBOW_ADDR, msElbow);
   EEPROM.get(HOME_LINACT_ADDR, msLinAct);
 
-  if (msShoulder == -1) msShoulder = 807;
-  if (msElbow == -1) msElbow = 1424;
-  if (msLinAct == -1) msLinAct = 800;
+  msShoulder = 807;
+  msElbow = 1424;
+  msLinAct = 800;
 
   //Setup the first move
   targetShoulder = msShoulder;
@@ -139,6 +139,8 @@ void setup() {
   pinMode(STATUS_LINACT_PIN, OUTPUT);
   pinMode(STATUS_SERIAL_PIN, OUTPUT);
   pinMode(STATUS_OK_PIN, OUTPUT);
+
+  parseSerial("P(807_1424)\n");
 }
 
 /**
@@ -254,6 +256,8 @@ void parseSerial(String line) {
   int braceStart = line.indexOf('(');
   int braceEnd = line.indexOf(')');
   String content = line.substring(braceStart + 1, braceEnd);
+  Serial.println(c);
+  Serial.println(content);
 
   digitalWrite(STATUS_SERIAL_PIN, HIGH);
   digitalWrite(STATUS_OK_PIN, LOW);
@@ -284,12 +288,14 @@ void parseSerial(String line) {
     changeElbow = (targetElbow - msElbow) / 2;
     targetElbow = constrain(targetElbow, MIN_ELBOW, MAX_ELBOW);
     halfwayElbow = (msElbow + targetElbow) / 2;
+    moveDone = false;
   } else if (commandMode == CMD_LIN) {
     num = content.toInt();
     targetLinAct = num;
     changeLinAct = (targetLinAct - msLinAct) / 2;
     targetLinAct = constrain(targetLinAct, MIN_LINACT, MAX_LINACT);
     halfwayLinAct = (msLinAct + targetLinAct) / 2;
+    moveDone = false;
   } else if (commandMode == CMD_MAGNET) {
     num = content.toInt();
     //Write the magnet to the correct state immediately
