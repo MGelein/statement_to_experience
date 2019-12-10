@@ -72,11 +72,13 @@ export class RobotCommandsService {
         // Move inbetween
         let inbetweenPieces: any[] = []
         for (let move of turn) {
+            if (settings.robot.goHomeAfterEveryMove) await this.goHome()
+
             const startPosition: string = move.toRow + "_" + move.toCol
             await this.queueSavedCommand(startPosition)
 
             if (turn.indexOf(move) !== turn.length -1) {
-                await this.setLinearActuator(true)
+                await this.setLinearActuator(true, move.toRow, move.toCol)
                 await this.setLinearActuator(false)
             }
 
@@ -91,20 +93,17 @@ export class RobotCommandsService {
                     inbetweenPieces.push({ row: move.fromRow + rowdir * steps, col: move.fromCol + coldir * steps })
                 }
             }
-
-            // board = board.applyMove(board, move.fromRow, move.fromCol, move.toRow, move.toCol)
         }
 
         // Drop it
         await this.lowerAndDrop()
-        // await this.goHome()
 
         // Remove the jumped pieces
         for (const piece of inbetweenPieces) {
             await this.deletePiece(piece.row, piece.col)
         }
 
-        if (!settings.robot.goHomeAfterEveryMove) await this.goHome()
+        if (settings.robot.goHomeAfterEveryMove) await this.goHome()
 
         return Promise.resolve(true)
     }
@@ -118,9 +117,10 @@ export class RobotCommandsService {
         const startPosition = row + "_" + col
         await this.queueSavedCommand(startPosition)
         await this.lowerAndPickup(row, col)
-        await this.movePieceOffBoard()
 
-        await this.lowerAndDrop()
+        await this.movePieceOffBoard()
+        await this.setMagnet(false)
+        
         if (settings.robot.goHomeAfterEveryMove) await this.goHome()
         
         return Promise.resolve(true)
@@ -144,7 +144,7 @@ export class RobotCommandsService {
     // }
 
     async lowerAndPickup(row: number, col: number): Promise<boolean> {
-        await this.setLinearActuator(true)
+        await this.setLinearActuator(true, row, col)
         await this.setMagnet(true)
         await this.moveAround(row, col)
         await this.setLinearActuator(false)
@@ -153,7 +153,7 @@ export class RobotCommandsService {
     }
 
     async movePieceOffBoard(): Promise<boolean> {
-        await this.queueSavedCommand('dropWhitePawn')
+        await this.queueSavedCommand('dropPiece')
 
         return Promise.resolve(true)
     }
@@ -203,8 +203,22 @@ export class RobotCommandsService {
         return Promise.resolve(true)
     }
 
-    async setLinearActuator(doLower: boolean): Promise<boolean> {
-        if (doLower) await this.queueSavedCommand("lowerLinAct")
+    async setLinearActuator(doLower: boolean, currentRow: number = 4, currentCol: number = 4): Promise<boolean> {
+        const positionLValueOffsets = [
+            [0, 100, 0, 120, 0, 140, 0, 160],
+            [100, 0, 120, 0, 140, 0, 160, 0],
+            [0, 80, 0, 100, 0, 120, 0, 140],
+            [80, 0, 100, 0, 120, 0, 140, 0],
+            [0, 60, 0, 80, 0, 100, 0, 120],
+            [40, 0, 60, 0, 100, 0, 140, 0],
+            [0, 40, 0, 80, 0, 140, 0, 140],
+            [0, 0, 60, 0, 100, 0, 160, 0]
+        ]
+
+        const baseLValue = 2200
+        const lValue = baseLValue + positionLValueOffsets[currentRow][currentCol]
+
+        if (doLower) await this.queueCommand(`L(${lValue})`)
         else await this.queueSavedCommand("raiseLinAct")
 
         return Promise.resolve(true)

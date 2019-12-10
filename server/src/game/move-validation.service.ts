@@ -26,9 +26,9 @@ export class MoveValidationService {
             return 'You cannot move to a non-empty cell'
         }
 
-        if (distanceRows != distanceCols || distanceRows === 0 || distanceCols === 0) {
-            return 'You have to move diagonally'
-        }
+        // if (distanceRows != distanceCols || distanceRows === 0 || distanceCols === 0) {
+        //     return 'You have to move diagonally'
+        // }
 
         // if (target.toLowerCase() === source.toLowerCase()) {
         //     return 'You cannot move to a cell with a piece from the same player'
