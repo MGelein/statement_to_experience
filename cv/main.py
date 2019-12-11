@@ -8,7 +8,9 @@ import time
 from Camera import Camera
 from board_Recognition import board_Recognition
 
-def boot_camera(camera_id = 0):
+from settings import *
+
+def boot_camera():
     global cap
     cap = cv2.VideoCapture(camera_id)
     fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
@@ -27,14 +29,6 @@ server_host = 'http://localhost:3000/'
 r = requests.get(url = server_host + 'board-state/square-positions/')
 squares = r.json()
 
-scaling_factor = 2 # 2 if 4k, 1 if 1080p
-
-crop_x1 = int(170 * 3 * scaling_factor)
-crop_x2 = int(430 * 3* scaling_factor)
-crop_y1 = int(7 * 3* scaling_factor)
-crop_y2 = int(265 * 3* scaling_factor)
-
-camera_id = 0
 cap = cv2.VideoCapture(camera_id)
 fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
 cap.set(cv2.CAP_PROP_FOURCC, fourcc)
@@ -66,7 +60,7 @@ while True:
             continue
 
         skip_frame = False
-        img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
+        img = frame[crop_y1 * scaling_factor:crop_y2 * scaling_factor, crop_x1 * scaling_factor:crop_x2 * scaling_factor]
 
         # Inference
         i = 0
