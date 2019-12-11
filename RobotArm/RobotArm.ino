@@ -49,7 +49,7 @@ int elbowAcc = baseAcc * ELBOW_MULT;
 int linactAcc = baseAcc * LINACT_MULT;
 
 //Used for ldr timing
-int ldrThreshold = 200;
+int ldrThreshold = 10;
 int lowTime = 0;
 bool sendReset = false;
 const int RESET_TIMEOUT = 3000;
