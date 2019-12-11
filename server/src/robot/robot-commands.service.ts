@@ -116,7 +116,7 @@ export class RobotCommandsService {
 
             // Pick up the king
             await this.queueSavedCommand('king_' + nextKingCount)
-            await this.lowerAndPickup()
+            await this.lowerAndPickup(4, 4, 2360)
 
             // Go to the right position
             const endPosition: string = turn[turn.length - 1].toRow + "_" + turn[turn.length - 1].toCol
@@ -154,8 +154,8 @@ export class RobotCommandsService {
         return Promise.resolve(true)
     }
 
-    async lowerAndPickup(row: number = 4, col: number = 4): Promise<boolean> {
-        await this.setLinearActuator(true, row, col)
+    async lowerAndPickup(row: number = 4, col: number = 4, customLValue: number = null): Promise<boolean> {
+        await this.setLinearActuator(true, row, col, customLValue)
         await this.setMagnet(true)
         await this.moveAround(row, col)
         await this.setLinearActuator(false)
@@ -214,10 +214,10 @@ export class RobotCommandsService {
         return Promise.resolve(true)
     }
 
-    async setLinearActuator(doLower: boolean, currentRow: number = 4, currentCol: number = 4): Promise<boolean> {
+    async setLinearActuator(doLower: boolean, currentRow: number = 4, currentCol: number = 4, customLValue: number = null): Promise<boolean> {
         const lValue = settings.board.baseLValue + settings.board.positionLValueOffsets[currentRow][currentCol]
 
-        if (doLower) await this.queueCommand(`L(${lValue})`)
+        if (doLower) await this.queueCommand(`L(${customLValue || lValue})`)
         else await this.queueSavedCommand("raiseLinAct")
 
         return Promise.resolve(true)

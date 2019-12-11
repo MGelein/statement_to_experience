@@ -18,11 +18,11 @@ export class AIService {
 
     async play(): Promise<boolean> {
         return this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true).then(async (turn: Turn) => {
-            if (turn && turn.length > 0) {
-                this.boardService.update(this.boardService.applyTurn(this.boardService.get(), turn))
-                
+            if (turn && turn.length > 0) {                
                 await this.robotCommandsService.applyTurn(turn)
                 
+                this.boardService.update(this.boardService.applyTurn(this.boardService.get(), turn))
+
                 if (this.boardEvaluationService.hasEnded(this.boardService.get())) {
                     console.log('Game has ended')
                     this.gameStateService.end()
