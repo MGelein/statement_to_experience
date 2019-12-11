@@ -16,6 +16,13 @@ Button savePosButton;
 Button saveMagnetButton;
 Button saveTrimButton;
 
+Button addShoulderButton;
+Button subShoulderButton;
+Button addElbowButton;
+Button subElbowButton;
+Button addLinActButton;
+Button subLinActButton;
+
 Label servoLabel;
 Label buttonLabel;
 Label presetLabel;
@@ -33,7 +40,6 @@ void setup() {
 void draw() {
   background(0);
 
-
   if (directToggle.value) sendDirect();
   if (!commandListValid) requestCommandList();
   if (commandListUpdated) updateCommandUI();
@@ -49,6 +55,13 @@ void draw() {
     elbowTrimSlider.render();
     linActTrimSlider.render();
     saveTrimButton.render();
+    
+    addShoulderButton.render();
+    subShoulderButton.render();
+    addElbowButton.render();
+    subElbowButton.render();
+    addLinActButton.render();
+    subLinActButton.render();
 
     directToggle.render();
     magnetToggle.render();
@@ -68,6 +81,18 @@ void draw() {
     if (Key.isDown(UP)) focusSlider.setValue(focusSlider.getValue() + 5);
     if (Key.isDown(DOWN)) focusSlider.setValue(focusSlider.getValue() - 5);
   }
+}
+
+void addShoulder(int amt){
+  shoulderSlider.setValue(shoulderSlider.getValue() + amt);
+}
+
+void addElbow(int amt){
+  elbowSlider.setValue(elbowSlider.getValue() + amt);
+}
+
+void addLinAct(int amt){
+  linActSlider.setValue(linActSlider.getValue() + amt);
 }
 
 float toPrecision(float val, int precision) {

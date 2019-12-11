@@ -54,7 +54,7 @@ void updateCommandUI() {
 }
 
 void loadUIControls() {
-  float sliderHeight = height - fontSize * 10;
+  float sliderHeight = height - fontSize * 12;
   shoulderSlider = new Slider("Shoulder", fontSize * 5, fontSize * 7, 600, 2300, sliderHeight);
   shoulderSlider.setValue(1500);
   elbowSlider = new Slider("Elbow", fontSize * 14, fontSize * 7, 1000, 2300, sliderHeight);
@@ -69,6 +69,37 @@ void loadUIControls() {
   linActTrimSlider = new Slider("L.Trim", fontSize * 42, fontSize * 27, -100, 100, sliderHeight / 2);
   linActTrimSlider.setValue(0);
   shoulderTrimSlider.unitWidth = elbowTrimSlider.unitWidth = linActTrimSlider.unitWidth = 4;
+  
+  addShoulderButton = new Button("+", fontSize * 3, height - fontSize * 2, fontSize * 3, fontSize * 2, new ClickHandler(){
+    public void press(){
+      addShoulder(Key.isDown(SHIFT) ? 5 : 10);
+    }
+  });
+  subShoulderButton = new Button("-", fontSize * 7, height - fontSize * 2, fontSize * 3, fontSize * 2, new ClickHandler(){
+    public void press(){
+      addShoulder(Key.isDown(SHIFT) ? -5 : -10);
+    }
+  });
+  addElbowButton = new Button("+", fontSize * 12, height - fontSize * 2, fontSize * 3, fontSize * 2, new ClickHandler(){
+    public void press(){
+      addElbow(Key.isDown(SHIFT) ? 5 : 10);
+    }
+  });
+  subElbowButton = new Button("-", fontSize * 16, height - fontSize * 2, fontSize * 3, fontSize * 2, new ClickHandler(){
+    public void press(){
+      addElbow(Key.isDown(SHIFT) ? -5 : -10);
+    }
+  });
+  addLinActButton = new Button("+", fontSize * 21, height - fontSize * 2, fontSize * 3, fontSize * 2, new ClickHandler(){
+    public void press(){
+      addLinAct(Key.isDown(SHIFT) ? 5 : 10);
+    }
+  });
+  subLinActButton = new Button("-", fontSize * 25, height - fontSize * 2, fontSize * 3, fontSize * 2, new ClickHandler(){
+    public void press(){
+      addLinAct(Key.isDown(SHIFT) ? -5 : -10);
+    }
+  });
 
   float toggleSize = fontSize * 5;
   directToggle = new Toggle("Direct Comm.", fontSize * 32, fontSize * 7, toggleSize);
