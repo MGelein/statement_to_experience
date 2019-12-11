@@ -15,10 +15,10 @@ class Camera:
 	def takePicture(self):
 		ret, frame = self.cap.read() # return a single frame in variable `frame`
 
-		crop_x1 = int(170 * 3)
-		crop_x2 = int(430 * 3)
-		crop_y1 = int(7 * 3)
-		crop_y2 = int(265 * 3)
+		crop_x1 = int(190 * 3)
+		crop_x2 = int(440 * 3)
+		crop_y1 = int(15 * 3)
+		crop_y2 = int(270 * 3)
 	
 		crop = frame[crop_y1:crop_y2, crop_x1:crop_x2]
 
