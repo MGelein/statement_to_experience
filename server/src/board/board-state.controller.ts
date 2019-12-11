@@ -62,6 +62,9 @@ export class BoardStateController {
   waitingForFirstMove: boolean = false
   overwritingBoardState: boolean = false
 
+  boardSetupProgress: number = 0
+  lastTriggeredSetupProgressAt: number = 0
+
   @Post()
   async update(@Body() state: any): Promise<string> {
     const player: Player = 'w'
@@ -78,9 +81,20 @@ export class BoardStateController {
       const diff = countDifferentPieces(newBoard, settings.board.initialBoard)
 
       if (diff > 0) {
-        printProgress(Math.round(((24 - diff)/24) * 100), 'Waiting for board set up, currently at ')
+        const progress = Math.round(((24 - diff)/24) * 100)
+        if (progress > this.boardSetupProgress) {
+          this.boardSetupProgress = progress
+          printProgress(progress, 'Waiting for board set up, currently at ')
+
+          if (progress >= this.lastTriggeredSetupProgressAt + 10) {
+            this.voiceService.triggerBoardSetupProgress(progress)
+          }
+        }
+
         return 'Waiting for the board to be set up correctly'
       } else {
+        this.boardSetupProgress = 0
+        this.lastTriggeredSetupProgressAt = 0
         this.waitingForFirstMove = true
 
         this.boardService.update(newBoard)

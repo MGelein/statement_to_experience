@@ -72,6 +72,10 @@ export class VoiceService {
         if (this.shouldSpeak) this.pick(messages.aiCanWin())
     }
 
+    triggerBoardSetupProgress(progress: number) {
+        this.pick(messages.boardSetupProgress(progress))
+    }
+
     runInGameInterval(shouldSpeak: () => boolean) {
         if (shouldSpeak && randomChance(0.20)) this.pick(messages.randomTrashTalk(), 0.8)
     }

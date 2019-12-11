@@ -14,6 +14,9 @@ export const messages = {
     resign: () => [
         `Are you quitting already? Such a human thing to do.`
     ],
+    boardSetupProgress: (progress: number) => [
+        `${progress}`
+    ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
         `This game is called checkers. I am an AI. You are a human. Victory for me is inevitable`,
@@ -111,15 +114,15 @@ export const messages = {
         `My name is Shallow Green, a robot the likes of which you have never seen.`
     ],
     badMoveByHuman: (probabilityOfWinning: number, numberOfSuperiorPossibleMoves: number) => [
-        `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
+        // `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
         `Haha, that was a bad move, you silly human.`,
         `Out of all the moves that were possible you chose that move?`,
         `I feel sorry for you. You must not be able to understand the game on such a deep level as I do.`,
         `No, you don't want to do that. But it's already to late`,
         `Maybe you are trying to make me overconfident. But that was not a good move!`,
         `There were a lot of possible moves, however, this one was definitely not the best!`,
-        `Your chance of winning just dropped to ${probabilityOfWinning}.`,
-        `Oof. That must hurt. I think there were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
+        // `Your chance of winning just dropped to ${probabilityOfWinning}.`,
+        // `Oof. That must hurt. I think there were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
         `Your human brain is failing you. I can already see that there were a lot of moves that could have been way better.`
     ],
     grabKing: (numberOfMoves: number) => [

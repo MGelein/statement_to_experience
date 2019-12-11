@@ -6,6 +6,7 @@ import { BoardEvaluationService } from './board-evaluation.service'
 import { VoiceService } from '../voice/voice.service'
 import { StorageService } from '../storage.service'
 import { GameStateService } from '../game/game-state.service'
+import { settings } from '../settings'
 
 @Injectable()
 export class MinimaxService {
@@ -88,6 +89,8 @@ export class MinimaxService {
 
             if (maxScore === Number.MAX_VALUE) {
                 this.voiceService.triggerAICanWin()
+            } else if (winChanceDiff >= settings.voice.winChanceDiff) {
+                this.voiceService.triggerBadMove(0, 0)
             }
 
             return maxTurn

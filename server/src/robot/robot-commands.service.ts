@@ -58,9 +58,12 @@ export class RobotCommandsService {
                 setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
             }
         } else if (line === 'RESIGN') {
-            this.gameStateService.resign()
-            this.boardService.restart()
-            console.log('Arduino: Restart the game.')
+            console.log('Arduino: RESIGN')
+            if (this.gameStateService.state.startedAt) {
+                this.gameStateService.resign()
+                this.boardService.restart()
+                console.log('Arduino: Restart the game.')
+            }
         } // !line.startsWith('FPS ') && 
         else if (this.debugLogging) console.log('Arduino: ' + line)
     }
@@ -125,6 +128,8 @@ export class RobotCommandsService {
 
         // Drop it
         await this.lowerAndDrop()
+
+        if (settings.robot.goHomeAfterEveryMove) await this.goHome()
 
         // Remove the jumped pieces
         for (const piece of inbetweenPieces) {
