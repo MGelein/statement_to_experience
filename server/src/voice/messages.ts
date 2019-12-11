@@ -14,8 +14,11 @@ export const messages = {
     resign: () => [
         `Are you quitting already? Such a human thing to do.`
     ],
+    blackPieceHasMoved: () => [
+        `Stop touching my pieces, that's private.`
+    ],
     boardSetupProgress: (progress: number) => [
-        `${progress}`
+        `${progress}%`
     ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
@@ -65,6 +68,9 @@ export const messages = {
         `I am impressed by your intelligence. Are you sure you are not a computer yourself?`,
         `Your game was flawless, I never stood a chance. But maybe next time I can beat you!`
     ],
+    forceJump: () => [
+        `If you can jump somewhere, you have to jump.`
+    ],
     invalidMove: (error: string) => [
         `Oh no, you can't do that. ${error}.`,
         `Haha, you silly human, you do know that is not allowed, right? ${error}.`,
@@ -81,7 +87,7 @@ export const messages = {
         `Watching paint dry is exciting compared to this.`,
         `Even an old Pentium 4 could make faster decisions than you.`,
         `Wow, that took you a long time. Are you getting nervous?`,
-        `That took you more than ${Math.round(timeInSeconds)} seconds.. You are such a simplistic human being.`,
+        `That took you a long time.. You are such a simplistic human being.`,
         `Take your time, you're the one that is going to die one day`,
         `No need to hurry, it's not like I can go anywhere`,
         `You are taking your time. That is smart, since otherwise I would beat you in a millisecond`,

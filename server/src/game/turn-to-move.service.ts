@@ -17,8 +17,6 @@ export class TurnToMoveService {
             return [move]
         } else {
             const jumps = this.moveGenerationService.getJumpsFrom(board, move.fromRow, move.fromCol)
-            console.log('Jumps==')
-            console.log(JSON.stringify(jumps))
 
             // Return the first multi-jump which goes to the right position
             for (let turn of jumps) {
@@ -28,9 +26,7 @@ export class TurnToMoveService {
                 }
             }
     
-            // This should, theoretically, never happen
-            console.error('Oops, it happened')
-            return []
+            return isValid
         }
 
     }

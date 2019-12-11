@@ -65,6 +65,10 @@ export class BoardStateController {
   boardSetupProgress: number = 0
   lastTriggeredSetupProgressAt: number = 0
 
+  waitingToResetBlackPieceMove: boolean = false
+  waitingToResetInvalidMove: boolean = false
+  waitingToResetNonJump: boolean = false
+
   @Post()
   async update(@Body() state: any): Promise<string> {
     const player: Player = 'w'
@@ -88,6 +92,7 @@ export class BoardStateController {
 
           if (progress >= this.lastTriggeredSetupProgressAt + 10) {
             this.voiceService.triggerBoardSetupProgress(progress)
+            this.lastTriggeredSetupProgressAt = progress
           }
         }
 
@@ -162,16 +167,50 @@ export class BoardStateController {
         }
 
         const turn: Turn | string = this.turnToMoveService.getTurnFromMove(oldBoard, move)
-        console.log(JSON.stringify(turn))
 
         if (typeof turn !== 'string' && turn.length > 0) {
+          // Check if a black piece was move incorrectly
+          const wouldBeBoard = this.boardService.applyTurn(oldBoard, turn)
+
+          for (let row = 0; row < settings.board.rowCount; row++) {
+            for (let col = 0; col < settings.board.colCount; col++) {
+              if (wouldBeBoard[row][col].toLowerCase() === 'b') {
+                if (newBoard[row][col].toLowerCase() !== 'b') {
+                  if (!this.waitingToResetBlackPieceMove) this.voiceService.triggerBlackPieceHasMoved()
+                  this.waitingToResetBlackPieceMove = true
+                  return 'Has moved a black piece'
+                }
+              }
+            }
+          }
+
+          this.waitingToResetBlackPieceMove = false
+          this.waitingToResetInvalidMove = false
+          
           this.move(oldBoard, turn)
         } else if (typeof turn === 'string') {
           console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is invalid, because: ${turn}`)
-          this.voiceService.triggerInvalidMove(turn)
+
+          if (!this.waitingToResetInvalidMove) this.voiceService.triggerInvalidMove(turn)
+          this.waitingToResetInvalidMove = true
         } else {
           console.error('Oh no')
         }
+      } else {
+        // Check if a black piece was move incorrectly
+        for (let row = 0; row < settings.board.rowCount; row++) {
+          for (let col = 0; col < settings.board.colCount; col++) {
+            if (oldBoard[row][col].toLowerCase() === 'b') {
+              if (newBoard[row][col].toLowerCase() !== 'b') {
+                if (!this.waitingToResetBlackPieceMove) this.voiceService.triggerBlackPieceHasMoved()
+                this.waitingToResetBlackPieceMove = true
+                return 'Has moved a black piece'
+              }
+            }
+          }
+        }
+
+        this.waitingToResetBlackPieceMove = false
       }
 
       return String(this.sameBoardInARowCount)
@@ -189,10 +228,13 @@ export class BoardStateController {
       const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(oldBoard, player)
 
       if (jumpsFromPreviousPosition.length !== 0) {
-        this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
+        if (!this.waitingToResetNonJump) this.voiceService.triggerForceJump()
+        this.waitingToResetNonJump = true
         return
       }
     }
+
+    this.waitingToResetNonJump = false
 
     console.log(JSON.stringify(turn))
 

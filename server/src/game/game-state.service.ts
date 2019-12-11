@@ -22,7 +22,7 @@ export class GameStateService {
 
     state: GameState = {
         moves: [],
-        winRates: [0.64, 0.81, 0.31, 0.28, 0.21],
+        winRates: [],
         startedAt: null,
         endedAt: null,
         winner: null

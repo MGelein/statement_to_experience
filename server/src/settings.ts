@@ -8,8 +8,8 @@ export const settings = {
         minTimeBetweenMessagesInSeconds: 10,
         intervalInSeconds: 15,
         idleTalkEnabled: true,
-        slowMoveTimeInSeconds: 20,
-        winChanceDiff: 10
+        slowMoveTimeInSeconds: 60,
+        winChanceDiff: 8
     },
     evaluation: {
         basePawnValue: 1,

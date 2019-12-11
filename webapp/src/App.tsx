@@ -26,7 +26,7 @@ const App: React.FC = () => {
 
     const responseWinRate = await fetch(host + 'board/win-rate')
     const newWinRate = await responseWinRate.text()
-    setWinRate(newWinRate.split(',').map((rate: string) => Number(rate) * 100))
+    setWinRate(newWinRate.split(',').map((rate: string) => Number(rate)))
   }, 1000)
 
   const changeStrength = (event: any) => {
