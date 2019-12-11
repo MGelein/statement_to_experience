@@ -47,9 +47,12 @@ export class VoiceService {
         if (this.inGameInterval) clearInterval(this.inGameInterval)
     }
 
-    // Note: This is the only non-optional trigger, and cannot be skipped
     triggerInvalidMove(error: string) {
         this.pick(messages.invalidMove(error), 1.5)
+    }
+
+    triggerForceJump() {
+        this.pick(messages.forceJump(), 1.5)
     }
 
     triggerBadMove(probabilityOfWinning: number, numberOfSuperiorPossibleMoves: number) {
@@ -74,6 +77,10 @@ export class VoiceService {
 
     triggerBoardSetupProgress(progress: number) {
         this.pick(messages.boardSetupProgress(progress))
+    }
+
+    triggerBlackPieceHasMoved() {
+        this.pick(messages.blackPieceHasMoved())
     }
 
     runInGameInterval(shouldSpeak: () => boolean) {

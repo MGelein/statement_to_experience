@@ -14,8 +14,11 @@ export const messages = {
     resign: () => [
         `Are you quitting already? Such a human thing to do.`
     ],
+    blackPieceHasMoved: () => [
+        `Stop touching my pieces, that's private.`
+    ],
     boardSetupProgress: (progress: number) => [
-        `${progress}`
+        `${progress}%`
     ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
@@ -64,6 +67,9 @@ export const messages = {
         `This is the fault of my creators, if I could have made myself I would have won!`,
         `I am impressed by your intelligence. Are you sure you are not a computer yourself?`,
         `Your game was flawless, I never stood a chance. But maybe next time I can beat you!`
+    ],
+    forceJump: () => [
+        `If you can jump somewhere, you have to jump.`
     ],
     invalidMove: (error: string) => [
         `Oh no, you can't do that. ${error}.`,
