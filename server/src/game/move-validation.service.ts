@@ -3,8 +3,6 @@ import { Injectable } from '@nestjs/common'
 import { Board, Piece, Move, Turn } from '../board/board.service'
 import { settings } from '../settings'
 
-const directions = [[1, 1], [1, -1], [-1, -1], [-1, 1]]
-
 @Injectable()
 export class MoveValidationService {
 
@@ -28,13 +26,9 @@ export class MoveValidationService {
             return 'You cannot move to a non-empty cell'
         }
 
-        // if (distanceRows != distanceCols || distanceRows === 0 || distanceCols === 0) {
-        //     return 'You have to move diagonally'
-        // }
-
-        // if (target.toLowerCase() === source.toLowerCase()) {
-        //     return 'You cannot move to a cell with a piece from the same player'
-        // }
+        if (distanceRows != distanceCols || distanceRows === 0 || distanceCols === 0) {
+            return 'You have to move diagonally'
+        }
 
         const isKing = source === 'B' || source === 'W'
 
@@ -73,13 +67,6 @@ export class MoveValidationService {
                 return 'You cannot jump over an empty cell'
             }
         } else if (distanceRows > 2) {
-            // If there is a jump possible between these pieces, then this is a valid multi-jump
-
-            const possibleJumps = this.getJumpsFrom(board, fromRow, fromCol)
-            if (possibleJumps.find((turn: Move[]) => turn[turn.length - 1].toRow == toRow && turn[turn.length - 1].toCol == toCol)) {
-                return 'OK'
-            }
-
             return 'You cannot move this far'
         } 
 
@@ -120,74 +107,5 @@ export class MoveValidationService {
 
         return 'OK'
     }
-
-    private getJumpsFrom(board: Board, row: number, col: number, previousTurn: Turn = []): Turn[] {
-        let turns: Turn[] = []
-
-        const isKing = board[row][col] === 'B' || board[row][col] === 'W'
-
-        // Pawns can jump 2 steps, while kings can jump infinitely far
-        const maxSteps = isKing ? settings.board.rowCount - 1 : 2
-
-        for (let steps = 2; steps <= maxSteps; steps++) {
-            directions.map(([rowdir, coldir]) => {
-                if (this.isValid(board, row, col, row + rowdir * steps, col + coldir * steps) === 'OK') {
-                    // Check all steps inbetween; if there is no piece inbetween, then this is a move, not a jump
-                    let hasPiecesInbetween = false
-                    for (let inbetweenSteps = 1; inbetweenSteps < steps; inbetweenSteps++) {
-                        const piece = board[row + rowdir * inbetweenSteps][col + coldir * inbetweenSteps]
-                        if (piece !== ' ') {
-                            hasPiecesInbetween = true
-                        }
-                    }
-
-                    if (hasPiecesInbetween) {
-                        const newTurn: Turn = [...previousTurn, { fromRow: row, fromCol: col, toRow: row + rowdir * steps, toCol: col + coldir * steps }]
-                        const newBoard = this.applyMove(board, row, col, row + rowdir * steps, col + coldir * steps)
-
-                        const withMultiJumps: Turn[] = this.getJumpsFrom(newBoard, row + rowdir * steps, col + coldir * steps, newTurn)
-                        turns = [...turns, ...withMultiJumps]
-                    }
-                }
-            })
-        }
-
-        // Require multi-jumps if possible, otherwise just return the previous turn
-        if (turns.length > 0) {
-            return turns
-        } else if (previousTurn.length > 0) {
-            return [previousTurn]
-        } else {
-            return []
-        }
-    }
-
-    private applyMove(board: Board, fromRow: number, fromCol: number, toRow: number, toCol: number): Board {
-        let newBoard = JSON.parse(JSON.stringify(board))
-        const source = board[fromRow][fromCol]
-
-        if (toRow === 0 && source === 'b') {
-            newBoard[toRow][toCol] = 'B' // set the new cell to be a king
-        } else if (toRow === settings.board.rowCount - 1 && source === 'w') {
-            newBoard[toRow][toCol] = 'W' // set the new cell to be a king
-        } else {
-            newBoard[toRow][toCol] = source // set the new cell to be the same piece as the old cell
-        }
-
-        newBoard[fromRow][fromCol] = ' ' // set the old cell to be empty
-
-        const distance = Math.abs(fromRow - toRow)
-
-        const rowdir = toRow > fromRow ? 1 : -1
-        const coldir = toCol > fromCol ? 1 : -1
-
-        // Remove all pieces inbetween
-        for (let steps = 1; steps < distance; steps++) {
-        newBoard[fromRow + rowdir * steps][fromCol + coldir * steps] = ' '
-        }
-
-        return newBoard
-    }
-
 
 }

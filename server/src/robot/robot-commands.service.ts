@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import * as SerialPort from 'serialport'
 import { Move, BoardService } from '../board/board.service'
 import { StorageService } from '../storage.service'
+import { GameStateService } from "../game/game-state.service"
 
 const storagePrefix = '/arm/commands/'
 
@@ -15,9 +16,9 @@ export class RobotCommandsService {
 
     isMoving: boolean = false
 
-    debugLogging: boolean = true
+    debugLogging: boolean = false
       
-    constructor(private readonly storage: StorageService, private readonly boardService: BoardService) {
+    constructor(private readonly storage: StorageService, private readonly boardService: BoardService, private readonly gameStateService: GameStateService) {
         SerialPort.list().then((ports: any[]) => {
             console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
             const path = ports[ports.length-1].path
@@ -56,7 +57,10 @@ export class RobotCommandsService {
             } else {
                 setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
             }
-            
+        } else if (line === 'RESIGN') {
+            this.gameStateService.resign()
+            this.boardService.restart()
+            console.log('Arduino: Restart the game.')
         } // !line.startsWith('FPS ') && 
         else if (this.debugLogging) console.log('Arduino: ' + line)
     }
@@ -71,6 +75,7 @@ export class RobotCommandsService {
 
         // Move inbetween
         let inbetweenPieces: any[] = []
+        let crossedLastRow: boolean = false
         for (let move of turn) {
             if (settings.robot.goHomeAfterEveryMove) await this.goHome()
 
@@ -93,6 +98,29 @@ export class RobotCommandsService {
                     inbetweenPieces.push({ row: move.fromRow + rowdir * steps, col: move.fromCol + coldir * steps })
                 }
             }
+
+            if (move.toRow === 0) {
+                crossedLastRow = true
+            }
+        }
+
+        // Switch to a king if necessary
+        if (board[turn[0].fromRow][turn[0].fromCol] === 'b' && crossedLastRow) {
+            const blackKingCount = this.boardService.getPieceCount('B')
+            const nextKingCount = (blackKingCount + 1) % settings.board.presetKingCount
+
+            // Drop the pawn
+            await this.movePieceOffBoard()
+            await this.setMagnet(false)
+            if (settings.robot.goHomeAfterEveryMove) await this.goHome()
+
+            // Pick up the king
+            await this.queueSavedCommand('king_' + nextKingCount)
+            await this.lowerAndPickup(4, 4, 2360)
+
+            // Go to the right position
+            const endPosition: string = turn[turn.length - 1].toRow + "_" + turn[turn.length - 1].toCol
+            await this.queueSavedCommand(endPosition)
         }
 
         // Drop it
@@ -126,25 +154,8 @@ export class RobotCommandsService {
         return Promise.resolve(true)
     }
 
-    // async createMoveCommand(fromRow: number, fromCol: number, toRow: number, toCol: number, withoutDropping: boolean = false): Promise<boolean> {
-    //     const startPosition: string = fromRow + "_" + fromCol
-    //     await this.queueSavedCommand(startPosition)
-    //     await this.lowerAndPickup(fromRow, fromCol)
-    //     if (settings.robot.goHomeAfterEveryMove) await this.goHome()
-
-    //     const endPosition: string = toRow + "_" + toCol
-    //     await this.queueSavedCommand(endPosition)
-
-    //     if (!withoutDropping) {
-    //         await this.lowerAndDrop()
-    //         await this.goHome()
-    //     }
-        
-    //     return Promise.resolve(true)
-    // }
-
-    async lowerAndPickup(row: number, col: number): Promise<boolean> {
-        await this.setLinearActuator(true, row, col)
+    async lowerAndPickup(row: number = 4, col: number = 4, customLValue: number = null): Promise<boolean> {
+        await this.setLinearActuator(true, row, col, customLValue)
         await this.setMagnet(true)
         await this.moveAround(row, col)
         await this.setLinearActuator(false)
@@ -203,22 +214,10 @@ export class RobotCommandsService {
         return Promise.resolve(true)
     }
 
-    async setLinearActuator(doLower: boolean, currentRow: number = 4, currentCol: number = 4): Promise<boolean> {
-        const positionLValueOffsets = [
-            [0, 100, 0, 120, 0, 140, 0, 160],
-            [100, 0, 120, 0, 140, 0, 160, 0],
-            [0, 80, 0, 100, 0, 120, 0, 140],
-            [80, 0, 100, 0, 120, 0, 140, 0],
-            [0, 60, 0, 80, 0, 100, 0, 120],
-            [40, 0, 60, 0, 100, 0, 140, 0],
-            [0, 40, 0, 80, 0, 140, 0, 140],
-            [0, 0, 60, 0, 100, 0, 160, 0]
-        ]
+    async setLinearActuator(doLower: boolean, currentRow: number = 4, currentCol: number = 4, customLValue: number = null): Promise<boolean> {
+        const lValue = settings.board.baseLValue + settings.board.positionLValueOffsets[currentRow][currentCol]
 
-        const baseLValue = 2200
-        const lValue = baseLValue + positionLValueOffsets[currentRow][currentCol]
-
-        if (doLower) await this.queueCommand(`L(${lValue})`)
+        if (doLower) await this.queueCommand(`L(${customLValue || lValue})`)
         else await this.queueSavedCommand("raiseLinAct")
 
         return Promise.resolve(true)

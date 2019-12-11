@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { Move, BoardService, Player } from '../board/board.service'
+import { Move, BoardService, Player, Turn } from '../board/board.service'
 import { VoiceService } from '../voice/voice.service'
 import { BoardEvaluationService, Winner } from '../ai/board-evaluation.service'
 
@@ -45,10 +45,28 @@ export class GameStateService {
         }
     }
 
+    addTurn(player: Player, turn: Turn) {
+        turn.map((move: Move) => {
+            this.addMove(player, move)
+        })
+    }
+
     addWinRate(winRate: number) {
         let newState = this.state
         newState.winRates = [...this.state.winRates, winRate]
         this.state = newState
+    }
+
+    resign() {
+        this.state = {
+            moves: [],
+            winRates: [],
+            startedAt: null,
+            endedAt: null,
+            winner: null
+        }
+        
+        this.voiceService.triggerResign()
     }
 
     restart() {

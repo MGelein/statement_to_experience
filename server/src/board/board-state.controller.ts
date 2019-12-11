@@ -1,7 +1,7 @@
 import { Controller, Get, Header, Post, Body } from '@nestjs/common'
 
 import { StorageService } from '../storage.service'
-import { Move, Board, BoardService, Player, Piece } from './board.service'
+import { Move, Board, BoardService, Player, Piece, Turn } from './board.service'
 
 import { settings } from '../settings'
 import { MoveValidationService } from '../game/move-validation.service'
@@ -10,6 +10,7 @@ import { RobotCommandsService } from '../robot/robot-commands.service'
 import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { GameStateService } from '../game/game-state.service'
+import { TurnToMoveService } from '../game/turn-to-move.service'
 
 const arraysEqual = (a1: any[], a2: any[]): boolean => {
   return JSON.stringify(a1) == JSON.stringify(a2)
@@ -43,6 +44,7 @@ export class BoardStateController {
     private readonly storage: StorageService,
     private readonly voiceService: VoiceService,
     private readonly gameStateService: GameStateService,
+    private readonly turnToMoveService: TurnToMoveService,
     private readonly moveGenerationService: MoveGenerationService,
     private readonly moveValidationService: MoveValidationService,
     private readonly aiService: AIService) {}
@@ -58,9 +60,10 @@ export class BoardStateController {
   lastAIMoveAt: number = 0
 
   waitingForFirstMove: boolean = false
+  overwritingBoardState: boolean = false
 
   @Post()
-  update(@Body() state: any): string {
+  async update(@Body() state: any): Promise<string> {
     const player: Player = 'w'
     const oldBoard = this.boardService.get()
     const newBoard = Object.keys(state).reduce((newState: string[], key: string) => [...newState, state[key]], [])
@@ -78,7 +81,6 @@ export class BoardStateController {
         printProgress(Math.round(((24 - diff)/24) * 100), 'Waiting for board set up, currently at ')
         return 'Waiting for the board to be set up correctly'
       } else {
-        console.log('Board configured correctly, waiting for the first move...')
         this.waitingForFirstMove = true
 
         this.boardService.update(newBoard)
@@ -102,6 +104,18 @@ export class BoardStateController {
         this.sameBoardInARowCount = 0
 
         return '1'
+      }
+
+      if (this.overwritingBoardState) {
+        this.boardService.update(newBoard)
+        this.overwritingBoardState = false
+
+        console.log('Playing AI move after overwrite')
+      
+        await this.aiService.play()
+        this.lastAIMoveAt = new Date().getTime()
+
+        return 'OK'
       }
 
       // Detect the move
@@ -133,7 +147,17 @@ export class BoardStateController {
           toCol: Number(toCol)
         }
 
-        this.move(oldBoard, move)
+        const turn: Turn | string = this.turnToMoveService.getTurnFromMove(oldBoard, move)
+        console.log(JSON.stringify(turn))
+
+        if (typeof turn !== 'string' && turn.length > 0) {
+          this.move(oldBoard, turn)
+        } else if (typeof turn === 'string') {
+          console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is invalid, because: ${turn}`)
+          this.voiceService.triggerInvalidMove(turn)
+        } else {
+          console.error('Oh no')
+        }
       }
 
       return String(this.sameBoardInARowCount)
@@ -142,43 +166,48 @@ export class BoardStateController {
     return 'OK'
   }
 
-  private move(oldBoard: Board, move: Move) {
-    const isValid = this.moveValidationService.isValid(oldBoard, move.fromRow, move.fromCol, move.toRow, move.toCol)
+  private async move(oldBoard: Board, turn: Turn) {
+    const lastMoveWasAJump = Math.abs(turn[0].toRow - turn[0].fromRow) > 1
 
-    if (isValid === 'OK') {
-      const lastMoveWasAJump = Math.abs(move.toRow - move.fromRow) > 1
+    // Check if it was a move, but if there were jumps possible, then block the move
+    if (!lastMoveWasAJump) {
+      const player = oldBoard[Number(turn[0].fromRow)][Number(turn[0].fromCol)].toLowerCase() as Player
+      const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(oldBoard, player)
 
-      // Check if it was a move, but if there were jumps possible, then block the move
-      if (!lastMoveWasAJump) {
-        const player = oldBoard[Number(move.fromRow)][Number(move.fromCol)].toLowerCase() as Player
-        const jumpsFromPreviousPosition = this.moveGenerationService.getAllPossibleJumps(oldBoard, player)
-
-        if (jumpsFromPreviousPosition.length !== 0) {
-          this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
-          return
-        }
+      if (jumpsFromPreviousPosition.length !== 0) {
+        this.voiceService.triggerInvalidMove('You have to jump if you can jump.')
+        return
       }
-
-      console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is valid.`)
-      this.boardService.move(move.fromRow, move.fromCol, move.toRow, move.toCol)
-      
-      const player = oldBoard[Number(move.fromRow)][Number(move.fromCol)] as Player
-      this.gameStateService.addMove(player, move)
-
-      const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
-      if (this.lastAIMoveAt !== 0 && moveDuration > settings.voice.slowMoveTimeInSeconds) {
-        this.voiceService.triggerSlowMove(moveDuration)
-      }
-
-      this.waitingForFirstMove = false
-        
-      this.aiService.play()
-
-      this.lastAIMoveAt = new Date().getTime()
-    } else {
-      console.log(`Move (${move.fromRow}, ${move.fromCol} to (${move.toRow}, ${move.toCol})) is invalid, because: ${isValid}`)
-      this.voiceService.triggerInvalidMove(isValid)
     }
+
+    console.log(JSON.stringify(turn))
+
+    const updatedBoard = this.boardService.applyTurn(this.boardService.get(), turn)
+    this.boardService.update(updatedBoard)
+    
+    const player = oldBoard[Number(turn[0].fromRow)][Number(turn[0].fromCol)] as Player
+    this.gameStateService.addTurn(player, turn)
+
+    const moveDuration = ((new Date().getTime()) - this.lastAIMoveAt) / 1000
+    if (this.lastAIMoveAt !== 0 && moveDuration > settings.voice.slowMoveTimeInSeconds) {
+      this.voiceService.triggerSlowMove(moveDuration)
+    }
+
+    this.waitingForFirstMove = false
+      
+    await this.aiService.play()
+    this.lastAIMoveAt = new Date().getTime()
+  }
+
+  @Get('overwrite')
+  overwrite(): string {
+    console.log('Overwriting board state...')
+    
+    this.sameBoardInARowCount = 0
+    this.overwritingBoardState = true
+    this.previousBoard = null
+
+    return 'OK'
   }
 
   @Get('camera-view/csv')

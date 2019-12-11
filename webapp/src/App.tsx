@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import './App.css'
 
 import { Chart } from './Chart'
 
-import { useInterval, debounce } from './utils'
+import { useInterval } from './utils'
 
-const internalIP = '132.229.130.80'
+const internalIP = '10.0.1.144'
 const host = `http://${internalIP}:3000/`
 
 const randomArray = (total = 10) => {
@@ -36,12 +36,12 @@ const App: React.FC = () => {
     setVolume(Number(newVolume))
   }, 1000)
 
-  const updateStrength = useCallback(
-    debounce(() => {
-      fetch(host + 'config/strength/' + strength)
-    }, 1000),
-    []
-  );
+  // const updateStrength = useCallback(
+  //   debounce(() => {
+  //     fetch(host + 'config/strength/' + strength)
+  //   }, 1000),
+  //   []
+  // );
 
   const changeStrength = (event: any) => {
     // updateStrength()
@@ -49,12 +49,12 @@ const App: React.FC = () => {
     fetch(host + 'config/strength/' + strength)
   }
 
-  const updateVolume = useCallback(
-    debounce(() => {
-      fetch(host + 'config/volume/' + volume)
-    }, 1000),
-    []
-  );
+  // const updateVolume = useCallback(
+  //   debounce(() => {
+  //     fetch(host + 'config/volume/' + volume)
+  //   }, 1000),
+  //   []
+  // );
 
   const changeVolume = (event: any) => {
     // updateVolume()
@@ -64,6 +64,10 @@ const App: React.FC = () => {
 
   const restart = () => {
     fetch(host + 'board/restart')
+  }
+
+  const overwrite = () => {
+    fetch(host + 'board-state/overwrite')
   }
 
   return (
@@ -85,17 +89,15 @@ const App: React.FC = () => {
           <div className="value"><input type="range" min="0" max="100" value={strength * 100} onChange={changeStrength} /></div>
         </div>
 
-        {/* <div className="setting">
-          <div className="key">Voice enabled</div>
-          <div className="value"><input type="checkbox" name="voice" checked={voiceEnabled} onChange={changeVoiceEnabled} /></div>
-        </div> */}
-
         <div className="setting">
           <div className="key">Volume</div>
           <div className="value"><input type="range" min="0" max="100" value={volume} onChange={changeVolume} /></div>
         </div>
 
-        <button onClick={restart}>Restart</button>
+        <div className="actions">
+          <button onClick={restart}>Restart</button>
+          <button onClick={overwrite}>Overwrite</button>
+        </div>
       </header>
     </div>
   )

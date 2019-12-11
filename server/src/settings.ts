@@ -1,9 +1,7 @@
 export const settings = {
     ai: {
-        strength: 1.0,
-        minimaxDepth: 4,
-        alphaBetaPruning: true,
-        minEvaluationTimeInSeconds: 1.5
+        minimaxDepth: 6,
+        alphaBetaPruning: true
     },
     voice: {
         enabled: true,
@@ -51,6 +49,18 @@ export const settings = {
             [' ', 'b', ' ', 'b', ' ', 'b', ' ', 'b'],
             ['b', ' ', 'b', ' ', 'b', ' ', 'b', ' '],
         ],
+        baseLValue: 1900,
+        positionLValueOffsets: [
+            [0, 80, 0, 100, 0, 120, 0, 140],
+            [80, 0, 100, 0, 120, 0, 140, 0],
+            [0, 80, 0, 40, 0, 100, 0, 120],
+            [80, 0, 80, 0, 100, 0, 120, 0],
+            [0, 40, 0, 80, 0, 80, 0, 100],
+            [20, 0, 40, 0, 80, 0, 120, 0],
+            [0, 20, 0, 80, 0, 120, 0, 120],
+            [0, 0, 40, 0, 80, 0, 140, 0]
+        ],
+        presetKingCount: 4
     },
     robot: {
         goHomeAfterEveryMove: true,

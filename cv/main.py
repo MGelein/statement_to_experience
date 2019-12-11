@@ -8,7 +8,9 @@ import time
 from Camera import Camera
 from board_Recognition import board_Recognition
 
-def boot_camera(camera_id = 1):
+from settings import *
+
+def boot_camera():
     global cap
     cap = cv2.VideoCapture(camera_id)
     fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
@@ -27,14 +29,6 @@ server_host = 'http://localhost:3000/'
 r = requests.get(url = server_host + 'board-state/square-positions/')
 squares = r.json()
 
-scaling_factor = 1 # 2 if 4k, 1 if 1080p
-
-crop_x1 = int(170 * 3 * scaling_factor)
-crop_x2 = int(430 * 3* scaling_factor)
-crop_y1 = int(7 * 3* scaling_factor)
-crop_y2 = int(265 * 3* scaling_factor)
-
-camera_id = 1
 cap = cv2.VideoCapture(camera_id)
 fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
 cap.set(cv2.CAP_PROP_FOURCC, fourcc)
@@ -66,7 +60,7 @@ while True:
             continue
 
         skip_frame = False
-        img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
+        img = frame[crop_y1 * scaling_factor:crop_y2 * scaling_factor, crop_x1 * scaling_factor:crop_x2 * scaling_factor]
 
         # Inference
         i = 0
@@ -136,10 +130,10 @@ while True:
                     if piece != ' ':
                         coords = [int(coord) for coord in squares[pos]]
 
-                        x1 = coords[0]*2
-                        y1 = coords[1]*2
-                        x2 = coords[6]*2
-                        y2 = coords[7]*2
+                        x1 = coords[0] * scaling_factor
+                        y1 = coords[1] * scaling_factor
+                        x2 = coords[6] * scaling_factor
+                        y2 = coords[7] * scaling_factor
 
                         square_cv = img[y1:y2, x1:x2]
 

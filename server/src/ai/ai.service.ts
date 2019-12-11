@@ -17,9 +17,9 @@ export class AIService {
         private readonly robotCommandsService: RobotCommandsService) {}
 
     async play(): Promise<boolean> {
-        return this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true).then((turn: Turn) => {
-            if (turn && turn.length > 0) {
-                this.robotCommandsService.applyTurn(turn)
+        return this.minimaxService.runMinimax(this.boardService.get(), settings.ai.minimaxDepth, 'b', true).then(async (turn: Turn) => {
+            if (turn && turn.length > 0) {                
+                await this.robotCommandsService.applyTurn(turn)
                 
                 this.boardService.update(this.boardService.applyTurn(this.boardService.get(), turn))
 
@@ -32,6 +32,8 @@ export class AIService {
             } else {
                 console.log('Game has ended')
                 this.gameStateService.end()
+                
+                return Promise.resolve(true)
             }
         })
     }
