@@ -41,7 +41,7 @@ void updateCommandUI() {
   float x = width / 2 + fontSize * 6;
   float xInc = fontSize * 9;
   float y = fontSize * 7;
-  float yInc = fontSize * 4;
+  float yInc = fontSize * 3.25;
   for (String command : commands) {
     CMDButton btn = new CMDButton(command, x, y);
     cmdButtons.add(btn);
@@ -183,7 +183,7 @@ class Label {
 class CMDButton extends Button {
   int countdown = 0;
   CMDButton(String name, float x, float y) {
-    super(name, x, y, fontSize * 8, fontSize * 3, null);
+    super(name, x, y, fontSize * 8, fontSize * 2.5, null);
     final String label = name;
     //Special case for the trim buttons, please show on the labels
     if (label.equals("trim")) {
