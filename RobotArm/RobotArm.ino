@@ -31,6 +31,7 @@ const int MAGNET_PIN = 12;
 const int SHOULDER_PIN = 3;
 const int ELBOW_PIN = 6;
 const int LINACT_PIN = 9;
+const int LDR_PIN = A0;
 
 //All the pins for the status LED's
 const int STATUS_MAGNET_PIN = A0;
@@ -46,6 +47,12 @@ const int ELBOW_MULT = 1;
 const int LINACT_MULT = 4;
 int elbowAcc = baseAcc * ELBOW_MULT;
 int linactAcc = baseAcc * LINACT_MULT;
+
+//Used for ldr timing
+int ldrThreshold = 200;
+int lowTime = 0;
+bool sendReset = false;
+const int RESET_TIMEOUT = 3000;
 
 //The trim values for each of the servos, this is in microseconds
 int trimShoulder = 0;
@@ -94,7 +101,7 @@ byte numsRead = 0;
 bool firstMove = false;
 bool randomLedStatus = false;
 
-const int FPS_INTERVAL = 10000;
+const int FPS_INTERVAL = 1000;
 int accumulator = 0;
 unsigned long lastFrame = 0;
 unsigned long now = 0;
@@ -139,7 +146,8 @@ void setup() {
   pinMode(STATUS_LINACT_PIN, OUTPUT);
   pinMode(STATUS_SERIAL_PIN, OUTPUT);
   pinMode(STATUS_OK_PIN, OUTPUT);
-
+  pinMode(LDR_PIN, INPUT);
+  
   parseSerial("P(807_1424)\n");
 }
 
@@ -185,6 +193,7 @@ void loop() {
   frameCount ++;
   now = millis();
   accumulator += now - lastFrame;
+  checkLDR(now - lastFrame);
   lastFrame = now;
   if (accumulator > FPS_INTERVAL) logFPS();
 
@@ -195,6 +204,21 @@ void loop() {
 
   //Add a tiny bit of delay to allow for serial to buffer and stuff
   delay(5);
+}
+
+void checkLDR(int deltaTime){
+  int val = analogRead(LDR_PIN);
+  if(val < ldrThreshold){
+    lowTime += deltaTime;
+  }else{
+    lowTime = 0;
+    sendReset = false;
+  }
+
+  if(lowTime > RESET_TIMEOUT && !sendReset){
+    Serial.println("RESIGN");
+    sendReset = true;
+  }
 }
 
 void updateServos() {
@@ -237,12 +261,8 @@ void logFPS() {
   accumulator -= FPS_INTERVAL;
   Serial.print("FPS ");
   Serial.print(String(frameCount / (FPS_INTERVAL / 1000)));
-  Serial.print("\t\t");
-  Serial.print(msShoulder);
   Serial.print("\t");
-  Serial.print(msElbow);
-  Serial.print("\t");
-  Serial.println(msLinAct);
+  Serial.println(analogRead(LDR_PIN));
   frameCount = 0;
 }
 
