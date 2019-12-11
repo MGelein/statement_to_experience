@@ -7,6 +7,7 @@ import { BoardController } from './board/board.controller'
 import { BoardService } from './board/board.service'
 import { MoveValidationService } from './game/move-validation.service';
 import { MoveGenerationService } from './game/move-generation.service';
+import { TurnToMoveService } from './game/turn-to-move.service';
 import { MinimaxService } from './ai/minimax.service';
 import { BoardEvaluationService } from './ai/board-evaluation.service';
 import { TextToSpeechService } from './voice/text-to-speech.service';
@@ -34,6 +35,7 @@ import { ConfigController } from './config.controller';
     GameStateService,
     MoveValidationService,
     MoveGenerationService,
+    TurnToMoveService,
     MinimaxService,
     TextToSpeechService,
     RobotCommandsService,

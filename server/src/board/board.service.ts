@@ -107,4 +107,17 @@ export class BoardService {
     return newBoard
   }
 
+  getPieceCount(piece: Piece): number {
+    let count = 0
+    this.board.map((pieces: Piece[]) => {
+      pieces.map((piece: Piece) => {
+        if (piece === piece) {
+          count += 1
+        }
+      })
+    })
+
+    return count
+  }
+
 }
