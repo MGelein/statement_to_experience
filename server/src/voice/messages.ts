@@ -11,6 +11,9 @@ export const messages = {
         `The actors are ready, the stage is set. Who wants to be the star in this play?`,
         `I think everyone of the 24 pieces on the board is ready for this game. Now we only need a contestant`
     ],
+    resign: () => [
+        `Are you quitting already? Such a human thing to do.`
+    ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
         `This game is called checkers. I am an AI. You are a human. Victory for me is inevitable`,

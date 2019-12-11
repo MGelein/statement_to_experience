@@ -58,7 +58,7 @@ export class RobotCommandsService {
                 setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
             }
         } else if (line === 'RESIGN') {
-            this.gameStateService.restart()
+            this.gameStateService.resign()
             this.boardService.restart()
             console.log('Arduino: Restart the game.')
         } // !line.startsWith('FPS ') && 

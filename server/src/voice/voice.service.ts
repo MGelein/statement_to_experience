@@ -24,8 +24,13 @@ export class VoiceService {
     idleInterval: any = null
 
     triggerGameSetupReady() {
-        this.pick(messages.gameSetupReady(), 1.6)    }
+        this.pick(messages.gameSetupReady(), 1.6)}
 
+
+    triggerResign() {
+        this.pick(messages.resign(), 2.2)
+    }
+    
     triggerGameStart() {
         this.pick(messages.gameStart(), 1.8)
 

@@ -57,6 +57,18 @@ export class GameStateService {
         this.state = newState
     }
 
+    resign() {
+        this.state = {
+            moves: [],
+            winRates: [],
+            startedAt: null,
+            endedAt: null,
+            winner: null
+        }
+        
+        this.voiceService.triggerResign()
+    }
+
     restart() {
         this.state = {
             moves: [],
