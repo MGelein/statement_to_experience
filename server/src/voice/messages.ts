@@ -87,7 +87,7 @@ export const messages = {
         `Watching paint dry is exciting compared to this.`,
         `Even an old Pentium 4 could make faster decisions than you.`,
         `Wow, that took you a long time. Are you getting nervous?`,
-        `That took you more than ${Math.round(timeInSeconds)} seconds.. You are such a simplistic human being.`,
+        `That took you a long time.. You are such a simplistic human being.`,
         `Take your time, you're the one that is going to die one day`,
         `No need to hurry, it's not like I can go anywhere`,
         `You are taking your time. That is smart, since otherwise I would beat you in a millisecond`,

@@ -184,6 +184,7 @@ export class BoardStateController {
             }
           }
 
+          this.waitingToResetBlackPieceMove = false
           this.waitingToResetInvalidMove = false
           
           this.move(oldBoard, turn)
@@ -209,7 +210,7 @@ export class BoardStateController {
           }
         }
 
-        this.waitingToResetInvalidMove = false
+        this.waitingToResetBlackPieceMove = false
       }
 
       return String(this.sameBoardInARowCount)

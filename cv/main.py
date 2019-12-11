@@ -37,8 +37,6 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
 
 boot_camera()
 
-ix_to_piece = ['b', 'w', ' ']
-
 white_pos = [
     '0,1', '0,3', '0,5', '0,7',
     '1,0', '1,2', '1,4', '1,6',
@@ -122,7 +120,7 @@ while True:
             r = requests.post(url = server_host + 'board-state/', data = post_data)
 
             # Save the square images as the training dataset
-            if r.text.isdigit() and int(r.text) == 2:                
+            if r.text.isdigit() and int(r.text) == 2 and save_training_data == True:                
                 for pos in white_pos:
                     row, col = pos.split(',')
                     piece = board_state[int(row)][int(col)]

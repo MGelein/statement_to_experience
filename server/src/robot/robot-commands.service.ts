@@ -16,7 +16,7 @@ export class RobotCommandsService {
 
     isMoving: boolean = false
 
-    debugLogging: boolean = false
+    debugLogging: boolean = true
       
     constructor(private readonly storage: StorageService, private readonly boardService: BoardService, private readonly gameStateService: GameStateService) {
         SerialPort.list().then((ports: any[]) => {
