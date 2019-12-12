@@ -77,9 +77,8 @@ export class MinimaxService {
             const duration = Math.round(((end.getTime() - start.getTime()) / 1000) * 100) / 100
 
             const winChance = this.winningLeaveCount / this.totalLeaveCount
-            const winChanceDiff = Math.abs(winChance - this.lastWinChance)
-            const winChanceSign = this.lastWinChance > winChance ? '-' : '+'
-            console.log(`AI: win-chance=${Math.round(winChance * 100)}% (${winChanceSign}${Math.round(winChanceDiff * 100)}%), eval-time=${duration}s (strength=${strength}, depth=${depth})`)
+            const winChanceDiff = winChance - this.lastWinChance
+            console.log(`AI: win-chance=${Math.round(winChance * 100)}% (${Math.round(winChanceDiff * 100)}%), eval-time=${duration}s (strength=${strength}, depth=${depth})`)
 
             this.gameStateService.addWinRate(Math.round(winChance * 100))
 
@@ -89,7 +88,7 @@ export class MinimaxService {
 
             if (maxScore === Number.MAX_VALUE) {
                 this.voiceService.triggerAICanWin()
-            } else if (winChanceDiff >= settings.voice.winChanceDiff) {
+            } else if (winChanceDiff >= settings.voice.winChanceDiff / 100) {
                 this.voiceService.triggerBadMove(0, 0)
             }
 
