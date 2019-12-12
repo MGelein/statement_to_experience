@@ -1,4 +1,4 @@
-camera_id = 0
+camera_id = 1
 
 crop_x1 = int(190 * 3)
 crop_x2 = int(440 * 3)

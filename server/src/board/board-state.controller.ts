@@ -94,7 +94,7 @@ export class BoardStateController {
       return 'Robot arm is moving'
     }
 
-    if (!this.waitingForFirstMove && !this.gameStateService.state.startedAt) {
+    if (!this.waitingForFirstMove && !this.gameStateService.state.startedAt && !this.overwritingBoardState) {
       const diff = countDifferentPieces(newBoard, settings.board.initialBoard)
 
       if (diff > 0) {
@@ -137,7 +137,7 @@ export class BoardStateController {
         this.sameBoardInARowCount += 1
               
         return String(this.sameBoardInARowCount - 1)
-      } else if (newBlackPiecesCount > oldBlackPiecesCount || newWhitePiecesCount > oldWhitePiecesCount) {
+      } else if (!this.overwritingBoardState && (newBlackPiecesCount > oldBlackPiecesCount || newWhitePiecesCount > oldWhitePiecesCount)) {
         // Definitely an unreasonable detection, so should simply be ignored
         return String(this.sameBoardInARowCount - 1)
       } else if (!arraysEqual(newBoard, this.previousBoard)) {

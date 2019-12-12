@@ -33,7 +33,7 @@ export class RobotCommandsService {
     }
 
     async openConnection() {
-        const serialPortPath: string = '/dev/tty.usbserial-14120'
+        const serialPortPath: string = '/dev/tty.wchusbserial1420'
 
         this.port = new SerialPort(serialPortPath, {baudRate: 9600}, async (err: any) => {
             if (err) {
@@ -99,6 +99,8 @@ export class RobotCommandsService {
 
     async applyTurn(turn: Move[]): Promise<boolean> {
         let board = this.boardService.get()
+
+        await this.sendSavedTrim()
 
         // Pick up the piece
         const startPosition: string = turn[0].fromRow + "_" + turn[0].fromCol
@@ -212,8 +214,8 @@ export class RobotCommandsService {
                 const previousShoulderValue = Number(command.substr(0, 6).split('_')[0].substr(2))
                 const previousElbowValue = Number(command.substr(command.length - 5).substr(0, 4))
 
-                const commandFirst = `P(${previousShoulderValue}_${previousElbowValue + 20})`
-                const commandSecond = `P(${previousShoulderValue}_${previousElbowValue - 40})`
+                const commandFirst = `P(${previousShoulderValue}_${previousElbowValue + 30})`
+                const commandSecond = `P(${previousShoulderValue}_${previousElbowValue - 50})`
                 // const commandThird = `P(${previousShoulderValue + 20}_${previousElbowValue})`
                 // const commandFourth = `P(${previousShoulderValue - 40}_${previousElbowValue})`
 

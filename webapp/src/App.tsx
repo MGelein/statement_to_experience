@@ -5,7 +5,7 @@ import { useInterval } from './utils'
 
 import './App.css'
 
-const internalIP = '10.0.1.144'
+const internalIP = '10.0.1.159'
 const host = `http://${internalIP}:3000/`
 
 interface Status {
