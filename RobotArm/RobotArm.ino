@@ -11,6 +11,8 @@
 */
 #include <Servo.h>
 
+void(* resetFunc) (void) = 0;
+
 bool easing = false;
 
 const int COMMAND_TIMEOUT = 100;
@@ -132,6 +134,7 @@ void setup() {
 
   //Set up serial connection
   Serial.begin(9600);
+  Serial.println("--- ARDUINO STARTUP ---");
   //Set up the pins in the correct pin mode
   pinMode(MAGNET_PIN, OUTPUT);
   pinMode(STATUS_MAGNET_PIN, OUTPUT);
@@ -210,7 +213,7 @@ void checkLDR(int deltaTime){
   }
 
   if(lowTime > RESET_TIMEOUT && !sendReset){
-    Serial.println("RESIGN");
+    Serial.println("resign");
     sendReset = true;
   }
 }
@@ -253,7 +256,7 @@ void endMove() {
 */
 void logFPS() {
   accumulator -= FPS_INTERVAL;
-  Serial.print("FPS ");
+  Serial.print("fps ");
   Serial.print(String(frameCount / (FPS_INTERVAL / 1000)));
   Serial.print("\t");
   Serial.println(analogRead(LDR_PIN));
@@ -270,8 +273,9 @@ void parseSerial(String line) {
   int braceStart = line.indexOf('(');
   int braceEnd = line.indexOf(')');
   String content = line.substring(braceStart + 1, braceEnd);
-  Serial.println(c);
-  Serial.println(content);
+//  Serial.print(c);
+//  Serial.print("\t");
+//  Serial.println(content);
 
   digitalWrite(STATUS_SERIAL_PIN, HIGH);
   digitalWrite(STATUS_OK_PIN, LOW);
@@ -286,6 +290,8 @@ void parseSerial(String line) {
     commandMode = CMD_POS;
   } else if (c == 'L' || c == 'l') {
     commandMode = CMD_LIN;
+  } else if (c == 'R' || c == 'r') {
+    resetFunc();
   }
 
   int num, num2, num3;
@@ -318,11 +324,7 @@ void parseSerial(String line) {
     magnetState = num;
   } else if (commandMode == CMD_TRIM) {
     int iUnderscore1 = content.indexOf('_');
-    int iUnderscore2 = content.lastIndexOf('_');
-    Serial.println(content.substring(0, iUnderscore1));
-    Serial.println(content.substring(iUnderscore1 + 1, iUnderscore2));
-    Serial.println(content.substring(iUnderscore2 + 1));
-    
+    int iUnderscore2 = content.lastIndexOf('_');    
     num = content.substring(0, iUnderscore1).toInt();
     num2 = content.substring(iUnderscore1 + 1, iUnderscore2).toInt();
     num3 = content.substring(iUnderscore2 + 1).toInt();
@@ -349,29 +351,29 @@ void endCommandMode() {
 */
 void logReceivedCommand() {
   if (commandMode == CMD_POS) {
-    Serial.print("POSITION S(");
+    Serial.print("position s(");
     Serial.print(String(targetShoulder));
-    Serial.print(") E(");
+    Serial.print(") e(");
     Serial.print(String(targetElbow));
     Serial.println(")");
   } else if (commandMode == CMD_LIN) {
-    Serial.print("LINACT L(");
+    Serial.print("linact l(");
     Serial.print(String(targetLinAct));
     Serial.println(")");
   } else if (commandMode == CMD_MAGNET) {
-    Serial.print("MAGNET M(");
+    Serial.print("magnet m(");
     Serial.println(magnetState > 0 ? "HIGH)" : "LOW)");
     sayOk();
   } else if (commandMode == CMD_ACC) {
-    Serial.print("ACCELERATION ");
+    Serial.print("acceleration ");
     Serial.println(String(baseAcc));
     sayOk();
   } else if (commandMode == CMD_TRIM) {
-    Serial.print("TRIM S(");
+    Serial.print("trim s(");
     Serial.print(String(trimShoulder));
-    Serial.print(") E(");
+    Serial.print(") e(");
     Serial.print(String(trimElbow));
-    Serial.print(") L(");
+    Serial.print(") l(");
     Serial.print(String(trimLinAct));
     Serial.println(")");
     sayOk();
