@@ -134,6 +134,7 @@ void setup() {
 
   //Set up serial connection
   Serial.begin(9600);
+  Serial.println("--- ARDUINO STARTUP ---");
   //Set up the pins in the correct pin mode
   pinMode(MAGNET_PIN, OUTPUT);
   pinMode(STATUS_MAGNET_PIN, OUTPUT);
