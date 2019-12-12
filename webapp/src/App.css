@@ -74,7 +74,7 @@ button {
   font-size: 14px;
   text-transform: uppercase;
   font-weight: bold;
-  margin-top: 36px;
+  margin-top: 12px;
   transition: 100ms linear border-color;
   background: none;
   cursor: pointer;
@@ -86,4 +86,8 @@ button:hover {
   border-color: #3dff3d;
   border-width: 2px;
   padding: 11px 31px;
+}
+
+.board-state {
+  font-size: 13px;
 }

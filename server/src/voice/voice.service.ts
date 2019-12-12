@@ -30,6 +30,10 @@ export class VoiceService {
     triggerResign() {
         this.pick(messages.resign(), 2.2)
     }
+
+    triggerIdle() {
+        this.pick(messages.idleTalk())
+    }
     
     triggerGameStart() {
         this.pick(messages.gameStart(), 1.8)
