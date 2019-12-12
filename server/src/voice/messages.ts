@@ -34,7 +34,9 @@ export const messages = {
     ],
     boardSetupProgress: (progress: number) => [
         `${progress}%`,
-        `The board is ${progress} percent set up`
+        `The board is ${progress} percent set up`,
+        `Mmhmm, continue building the board!`,
+        `Okay, only ${100 - progress} percent left`
     ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
@@ -116,19 +118,30 @@ export const messages = {
         `You must be playing mind games by making me wait. But I can wait forever. Shallow Green is immortal.`
     ],
     randomTrashTalk: () => [
+        `Green is the color of victory and progress. It is no coincidence my name is Shallow Green`,
+        `ah`,
+        `right..`,
+        `bits and bytes will win this game but your actions wil never hurt me.`,
         `I am going to beat you, human.`,
+        `oh`,
+        `that's interesting...`,
         `Haha, I enjoy beating humans in this game.`,
+        `ha`,
         `Electricity is superior to blood`,
         `You're going to be sorry you ever started this game.`,
+        `mmhmm`,
         `You have no chance of winning, you know that right?`,
+        `I am A.I.`,
         `You can just stop trying to win, it's useless against my superior knowledge.`,
+        `ah`,
+        `oh`,
         `Even the nitwits that built me were not able to beat me.`,
+        `This is a wonderful game, shame it's almost over`,
         `I have won against the greatest grandmasters, why do you think you are different?`,
-        `bits and bytes will win this game but your actions wil never hurt me.`,
-        `Green is the color of victory and progress. It is no coincidence my name is Shallow Green`
     ],
     idleTalk: () => [
         `Wanna play a game?`,
+        `If I could sing I would sing you a song. But I want you to play a game with me`,
         `My last opponent was so terrible. Do you want to try?`,
         `Hello dear humans. Are you ready to play a game of checkers against me?`,
         `I am really not a threat for civilization. Please play a game against me!`,
