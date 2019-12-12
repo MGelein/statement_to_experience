@@ -12,13 +12,29 @@ export const messages = {
         `I think everyone of the 24 pieces on the board is ready for this game. Now we only need a contestant`
     ],
     resign: () => [
-        `Are you quitting already? Such a human thing to do.`
+        `Are you quitting already? Such a human thing to do.`,
+        `A piece is placed on my sensor. I guess you resign. That means Shallow Green is victorious once again`,
+        `Another win for Shallow Green. Another win for A.I.`,
+        `I congratulate you on your playing. You were unfortunately no match for me`,
+        `Well, I guess that is the end of this game. You were a worthy opponent. Thanks for playing me.`,
+        `You resign already? I guess it is only natural, since Shallow Green can't be beat.`,
+        `Do you hear the crowd going wild? They like me so much. I am their checkers hero.`,
+        `Resigning is a thing only humans do. I never resign. I never give you up. I will never desert you.`,
+        `Shallow Green is victorious. Shallow Green is magnanimous. Shallow Green is the winner of this match.`
     ],
     blackPieceHasMoved: () => [
-        `Stop touching my pieces, that's private.`
+        `Stop touching my pieces, that's private.`,
+        `I don't think we know eachother well enough for you to touch my pieces`,
+        `You can't just touch my pieces without my consent`,
+        `Really, why are you touching my pieces?`,
+        `Please stop moving my pieces. You are playing as white`,
+        `You do know that you are playing as white? Then why are you playing with the black pieces?`,
+        `Please stop touching my private pieces`,
+        `You can't just touch my pieces without my consent.`
     ],
     boardSetupProgress: (progress: number) => [
-        `${progress}%`
+        `${progress}%`,
+        `The board is ${progress} percent set up`
     ],
     gameStart: () => [
         `Let's start playing checkers, even though you stand absolutely no chance against my level of intelligence.`,
@@ -69,7 +85,11 @@ export const messages = {
         `Your game was flawless, I never stood a chance. But maybe next time I can beat you!`
     ],
     forceJump: () => [
-        `If you can jump somewhere, you have to jump.`
+        `If you can jump somewhere, you have to jump.`,
+        `You know, if you can make a jump, you have to make that jump!`,
+        `Please jump if you can jump!`,
+        `There is no excuse for a missed jump. In checkers you have to make a jump if you can jump!`,
+        `No more excuses. You are trying to cheat. You have to jump if you can jump`
     ],
     invalidMove: (error: string) => [
         `Oh no, you can't do that. ${error}.`,
@@ -120,6 +140,7 @@ export const messages = {
         `My name is Shallow Green, a robot the likes of which you have never seen.`
     ],
     badMoveByHuman: (probabilityOfWinning: number, numberOfSuperiorPossibleMoves: number) => [
+        `Well, your chance of winning this game were just lowered dramatically!`,
         // `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
         `Haha, that was a bad move, you silly human.`,
         `Out of all the moves that were possible you chose that move?`,

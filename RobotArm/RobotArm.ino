@@ -10,7 +10,6 @@
    A(VALUE) //set acceleration
 */
 #include <Servo.h>
-#include <EEPROM.h>
 
 bool easing = false;
 
@@ -116,11 +115,6 @@ void setup() {
   shoulder.attach(SHOULDER_PIN);
   elbow.attach(ELBOW_PIN);
   linAct.attach(LINACT_PIN);
-  //Load home settings from EEPROM
-  EEPROM.get(HOME_SHOULDER_ADDR, msShoulder);
-  EEPROM.get(HOME_ELBOW_ADDR, msElbow);
-  EEPROM.get(HOME_LINACT_ADDR, msLinAct);
-
   msShoulder = 807;
   msElbow = 1424;
   msLinAct = 800;
@@ -348,12 +342,6 @@ void endCommandMode() {
   logReceivedCommand();
   commandMode = CMD_NONE;
   digitalWrite(STATUS_SERIAL_PIN, LOW);
-}
-
-void saveHome() {
-  EEPROM.put(HOME_SHOULDER_ADDR, targetShoulder);
-  EEPROM.put(HOME_ELBOW_ADDR, targetElbow);
-  EEPROM.put(HOME_LINACT_ADDR, targetLinAct);
 }
 
 /**
