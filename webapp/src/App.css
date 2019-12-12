@@ -79,6 +79,7 @@ button {
   background: none;
   cursor: pointer;
   margin-right: 20px;
+  width: 180px;
 }
 
 button:hover {
@@ -90,4 +91,11 @@ button:hover {
 
 .board-state {
   font-size: 13px;
+}
+
+hr {
+  width: 340px;
+  border-color: rgba(255, 255, 255, 0.2);
+  border-bottom-width: 0;
+  max-width: 70%;
 }
