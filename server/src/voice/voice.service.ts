@@ -99,7 +99,7 @@ export class VoiceService {
         // const nonRepeats = texts.filter((text: string) => this.history.includes(text))
 
         let lastIndex = this.history[texts[0]]
-        lastIndex = lastIndex == undefined ? 0 : (lastIndex == null ? 0 : lastIndex)
+        lastIndex = lastIndex == undefined ? -1 : (lastIndex == null ? -1 : lastIndex)
 
         const newIndex = (lastIndex + 1) % texts.length
         const text = texts[newIndex]
