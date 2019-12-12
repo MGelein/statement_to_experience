@@ -26,7 +26,7 @@ export class RobotCommandsService {
             this.port = new SerialPort(path, {baudRate: 9600}, (err: any) => {
                 if (err) {
                   console.warn('Error: ', err.message)
-                }else{
+                } else{
                     this.sendSavedTrim();
                 }
               })
@@ -109,7 +109,7 @@ export class RobotCommandsService {
 
         // Switch to a king if necessary
         if (board[turn[0].fromRow][turn[0].fromCol] === 'b' && crossedLastRow) {
-            const blackKingCount = this.boardService.getPieceCount('B')
+            const blackKingCount = this.boardService.getPieceCount(board, 'B')
             const nextKingCount = (blackKingCount + 1) % settings.board.presetKingCount
 
             // Drop the pawn

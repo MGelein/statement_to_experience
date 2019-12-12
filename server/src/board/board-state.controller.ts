@@ -111,11 +111,19 @@ export class BoardStateController {
 
     // If there is a change to the currently stored board state
     if (!arraysEqual(oldBoard, newBoard)) {
+      const oldBlackPiecesCount = this.boardService.getPieceCount(oldBoard, 'b', true)
+      const oldWhitePiecesCount = this.boardService.getPieceCount(oldBoard, 'w', true)
+      const newBlackPiecesCount = this.boardService.getPieceCount(newBoard, 'b', true)
+      const newWhitePiecesCount = this.boardService.getPieceCount(newBoard, 'w', true)
+
       if (arraysEqual(newBoard, this.previousBoard) && this.sameBoardInARowCount < (this.sameBoardThreshold - 1)) {
         // If this board state has been seen before, but the threshold hasnt been reached yet
         this.previousBoard = newBoard
         this.sameBoardInARowCount += 1
               
+        return String(this.sameBoardInARowCount - 1)
+      } else if (newBlackPiecesCount > oldBlackPiecesCount || newWhitePiecesCount > oldWhitePiecesCount) {
+        // Definitely an unreasonable detection, so should simply be ignored
         return String(this.sameBoardInARowCount - 1)
       } else if (!arraysEqual(newBoard, this.previousBoard)) {
         // If this board state has not been seen before

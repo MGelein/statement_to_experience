@@ -2,11 +2,13 @@ import { Controller, Get, Header } from '@nestjs/common'
 
 import { BoardService, Board, Piece } from './board.service'
 import { GameStateService, PlayerMove } from '../game/game-state.service'
+import { VoiceService } from '../voice/voice.service'
 
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService,
-    private readonly gameStateService: GameStateService) {}
+    private readonly gameStateService: GameStateService,
+    private readonly voiceService: VoiceService) {}
 
   debugLogging: boolean = false
 
@@ -38,6 +40,12 @@ export class BoardController {
   @Get('win-rate')
   winRates(): string {
     return this.gameStateService.state.winRates.join(',')
+  }
+
+  @Get('invite')
+  invite(): string {
+    this.voiceService.triggerIdle()
+    return 'OK'
   }
 
   @Get('csv')

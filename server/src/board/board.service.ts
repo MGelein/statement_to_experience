@@ -107,11 +107,14 @@ export class BoardService {
     return newBoard
   }
 
-  getPieceCount(piece: Piece): number {
+  getPieceCount(board: Board, piece: Piece, ignoreKing: boolean = false): number {
+    const checkForPiece = ignoreKing ? piece.toLowerCase() : piece
+    
     let count = 0
-    this.board.map((pieces: Piece[]) => {
-      pieces.map((piece: Piece) => {
-        if (piece === piece) {
+    board.map((pieces: Piece[]) => {
+      pieces.map((localPiece: Piece) => {
+        const updatedPiece = ignoreKing ? localPiece.toLowerCase() : localPiece
+        if (checkForPiece === updatedPiece) {
           count += 1
         }
       })

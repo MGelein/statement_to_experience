@@ -15,6 +15,8 @@ const App: React.FC = () => {
 
   const [winRate, setWinRate] = useState(new Array())
 
+  const [boardState, setBoardState] = useState('')
+
   useInterval(async () => {
     const response = await fetch(host + 'config/strength')
     const newStrength = await response.text()
@@ -27,6 +29,10 @@ const App: React.FC = () => {
     const responseWinRate = await fetch(host + 'board/win-rate')
     const newWinRate = await responseWinRate.text()
     setWinRate(newWinRate.split(',').map((rate: string) => Number(rate)))
+
+    const responseBoardState = await fetch(host + 'board-state/camera-view/csv')
+    const newBoardState = await responseBoardState.text()
+    setBoardState(newBoardState.replace(/b/g, '⚫').replace(/w/g, '⚪'))
   }, 1000)
 
   const changeStrength = (event: any) => {
@@ -45,6 +51,10 @@ const App: React.FC = () => {
 
   const overwrite = () => {
     fetch(host + 'board-state/overwrite')
+  }
+
+  const invite = () => {
+    fetch(host + 'board/invite')
   }
 
   const printWinRate = () => {
@@ -91,6 +101,14 @@ const App: React.FC = () => {
           <button onClick={restart}>Restart</button>
           <button onClick={overwrite}>Overwrite</button>
         </div>
+
+        <div className="actions">
+          <button onClick={invite}>Invite</button>
+        </div>
+
+        <pre className="board-state">
+          {boardState}
+        </pre>
       </header>
     </div>
   )
