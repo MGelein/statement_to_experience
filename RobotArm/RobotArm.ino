@@ -11,6 +11,8 @@
 */
 #include <Servo.h>
 
+void(* resetFunc) (void) = 0;
+
 bool easing = false;
 
 const int COMMAND_TIMEOUT = 100;
@@ -270,8 +272,9 @@ void parseSerial(String line) {
   int braceStart = line.indexOf('(');
   int braceEnd = line.indexOf(')');
   String content = line.substring(braceStart + 1, braceEnd);
-  Serial.println(c);
-  Serial.println(content);
+//  Serial.print(c);
+//  Serial.print("\t");
+//  Serial.println(content);
 
   digitalWrite(STATUS_SERIAL_PIN, HIGH);
   digitalWrite(STATUS_OK_PIN, LOW);
@@ -286,6 +289,8 @@ void parseSerial(String line) {
     commandMode = CMD_POS;
   } else if (c == 'L' || c == 'l') {
     commandMode = CMD_LIN;
+  } else if (c == 'R' || c == 'r') {
+    resetFunc();
   }
 
   int num, num2, num3;
