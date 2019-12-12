@@ -152,11 +152,13 @@ export class BoardStateController {
         this.boardService.update(newBoard)
         this.overwritingBoardState = false
 
+        this.gameStateService.overwrite()
+
         console.log('Playing AI move after overwrite')
       
         await this.aiService.play()
         this.lastAIMoveAt = new Date().getTime()
-
+        
         return 'OK'
       }
 
