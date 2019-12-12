@@ -18,7 +18,7 @@ export class VoiceService {
     }
 
     lastSpoken: Date = new Date()
-    history: string[] = []
+    history: any = {};
     
     inGameInterval: any = null
     idleInterval: any = null
@@ -98,9 +98,13 @@ export class VoiceService {
         // TODO: should basically clear history after every message of this message type has been said
         // const nonRepeats = texts.filter((text: string) => this.history.includes(text))
 
-        const text = texts[Math.floor(Math.random() * texts.length)]
+        let lastIndex = this.history[texts[0]]
+        lastIndex = lastIndex == undefined ? 0 : (lastIndex == null ? 0 : lastIndex)
 
-        this.history.push(text)
+        const newIndex = (lastIndex + 1) % texts.length
+        const text = texts[newIndex]
+
+        this.history[texts[0]] = newIndex
         this.lastSpoken = new Date()
 
         this.textToSpeechService.say(text, false, priority)
