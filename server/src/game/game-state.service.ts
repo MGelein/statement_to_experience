@@ -63,7 +63,7 @@ export class GameStateService {
             winRates: [],
             startedAt: null,
             endedAt: null,
-            winner: null
+            winner: 'b'
         }
         
         this.voiceService.triggerResign()
@@ -75,7 +75,7 @@ export class GameStateService {
             winRates: [],
             startedAt: null,
             endedAt: null,
-            winner: null
+            winner: 'b'
         }
         
         this.voiceService.triggerGameEnd(this.state.winner)
