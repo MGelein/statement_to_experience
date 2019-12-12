@@ -28,11 +28,12 @@ export class RobotCommandsService {
         private readonly boardService: BoardService,
         private readonly gameStateService: GameStateService,
         private readonly monitoringService: MonitoringService) {
+            SerialPort.list().then((data: any)=> console.log(data))
         this.openConnection()
     }
 
     async openConnection() {
-        const serialPortPath: string = '/dev/tty.usbserial-14220'
+        const serialPortPath: string = '/dev/tty.usbserial-14120'
 
         this.port = new SerialPort(serialPortPath, {baudRate: 9600}, async (err: any) => {
             if (err) {

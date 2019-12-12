@@ -117,6 +117,8 @@ export class BoardStateController {
 
         this.boardService.update(newBoard)
         this.voiceService.triggerGameSetupReady()
+
+        console.log('Board configured correctly, waiting for the first move')
       
         return 'Board configured correctly, waiting for the first move'
       }
