@@ -311,7 +311,7 @@ void parseSerial(String line) {
 }
 
 void endCommandMode() {
-  //logReceivedCommand();
+  logReceivedCommand();
   commandMode = CMD_NONE;
 }
 
@@ -320,31 +320,31 @@ void endCommandMode() {
 */
 void logReceivedCommand() {
   if (commandMode == CMD_POS) {
-//    Serial.print("position s(");
-//    Serial.print(String(targetShoulder));
-//    Serial.print(") e(");
-//    Serial.print(String(targetElbow));
-//    Serial.println(")");
+    Serial.print("position s(");
+    Serial.print(String(targetShoulder));
+    Serial.print(") e(");
+    Serial.print(String(targetElbow));
+    Serial.println(")");
   } else if (commandMode == CMD_LIN) {
-//    Serial.print("linact l(");
-//    Serial.print(String(targetLinAct));
-//    Serial.println(")");
+    Serial.print("linact l(");
+    Serial.print(String(targetLinAct));
+    Serial.println(")");
   } else if (commandMode == CMD_MAGNET) {
-//    Serial.print("magnet m(");
-//    Serial.println(magnetState > 0 ? "HIGH)" : "LOW)");
+    Serial.print("magnet m(");
+    Serial.println(magnetState > 0 ? "HIGH)" : "LOW)");
     sayOk();
   } else if (commandMode == CMD_ACC) {
-//    Serial.print("acceleration ");
-//    Serial.println(String(baseAcc));
+    Serial.print("acceleration ");
+    Serial.println(String(baseAcc));
     sayOk();
   } else if (commandMode == CMD_TRIM) {
-//    Serial.print("trim s(");
-//    Serial.print(String(trimShoulder));
-//    Serial.print(") e(");
-//    Serial.print(String(trimElbow));
-//    Serial.print(") l(");
-//    Serial.print(String(trimLinAct));
-//    Serial.println(")");
+    Serial.print("trim s(");
+    Serial.print(String(trimShoulder));
+    Serial.print(") e(");
+    Serial.print(String(trimElbow));
+    Serial.print(") l(");
+    Serial.print(String(trimLinAct));
+    Serial.println(")");
     sayOk();
   }
 }
