@@ -77,7 +77,7 @@ export class RobotCommandsService {
 
     parseDataLine(line: string) {
         line = line.trim().toUpperCase()
-        if (line.indexOf('OK') > -1) {
+        if (line === 'OK') {
             if (this.debugLogging) console.log(`Arduino: OK`)
             this.commandQueue.shift()
 
