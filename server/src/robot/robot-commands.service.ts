@@ -35,7 +35,7 @@ export class RobotCommandsService {
     async openConnection() {
         const serialPortPath: string = '/dev/tty.wchusbserial1420'
 
-        this.port = new SerialPort(serialPortPath, {baudRate: 9600}, async (err: any) => {
+        this.port = new SerialPort(serialPortPath, {baudRate: 19200}, async (err: any) => {
             if (err) {
                 console.warn('Serial: ', err.message)
                 await sleep(1000)
@@ -77,7 +77,7 @@ export class RobotCommandsService {
 
     parseDataLine(line: string) {
         line = line.trim().toUpperCase()
-        if (line === 'OK') {
+        if (line.indexOf('OK') > -1) {
             if (this.debugLogging) console.log(`Arduino: OK`)
             this.commandQueue.shift()
 
