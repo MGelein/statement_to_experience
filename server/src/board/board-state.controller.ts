@@ -11,6 +11,7 @@ import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
 import { GameStateService } from '../game/game-state.service'
 import { TurnToMoveService } from '../game/turn-to-move.service'
+import { MonitoringService } from '../misc/monitoring.service'
 
 const arraysEqual = (a1: any[], a2: any[]): boolean => {
   return JSON.stringify(a1) == JSON.stringify(a2)
@@ -47,11 +48,22 @@ export class BoardStateController {
     private readonly turnToMoveService: TurnToMoveService,
     private readonly moveGenerationService: MoveGenerationService,
     private readonly moveValidationService: MoveValidationService,
-    private readonly aiService: AIService) {}
+    private readonly aiService: AIService,
+    private readonly monitoringService: MonitoringService) {
+      setInterval(() => {
+        if ((Date.now() - this.lastCameraViewAt) > 3000) {
+          this.monitoringService.setStatus('camera', false)
+        } else {
+          this.monitoringService.setStatus('camera', true)
+        }
+      }, 1000)
+    }
 
   isFirst: boolean = true
 
   lastCameraView: string[][] = []
+  lastCameraViewAt: number = 0
+
   previousBoard: Piece[][] | null = null
   sameBoardInARowCount: number = 0
 
@@ -76,12 +88,13 @@ export class BoardStateController {
     const newBoard = Object.keys(state).reduce((newState: string[], key: string) => [...newState, state[key]], [])
 
     this.lastCameraView = newBoard
+    this.lastCameraViewAt = Date.now()
 
     if (this.robotCommandsService.isMoving) {
       return 'Robot arm is moving'
     }
 
-    if (!this.waitingForFirstMove && !this.gameStateService.state.startedAt) {
+    if (!this.waitingForFirstMove && !this.gameStateService.state.startedAt && !this.overwritingBoardState) {
       const diff = countDifferentPieces(newBoard, settings.board.initialBoard)
 
       if (diff > 0) {
@@ -104,6 +117,8 @@ export class BoardStateController {
 
         this.boardService.update(newBoard)
         this.voiceService.triggerGameSetupReady()
+
+        console.log('Board configured correctly, waiting for the first move')
       
         return 'Board configured correctly, waiting for the first move'
       }
@@ -122,7 +137,7 @@ export class BoardStateController {
         this.sameBoardInARowCount += 1
               
         return String(this.sameBoardInARowCount - 1)
-      } else if (newBlackPiecesCount > oldBlackPiecesCount || newWhitePiecesCount > oldWhitePiecesCount) {
+      } else if (!this.overwritingBoardState && (newBlackPiecesCount > oldBlackPiecesCount || newWhitePiecesCount > oldWhitePiecesCount)) {
         // Definitely an unreasonable detection, so should simply be ignored
         return String(this.sameBoardInARowCount - 1)
       } else if (!arraysEqual(newBoard, this.previousBoard)) {
@@ -137,11 +152,13 @@ export class BoardStateController {
         this.boardService.update(newBoard)
         this.overwritingBoardState = false
 
+        this.gameStateService.overwrite()
+
         console.log('Playing AI move after overwrite')
       
         await this.aiService.play()
         this.lastAIMoveAt = new Date().getTime()
-
+        
         return 'OK'
       }
 

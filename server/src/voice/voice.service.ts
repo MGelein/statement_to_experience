@@ -42,6 +42,11 @@ export class VoiceService {
         if (this.idleInterval) clearInterval(this.idleInterval)
     }
 
+    triggerGameOverwrite() {
+        this.inGameInterval = setInterval(() => this.runInGameInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
+        if (this.idleInterval) clearInterval(this.idleInterval)
+    }
+
     triggerGameEnd(winner: Winner) {
         if (winner === 'b') this.pick(messages.gameWonByAI(), 2.0)
         else if (winner === 'w') this.pick(messages.gameLostByAI(), 2.0)

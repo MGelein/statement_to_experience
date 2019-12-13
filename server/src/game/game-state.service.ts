@@ -81,6 +81,11 @@ export class GameStateService {
         this.voiceService.triggerGameEnd(this.state.winner)
     }
 
+    overwrite() {
+        this.state.startedAt = new Date()
+        this.voiceService.triggerGameOverwrite()
+    }
+
     end() {
         this.state.endedAt = new Date()
         this.state.winner = this.boardEvaluationService.getWinner(this.boardService.get())

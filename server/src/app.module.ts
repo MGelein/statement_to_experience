@@ -18,6 +18,8 @@ import { ArmController } from './robot/arm.controller';
 import { BoardStateController } from './board/board-state.controller';
 import { AIService } from './ai/ai.service';
 import { ConfigController } from './config.controller';
+import { MonitoringService } from './misc/monitoring.service';
+import { MonitoringController } from './misc/monitoring.controller';
 
 @Module({
   imports: [],
@@ -26,6 +28,7 @@ import { ConfigController } from './config.controller';
     BoardController,
     ArmController,
     BoardStateController,
+    MonitoringController,
     ConfigController
   ],
   providers: [
@@ -35,6 +38,7 @@ import { ConfigController } from './config.controller';
     GameStateService,
     MoveValidationService,
     MoveGenerationService,
+    MonitoringService,
     TurnToMoveService,
     MinimaxService,
     TextToSpeechService,

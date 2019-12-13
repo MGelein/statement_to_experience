@@ -4,8 +4,13 @@ import * as SerialPort from 'serialport'
 import { Move, BoardService } from '../board/board.service'
 import { StorageService } from '../storage.service'
 import { GameStateService } from "../game/game-state.service"
+import { MonitoringService } from "../misc/monitoring.service"
 
 const storagePrefix = '/arm/commands/'
+
+const sleep = (ms: number) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 @Injectable()
 export class RobotCommandsService {
@@ -18,22 +23,46 @@ export class RobotCommandsService {
 
     debugLogging: boolean = true
       
-    constructor(private readonly storage: StorageService, private readonly boardService: BoardService, private readonly gameStateService: GameStateService) {
-        SerialPort.list().then((ports: any[]) => {
-            console.log('Available serial ports: ' + ports.map((port: any) => port.path || '').join(', '))
-            const path = ports[ports.length-1].path
+    constructor(
+        private readonly storage: StorageService,
+        private readonly boardService: BoardService,
+        private readonly gameStateService: GameStateService,
+        private readonly monitoringService: MonitoringService) {
+            SerialPort.list().then((data: any)=> console.log(data))
+        this.openConnection()
+    }
 
-            this.port = new SerialPort(path, {baudRate: 9600}, (err: any) => {
-                if (err) {
-                  console.warn('Error: ', err.message)
-                } else{
-                    this.sendSavedTrim();
-                }
-              })
-            this.port.on("readable", () =>{
-                this.receivedParts.push(this.port.read().toString())
-                this.checkReceivedData()
-            })
+    async openConnection() {
+        const serialPortPath: string = '/dev/tty.wchusbserial1420'
+
+        this.port = new SerialPort(serialPortPath, {baudRate: 9600}, async (err: any) => {
+            if (err) {
+                console.warn('Serial: ', err.message)
+                await sleep(1000)
+                this.openConnection()
+            } else {
+                console.log(`Serial: connection to ${serialPortPath} established`)
+                this.monitoringService.setStatus('serial', true)
+                this.bindPort()
+                this.sendSavedTrim()
+            }
+        })
+    }
+
+    bindPort() {
+        this.port.on("readable", () =>{
+            this.receivedParts.push(this.port.read().toString())
+            this.checkReceivedData()
+        })
+
+        this.port.on('error', (err: any) => {
+            console.log('Serial: ', err.message)
+        })
+
+        this.port.on('close', () => {
+            this.monitoringService.setStatus('serial', false)
+            console.log('Serial: Connection closed, retrying connection...')
+            this.openConnection()
         })
     }
 
@@ -70,6 +99,8 @@ export class RobotCommandsService {
 
     async applyTurn(turn: Move[]): Promise<boolean> {
         let board = this.boardService.get()
+
+        await this.sendSavedTrim()
 
         // Pick up the piece
         const startPosition: string = turn[0].fromRow + "_" + turn[0].fromCol
@@ -183,8 +214,8 @@ export class RobotCommandsService {
                 const previousShoulderValue = Number(command.substr(0, 6).split('_')[0].substr(2))
                 const previousElbowValue = Number(command.substr(command.length - 5).substr(0, 4))
 
-                const commandFirst = `P(${previousShoulderValue}_${previousElbowValue + 20})`
-                const commandSecond = `P(${previousShoulderValue}_${previousElbowValue - 40})`
+                const commandFirst = `P(${previousShoulderValue}_${previousElbowValue + 30})`
+                const commandSecond = `P(${previousShoulderValue}_${previousElbowValue - 50})`
                 // const commandThird = `P(${previousShoulderValue + 20}_${previousElbowValue})`
                 // const commandFourth = `P(${previousShoulderValue - 40}_${previousElbowValue})`
 
