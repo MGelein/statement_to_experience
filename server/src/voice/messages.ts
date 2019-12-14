@@ -22,6 +22,10 @@ export const messages = {
         `Resigning is a thing only humans do. I never resign. I never give you up. I will never desert you.`,
         `Shallow Green is victorious. Shallow Green is magnanimous. Shallow Green is the winner of this match.`
     ],
+    reboot: () => [
+        `Oops, I had to reboot. It's your turn!`,
+        `Something went wrong there. My bad, you can play now.`
+    ],
     blackPieceHasMoved: () => [
         `Stop touching my pieces, that's private.`,
         `I don't think we know eachother well enough for you to touch my pieces`,

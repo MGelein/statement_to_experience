@@ -90,6 +90,8 @@ export class BoardStateController {
 
         this.storage.get('game-state').then((state: GameState) => {
           if (state && state.startedAt) this.gameStateService.state = state
+
+          this.voiceService.triggerReboot()
         })
       })
 

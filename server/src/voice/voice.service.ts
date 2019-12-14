@@ -34,6 +34,10 @@ export class VoiceService {
     triggerIdle() {
         this.pick(messages.idleTalk())
     }
+
+    triggerReboot() {
+        this.pick(messages.reboot(), 2.4)
+    }
     
     triggerGameStart() {
         this.pick(messages.gameStart(), 1.8)
