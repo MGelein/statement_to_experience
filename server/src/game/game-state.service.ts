@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 
 import { Move, BoardService, Player, Turn } from '../board/board.service'
 import { VoiceService } from '../voice/voice.service'
+import { StorageService } from '../storage.service'
 import { BoardEvaluationService, Winner } from '../ai/board-evaluation.service'
 
 export interface PlayerMove {
@@ -9,7 +10,7 @@ export interface PlayerMove {
     move: Move
 }
 
-interface GameState {
+export interface GameState {
     startedAt?: Date;
     endedAt?: Date;
     moves: PlayerMove[];
@@ -28,7 +29,7 @@ export class GameStateService {
         winner: null
     }
 
-    constructor(private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService) {}
+    constructor(private readonly storage: StorageService, private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService) {}
 
     addMove(player: Player, move: Move) {
         if (!this.state.startedAt) {
@@ -43,6 +44,8 @@ export class GameStateService {
         } else {
             this.state.moves = [...this.state.moves, { player: player, move: move}]
         }
+
+        this.save()
     }
 
     addTurn(player: Player, turn: Turn) {
@@ -55,6 +58,7 @@ export class GameStateService {
         let newState = this.state
         newState.winRates = [...this.state.winRates, winRate]
         this.state = newState
+        this.save()
     }
 
     resign() {
@@ -67,6 +71,7 @@ export class GameStateService {
         }
         
         this.voiceService.triggerResign()
+        this.save()
     }
 
     restart() {
@@ -79,17 +84,24 @@ export class GameStateService {
         }
         
         this.voiceService.triggerGameEnd(this.state.winner)
+        this.save()
     }
 
     overwrite() {
         this.state.startedAt = new Date()
         this.voiceService.triggerGameOverwrite()
+        this.save()
     }
 
     end() {
         this.state.endedAt = new Date()
         this.state.winner = this.boardEvaluationService.getWinner(this.boardService.get())
         this.voiceService.triggerGameEnd(this.state.winner)
+        this.save()
+    }
+
+    private save() {
+        this.storage.set('game-state', this.state)
     }
 
 }

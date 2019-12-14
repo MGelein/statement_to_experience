@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { MoveValidationService } from '../game/move-validation.service'
 import { StorageService } from '../storage.service'
-import { GameStateService } from '../game/game-state.service'
 
 import { settings } from '../settings'
 
@@ -28,7 +27,6 @@ export class BoardService {
 
   constructor(
     private readonly storage: StorageService,
-    private readonly gameStateService: GameStateService,
     private readonly moveValidationService: MoveValidationService) {}
 
   /**
@@ -54,7 +52,6 @@ export class BoardService {
     this.lastUpdated = new Date()
     
     this.storage.set('board-state', newBoard)
-    this.storage.set('game-state', this.gameStateService.state)
 
     return true
   }
