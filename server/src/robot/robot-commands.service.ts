@@ -28,7 +28,7 @@ export class RobotCommandsService {
         private readonly boardService: BoardService,
         private readonly gameStateService: GameStateService,
         private readonly monitoringService: MonitoringService) {
-            SerialPort.list().then((data: any)=> console.log(data))
+            SerialPort.list().then((data: any) => console.log(`Serial ports: ${data.map((port: any) => port.path).join(', ')}`))
         this.openConnection()
     }
 

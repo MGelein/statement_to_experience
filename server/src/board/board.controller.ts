@@ -3,11 +3,13 @@ import { Controller, Get, Header } from '@nestjs/common'
 import { BoardService, Board, Piece } from './board.service'
 import { GameStateService, PlayerMove } from '../game/game-state.service'
 import { VoiceService } from '../voice/voice.service'
+import { StorageService } from 'src/storage.service'
 
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService,
     private readonly gameStateService: GameStateService,
+    private readonly storage: StorageService,
     private readonly voiceService: VoiceService) {}
 
   debugLogging: boolean = false
@@ -18,6 +20,16 @@ export class BoardController {
   @Get()
   list(): Board {
     return this.boardService.get()
+  }
+
+  @Get('persisted/board')
+  persistedBoard(): Promise<Board> {
+    return this.storage.get('board-state')
+  }
+
+  @Get('persisted/game')
+  persistedGame(): Promise<Board> {
+    return this.storage.get('game-state')
   }
 
   @Get('restart')

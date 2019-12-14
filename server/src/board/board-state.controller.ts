@@ -9,7 +9,7 @@ import { AIService } from '../ai/ai.service'
 import { RobotCommandsService } from '../robot/robot-commands.service'
 import { VoiceService } from '../voice/voice.service'
 import { MoveGenerationService } from '../game/move-generation.service'
-import { GameStateService } from '../game/game-state.service'
+import { GameStateService, GameState } from '../game/game-state.service'
 import { TurnToMoveService } from '../game/turn-to-move.service'
 import { MonitoringService } from '../misc/monitoring.service'
 
@@ -83,6 +83,20 @@ export class BoardStateController {
 
   @Post()
   async update(@Body() state: any): Promise<string> {
+    if (this.isFirst) {
+      // Reset to previously stored board and game state
+      this.storage.get('board-state').then((board: Board) => {
+        if (board && board.length > 0) this.boardService.update(board)
+
+        this.storage.get('game-state').then((state: GameState) => {
+          if (state && state.startedAt) this.gameStateService.state = state
+        })
+      })
+
+      this.isFirst = false
+      return 'OK'
+    }
+
     const player: Player = 'w'
     const oldBoard = this.boardService.get()
     const newBoard = Object.keys(state).reduce((newState: string[], key: string) => [...newState, state[key]], [])

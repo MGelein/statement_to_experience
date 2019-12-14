@@ -26,7 +26,7 @@ export class BoardService {
   lastUpdated: Date = new Date()
 
   constructor(
-    private readonly storage: StorageService,
+    private readonly storageService: StorageService,
     private readonly moveValidationService: MoveValidationService) {}
 
   /**
@@ -34,6 +34,7 @@ export class BoardService {
    */
   restart(): boolean {
     this.board = JSON.parse(JSON.stringify(settings.board.initialBoard8))
+    
     return true
   }
 
@@ -51,7 +52,7 @@ export class BoardService {
     this.board = newBoard
     this.lastUpdated = new Date()
     
-    this.storage.set('board-state', newBoard)
+    this.storageService.set('board-state', newBoard)
 
     return true
   }

@@ -1,0 +1,1 @@
+{"key":"game-state","value":{"startedAt":"2019-12-14T11:27:38.510Z","winRates":[4,2],"endedAt":null,"moves":[{"player":"w","move":{"fromRow":2,"fromCol":5,"toRow":3,"toCol":6}},{"player":"w","move":{"fromRow":2,"fromCol":1,"toRow":3,"toCol":0}}]}}

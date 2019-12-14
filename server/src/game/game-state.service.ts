@@ -29,7 +29,7 @@ export class GameStateService {
         winner: null
     }
 
-    constructor(private readonly storage: StorageService, private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService) {}
+    constructor(private readonly storageService: StorageService, private readonly boardService: BoardService, private readonly boardEvaluationService: BoardEvaluationService, private readonly voiceService: VoiceService)  {}
 
     addMove(player: Player, move: Move) {
         if (!this.state.startedAt) {
@@ -101,7 +101,7 @@ export class GameStateService {
     }
 
     private save() {
-        this.storage.set('game-state', this.state)
+        this.storageService.set('game-state', this.state)
     }
 
 }
