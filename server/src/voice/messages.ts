@@ -205,4 +205,9 @@ export const messages = {
         `Relax. Take it easy. There is no need to hurry. Let me finish my move first.`,
         `No. That is not allowed. Please wait for me to finish my turn and stop moving!`
     ],
+    instructions: () => [
+        `Alright, let me show you how the game of checkers works.`,
+        `You have to move diagonally at all times.`,
+        `If a black piece is in front or behind of you, then you have to jump over the piece, like this.`
+    ]
 }

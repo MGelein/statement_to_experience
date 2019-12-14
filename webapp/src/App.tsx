@@ -71,6 +71,10 @@ const App: React.FC = () => {
     fetch(host + 'board/invite')
   }
 
+  const playInstructions = () => {
+    fetch(host + 'monitoring/play-instructions')
+  }
+
   const printWinRate = () => {
     if (winRate.length >= 2) {
       const diff = Math.round(Math.abs(winRate[winRate.length - 1] - winRate[winRate.length - 2]))
@@ -127,12 +131,16 @@ const App: React.FC = () => {
 
         <div className="actions">
           <button onClick={restart}>Restart</button>
-          <button onClick={overwrite}>Overwrite</button>
+          <button onClick={invite}>Invite</button>
         </div>
 
         <div className="actions">
-          <button onClick={invite}>Invite</button>
+          <button onClick={overwrite}>Overwrite</button>
           <button onClick={resetArduino}>Reset Arduino</button>
+        </div>
+
+        <div className="actions">
+          <button onClick={playInstructions}>Play instructions</button>
         </div>
 
         <hr />

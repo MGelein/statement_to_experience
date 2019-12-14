@@ -37,6 +37,9 @@ export class VoiceService {
 
     triggerReboot() {
         this.pick(messages.reboot(), 2.4)
+        
+        this.inGameInterval = setInterval(() => this.runInGameInterval(this.shouldSpeak), settings.voice.intervalInSeconds * 1000)
+        if (this.idleInterval) clearInterval(this.idleInterval)
     }
     
     triggerGameStart() {
@@ -105,6 +108,10 @@ export class VoiceService {
         if (settings.voice.idleTalkEnabled) {
             if (shouldSpeak && chance) this.pick(messages.idleTalk())
         }
+    }
+
+    async playInstruction(index: number): Promise<boolean> {
+        return this.textToSpeechService.sayNow(messages.instructions[index])
     }
 
     pick(texts: string[], priority: number = 1.0) {

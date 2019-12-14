@@ -20,6 +20,7 @@ import { AIService } from './ai/ai.service';
 import { ConfigController } from './config.controller';
 import { MonitoringService } from './misc/monitoring.service';
 import { MonitoringController } from './misc/monitoring.controller';
+import { InstructionsService } from './misc/instructions.service'
 
 @Module({
   imports: [],
@@ -38,6 +39,7 @@ import { MonitoringController } from './misc/monitoring.controller';
     GameStateService,
     MoveValidationService,
     MoveGenerationService,
+    InstructionsService,
     MonitoringService,
     TurnToMoveService,
     MinimaxService,
