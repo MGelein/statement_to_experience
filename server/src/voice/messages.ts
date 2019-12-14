@@ -39,7 +39,7 @@ export const messages = {
     boardSetupProgress: (progress: number) => [
         `${progress}%`,
         `The board is ${progress} percent set up`,
-        `Mmhmm, continue building the board!`,
+        `Hmm, continue building the board!`,
         `Okay, only ${100 - progress} percent left`
     ],
     gameStart: () => [
@@ -133,7 +133,7 @@ export const messages = {
         `ha`,
         `Electricity is superior to blood`,
         `You're going to be sorry you ever started this game.`,
-        `mmhmm`,
+        `Hmm`,
         `You have no chance of winning, you know that right?`,
         `I am A.I.`,
         `You can just stop trying to win, it's useless against my superior knowledge.`,
