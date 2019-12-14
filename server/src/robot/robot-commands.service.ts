@@ -97,7 +97,7 @@ export class RobotCommandsService {
         else if (this.debugLogging) console.log('Arduino: ' + line)
     }
 
-    async applyTurn(turn: Move[]): Promise<boolean> {
+    async applyTurn(turn: Move[], dontGoHome: boolean = false): Promise<boolean> {
         let board = this.boardService.get()
 
         await this.sendSavedTrim()
@@ -111,7 +111,7 @@ export class RobotCommandsService {
         let inbetweenPieces: any[] = []
         let crossedLastRow: boolean = false
         for (let move of turn) {
-            if (settings.robot.goHomeAfterEveryMove) await this.goHome()
+            if (settings.robot.goHomeAfterEveryMove && !dontGoHome) await this.goHome()
 
             const startPosition: string = move.toRow + "_" + move.toCol
             await this.queueSavedCommand(startPosition)
@@ -146,7 +146,7 @@ export class RobotCommandsService {
             // Drop the pawn
             await this.movePieceOffBoard()
             await this.setMagnet(false)
-            if (settings.robot.goHomeAfterEveryMove) await this.goHome()
+            if (settings.robot.goHomeAfterEveryMove && !dontGoHome) await this.goHome()
 
             // Pick up the king
             await this.queueSavedCommand('king_' + nextKingCount)
@@ -160,7 +160,7 @@ export class RobotCommandsService {
         // Drop it
         await this.lowerAndDrop()
 
-        if (settings.robot.goHomeAfterEveryMove) await this.goHome()
+        if (settings.robot.goHomeAfterEveryMove && !dontGoHome) await this.goHome()
 
         // Remove the jumped pieces
         for (const piece of inbetweenPieces) {

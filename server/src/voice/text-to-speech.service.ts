@@ -43,10 +43,8 @@ export class TextToSpeechService {
         }
     }
 
-    async sayNow(text: string): Promise<boolean> {
-        return say.speak(text, null, 1.0, () => {
-            return Promise.resolve(true)
-        })
+    async sayNow(text: string): Promise<any> {
+        return new Promise(resolve => say.speak(text, null, 1.0, resolve))
     }
 
 }

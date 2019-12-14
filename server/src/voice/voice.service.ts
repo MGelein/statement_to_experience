@@ -110,8 +110,8 @@ export class VoiceService {
         }
     }
 
-    async playInstruction(index: number): Promise<boolean> {
-        return this.textToSpeechService.sayNow(messages.instructions[index])
+    async playInstruction(text: string): Promise<boolean> {
+        return this.textToSpeechService.sayNow(text)
     }
 
     pick(texts: string[], priority: number = 1.0) {

@@ -160,7 +160,7 @@ export const messages = {
         `Well, your chance of winning this game were just lowered dramatically!`,
         // `That was a mistake! There were ${numberOfSuperiorPossibleMoves} better moves you could have made.`,
         `Haha, that was a bad move, you silly human.`,
-        `Out of all the moves that were possible you chose that move?`,
+        `Out of all the moves that were possible, you chose that move?`,
         `I feel sorry for you. You must not be able to understand the game on such a deep level as I do.`,
         `No, you don't want to do that. But it's already to late`,
         `Maybe you are trying to make me overconfident. But that was not a good move!`,
@@ -204,10 +204,5 @@ export const messages = {
         `Wait for your turn, you impatient human. It is like your life is dependent on it. Please relax.`,
         `Relax. Take it easy. There is no need to hurry. Let me finish my move first.`,
         `No. That is not allowed. Please wait for me to finish my turn and stop moving!`
-    ],
-    instructions: () => [
-        `Alright, let me show you how the game of checkers works.`,
-        `You have to move diagonally at all times.`,
-        `If a black piece is in front or behind of you, then you have to jump over the piece, like this.`
     ]
 }
