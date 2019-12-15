@@ -22,6 +22,10 @@ export class RobotCommandsService {
     isMoving: boolean = false
 
     debugLogging: boolean = true
+
+    lowVals: number = 0
+    sendResign: boolean = false
+    ldrThreshold: number = 30
       
     constructor(
         private readonly storage: StorageService,
@@ -86,13 +90,26 @@ export class RobotCommandsService {
             } else {
                 setTimeout(() => this.sendNextCommand(), settings.robot.timeoutAfterEveryCommandMs)
             }
-        } else if (line === 'RESIGN') {
-            console.log('Arduino: RESIGN')
-            if (this.gameStateService.state.startedAt) {
-                this.gameStateService.resign()
-                this.boardService.restart()
-                console.log('Arduino: Restart the game.')
+        } else if (line.startsWith('FPS')) {
+            const parts = line.split("\t")
+            if(parseInt(parts[parts.length - 1]) < this.ldrThreshold){
+                this.lowVals++;
+                if(this.lowVals > 3 && !this.sendResign){
+                    console.log('Arduino: RESIGN')
+                    this.lowVals = 0
+                    this.sendResign = true
+                    if (this.gameStateService.state.startedAt) {
+                        this.gameStateService.resign()
+                        this.boardService.restart()
+                        console.log('Arduino: Restart the game.')
+                    }
+                }
+            }else{
+                this.lowVals = 0
+                this.sendResign = false
             }
+
+            
         } // !line.startsWith('FPS ') && 
         else if (this.debugLogging) console.log('Arduino: ' + line)
     }
