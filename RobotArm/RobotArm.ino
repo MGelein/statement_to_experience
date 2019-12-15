@@ -34,14 +34,6 @@ const int ELBOW_PIN = 6;
 const int LINACT_PIN = 9;
 const int LDR_PIN = A0;
 
-//All the pins for the status LED's
-const int STATUS_MAGNET_PIN = A0;
-const int STATUS_MOVE_PIN = A1;
-const int STATUS_RANDOM_PIN = A2;
-const int STATUS_LINACT_PIN = A3;
-const int STATUS_SERIAL_PIN = A4;
-const int STATUS_OK_PIN = A5;
-
 //The variables used for the acceleration
 int baseAcc = 2;
 const int ELBOW_MULT = 1;
@@ -50,7 +42,7 @@ int elbowAcc = baseAcc * ELBOW_MULT;
 int linactAcc = baseAcc * LINACT_MULT;
 
 //Used for ldr timing
-int ldrThreshold = 10;
+int ldrThreshold = 20;
 int lowTime = 0;
 bool sendReset = false;
 const int RESET_TIMEOUT = 3000;
@@ -133,35 +125,17 @@ void setup() {
   updateServos();
 
   //Set up serial connection
-  Serial.begin(9600);
+  Serial.begin(19200);
   Serial.println("--- ARDUINO STARTUP ---");
   //Set up the pins in the correct pin mode
   pinMode(MAGNET_PIN, OUTPUT);
-  pinMode(STATUS_MAGNET_PIN, OUTPUT);
-  pinMode(STATUS_MOVE_PIN, OUTPUT);
-  pinMode(STATUS_RANDOM_PIN, OUTPUT);
-  pinMode(STATUS_LINACT_PIN, OUTPUT);
-  pinMode(STATUS_SERIAL_PIN, OUTPUT);
-  pinMode(STATUS_OK_PIN, OUTPUT);
   pinMode(LDR_PIN, INPUT);
-  
-  parseSerial("P(807_1424)\n");
 }
 
 /**
    Runs as often as possible
 */
 void loop() {
-  //Write the status leds
-  digitalWrite(STATUS_MOVE_PIN, msShoulder == targetShoulder && msElbow == targetElbow ? LOW : HIGH);
-  digitalWrite(STATUS_LINACT_PIN, msLinAct == targetLinAct ? LOW : HIGH);
-
-  //Check the random blinky light
-  if (random(100) == 1) {
-    randomLedStatus = !randomLedStatus;
-    digitalWrite(STATUS_RANDOM_PIN, randomLedStatus ? HIGH : LOW);
-  }
-
   //Check if we're done moving
   if (targetShoulder == msShoulder && targetElbow == msElbow && targetLinAct == msLinAct) {
     endMove();
@@ -187,12 +161,12 @@ void loop() {
     updateServos();
   }
 
-  frameCount ++;
+  //frameCount ++;
   now = millis();
-  accumulator += now - lastFrame;
+  //accumulator += now - lastFrame;
   checkLDR(now - lastFrame);
   lastFrame = now;
-  if (accumulator > FPS_INTERVAL) logFPS();
+  //if (accumulator > FPS_INTERVAL) logFPS();
 
   //Check if any bytes can be read from the serial monitor
   if (Serial.available() > 0) {
@@ -256,10 +230,10 @@ void endMove() {
 */
 void logFPS() {
   accumulator -= FPS_INTERVAL;
-  Serial.print("fps ");
-  Serial.print(String(frameCount / (FPS_INTERVAL / 1000)));
-  Serial.print("\t");
-  Serial.println(analogRead(LDR_PIN));
+//  Serial.print("fps ");
+//  Serial.print(String(frameCount / (FPS_INTERVAL / 1000)));
+//  Serial.print("\t");
+//  Serial.println(analogRead(LDR_PIN));
   frameCount = 0;
 }
 
@@ -276,9 +250,6 @@ void parseSerial(String line) {
 //  Serial.print(c);
 //  Serial.print("\t");
 //  Serial.println(content);
-
-  digitalWrite(STATUS_SERIAL_PIN, HIGH);
-  digitalWrite(STATUS_OK_PIN, LOW);
 
   if (c == 'M' || c == 'm') {
     commandMode = CMD_MAGNET;
@@ -320,7 +291,6 @@ void parseSerial(String line) {
     num = content.toInt();
     //Write the magnet to the correct state immediately
     digitalWrite(MAGNET_PIN, num > 0 ? HIGH : LOW);
-    digitalWrite(STATUS_MAGNET_PIN, num > 0 ? HIGH : LOW);
     magnetState = num;
   } else if (commandMode == CMD_TRIM) {
     int iUnderscore1 = content.indexOf('_');
@@ -343,7 +313,6 @@ void parseSerial(String line) {
 void endCommandMode() {
   logReceivedCommand();
   commandMode = CMD_NONE;
-  digitalWrite(STATUS_SERIAL_PIN, LOW);
 }
 
 /**
@@ -382,5 +351,4 @@ void logReceivedCommand() {
 
 void sayOk() {
   Serial.println("OK");
-  digitalWrite(STATUS_OK_PIN, HIGH);
 }
